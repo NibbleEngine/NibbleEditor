@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk"> 
+  
+  
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+	<!--RuntimeIdentifier>linux-x64</RuntimeIdentifier-->
+	<ApplicationIcon />
+    <StartupObject />
+    <BaseOutputPath>..\bin</BaseOutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="$(SolutionDir)Resources\ianm32logo_border.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Resources.Extensions" Version="5.0.0" />
+    <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ShaderFiles Include="$(SolutionDir)Shaders\**\*.glsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+
+
+  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
+    <Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(TargetDir)Shaders" />
+  </Target>
+
+  <!-->Copy Plugins-->
+  <Target Name="CopyPlugins" AfterTargets="AfterBuild">
+    <Message Importance="high" Text="$(TargetFramework)" />
+    <Copy SourceFiles="..\bin\plugins\$(Configuration)\$(TargetFramework)\NibbleNMSPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+  </Target>
+
+  <ItemGroup>
+    <Content Include="..\lib\cimgui\linux-x64\cimgui.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\lib\cimgui\win-x64\cimgui.dll" Condition=" '$(OS)' == 'Windows_NT' ">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Nibble\Nibble.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ImGui.NET">
+      <HintPath>..\lib\ImGui.NET.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  
+</Project>
