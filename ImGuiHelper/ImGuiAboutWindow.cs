@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using NbCore;
 using NbCore.Common;
-using ImGuiNET;
+using ImGuiCore = ImGuiNET.ImGui;
 using NibbleEditor;
 
-namespace ImGuiHelper
+namespace NbCore.UI.ImGui
 {
     public class ImGuiAboutWindow
     {
@@ -25,23 +25,23 @@ namespace ImGuiHelper
 
         private void TextCenter(string text, bool ishyperlink, string url = "")
         {
-            float font_size = ImGui.GetFontSize() * text.Length / 2;
-            ImGui.SameLine(
-                ImGui.GetColumnWidth() / 2 -
+            float font_size = ImGuiCore.GetFontSize() * text.Length / 2;
+            ImGuiCore.SameLine(
+                ImGuiCore.GetColumnWidth() / 2 -
                 font_size + (font_size / 2)
             );
 
-            ImGui.Text(text);
+            ImGuiCore.Text(text);
 
             if (ishyperlink)
             {
-                var min = ImGui.GetItemRectMin();
-                var max = ImGui.GetItemRectMax();
+                var min = ImGuiCore.GetItemRectMin();
+                var max = ImGuiCore.GetItemRectMax();
                 min.Y = max.Y;
 
-                if (ImGui.IsItemHovered())
+                if (ImGuiCore.IsItemHovered())
                 {
-                    if (ImGui.IsMouseClicked(0))
+                    if (ImGuiCore.IsMouseClicked(0))
                     {
 
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url)
@@ -53,11 +53,11 @@ namespace ImGuiHelper
 
 
                     //System.Diagnostics.Process.Start("explorer.exe", new Uri(url).ToString());
-                    ImGui.GetWindowDrawList().AddLine(min, max, 0x0010FFFF);
+                    ImGuiCore.GetWindowDrawList().AddLine(min, max, 0x0010FFFF);
                 }
                 else
                 {
-                    ImGui.GetWindowDrawList().AddLine(min, max, 0xFFFFFFFF);
+                    ImGuiCore.GetWindowDrawList().AddLine(min, max, 0xFFFFFFFF);
                 }
             }
 
@@ -67,17 +67,17 @@ namespace ImGuiHelper
 
         private void Text(string text, bool ishyperlink, string url = "")
         {
-            ImGui.Text(text);
+            ImGuiCore.Text(text);
 
             if (ishyperlink)
             {
-                var min = ImGui.GetItemRectMin();
-                var max = ImGui.GetItemRectMax();
+                var min = ImGuiCore.GetItemRectMin();
+                var max = ImGuiCore.GetItemRectMax();
                 min.Y = max.Y;
 
-                if (ImGui.IsItemHovered())
+                if (ImGuiCore.IsItemHovered())
                 {
-                    if (ImGui.IsMouseClicked(0))
+                    if (ImGuiCore.IsMouseClicked(0))
                     {
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url)
                         {
@@ -86,11 +86,11 @@ namespace ImGuiHelper
                         });
                     }
 
-                    ImGui.GetWindowDrawList().AddLine(min, max, 0x0010FFFF);
+                    ImGuiCore.GetWindowDrawList().AddLine(min, max, 0x0010FFFF);
                 }
                 else
                 {
-                    ImGui.GetWindowDrawList().AddLine(min, max, 0xFFFFFFFF);
+                    ImGuiCore.GetWindowDrawList().AddLine(min, max, 0xFFFFFFFF);
                 }
             }
 
@@ -101,31 +101,34 @@ namespace ImGuiHelper
         {
 
             //Assume that a Popup has begun
-            ImGui.BeginChild("AboutWindow", ImGui.GetContentRegionAvail(),
-                true, ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+            ImGuiCore.BeginChild("AboutWindow", ImGuiCore.GetContentRegionAvail(),
+                true, ImGuiNET.ImGuiWindowFlags.NoDecoration | 
+                      ImGuiNET.ImGuiWindowFlags.NoResize | 
+                      ImGuiNET.ImGuiWindowFlags.NoCollapse);
 
-            ImGui.Image(new IntPtr(tex.texID),
+            ImGuiCore.Image(new IntPtr(tex.texID),
                         new System.Numerics.Vector2(256, 256),
                         new System.Numerics.Vector2(0, 0),
                         new System.Numerics.Vector2(1, 1));
 
-            if (ImGui.BeginChildFrame(0, ImGui.GetContentRegionAvail(), ImGuiWindowFlags.NoBackground))
+            if (ImGuiCore.BeginChildFrame(0, ImGuiCore.GetContentRegionAvail(), 
+                ImGuiNET.ImGuiWindowFlags.NoBackground))
             {
                 TextCenter("No Man's Sky Model Viewer", false);
-                ImGui.NewLine();
+                ImGuiCore.NewLine();
                 TextCenter(Util.getVersion(), false);
-                ImGui.NewLine();
-                ImGui.Columns(2, "Links", false);
+                ImGuiCore.NewLine();
+                ImGuiCore.Columns(2, "Links", false);
                 //Donation link
                 TextCenter("Donate", true, Util.DonateLink);
-                ImGui.NextColumn();
+                ImGuiCore.NextColumn();
                 TextCenter("Github", true, "https://github.com/gregkwaste/NMSMV");
-                ImGui.NewLine();
-                ImGui.Columns(1);
+                ImGuiCore.NewLine();
+                ImGuiCore.Columns(1);
                 TextCenter("Created by gregkwaste", false);
-                ImGui.EndChildFrame();
+                ImGuiCore.EndChildFrame();
             }
-            ImGui.EndChild();
+            ImGuiCore.EndChild();
 
         }
 

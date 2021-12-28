@@ -4,7 +4,6 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using ImGuiNET;
-using ImGuiHelper;
 using OpenTK.Windowing.Common;
 using NbCore;
 using NbCore.Math;
@@ -12,7 +11,7 @@ using NbCore.Common;
 using NbCore.Plugins;
 using NbCore.Utils;
 using System.Collections.Generic;
-using NbCore.Text;
+using NbCore.UI.ImGui;
 using System.IO;
 
 
@@ -49,7 +48,7 @@ namespace NibbleEditor
             new NativeWindowSettings() { Size = new Vector2i(800, 600), APIVersion = new Version(4, 5) })
         {
             //Set Window Title
-            Title = "NMSMV " + Util.getVersion();
+            Title = "Nibble Editor " + Util.getVersion();
 
             //Setup Logger
             Util.loggingSr = new StreamWriter("log.out");

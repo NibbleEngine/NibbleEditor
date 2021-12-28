@@ -3,7 +3,7 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using System;
 using NbCore;
-using ImGuiHelper;
+using NbCore.UI.ImGui;
 
 namespace NibbleEditor
 {

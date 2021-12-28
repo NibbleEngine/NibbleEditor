@@ -47,6 +47,7 @@
   <Target Name="CopyPlugins" AfterTargets="AfterBuild">
     <Message Importance="high" Text="$(TargetFramework)" />
     <Copy SourceFiles="..\bin\plugins\$(Configuration)\$(TargetFramework)\NibbleNMSPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+	<Copy SourceFiles="..\bin\plugins\$(Configuration)\$(TargetFramework)\NibbleOBJPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
   </Target>
 
   <ItemGroup>

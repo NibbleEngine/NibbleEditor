@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ImGuiNET;
+using ImGuiCore = ImGuiNET.ImGui;
 using NbCore.Common;
 using NbCore.Plugins;
 
 
-namespace ImGuiHelper
+namespace NbCore.UI.ImGui
 {
     public class ImGuiSettingsWindow
     {
@@ -24,29 +24,31 @@ namespace ImGuiHelper
         {
 
             //Assume that a Popup has begun
-            ImGui.BeginChild("SettingsWindow", ImGui.GetContentRegionAvail(),
-                true, ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse);
+            ImGuiCore.BeginChild("SettingsWindow", ImGuiCore.GetContentRegionAvail(),
+                true, ImGuiNET.ImGuiWindowFlags.NoDecoration | 
+                      ImGuiNET.ImGuiWindowFlags.NoResize |
+                      ImGuiNET.ImGuiWindowFlags.NoCollapse);
 
             foreach (PluginBase plugin in RenderState.engineRef.Plugins.Values)
             {
-                if (ImGui.CollapsingHeader(plugin.Name + " Settings"))
+                if (ImGuiCore.CollapsingHeader(plugin.Name + " Settings"))
                 {
                     plugin.Settings.Draw();
                 }
             }
 
-            if (ImGui.CollapsingHeader("Engine Settings"))
+            if (ImGuiCore.CollapsingHeader("Engine Settings"))
             {
                 //Render Settings
-                ImGui.BeginGroup();
-                ImGui.TextColored(ImGuiManager.DarkBlue, "Rendering Settings");
-                ImGui.SliderFloat("HDR Exposure", ref RenderState.settings.renderSettings.HDRExposure, 0.001f, 0.5f);
-                ImGui.InputInt("FPS", ref RenderState.settings.renderSettings.FPS);
-                ImGui.Checkbox("Vsync", ref RenderState.settings.renderSettings.UseVSync);
-                ImGui.EndGroup();
+                ImGuiCore.BeginGroup();
+                ImGuiCore.TextColored(ImGuiManager.DarkBlue, "Rendering Settings");
+                ImGuiCore.SliderFloat("HDR Exposure", ref RenderState.settings.renderSettings.HDRExposure, 0.001f, 0.5f);
+                ImGuiCore.InputInt("FPS", ref RenderState.settings.renderSettings.FPS);
+                ImGuiCore.Checkbox("Vsync", ref RenderState.settings.renderSettings.UseVSync);
+                ImGuiCore.EndGroup();
             }
             
-            if (ImGui.Button("Save Settings"))
+            if (ImGuiCore.Button("Save Settings"))
             {
                 Settings.saveToDisk(RenderState.settings);
                 //Save Plugin Settings to Disk
@@ -57,12 +59,12 @@ namespace ImGuiHelper
                 show_save_confirm_dialog = true;
             }
 
-            ImGui.EndChild();
+            ImGuiCore.EndChild();
 
             
             if (show_save_confirm_dialog)
             {
-                ImGui.OpenPopup("Info");
+                ImGuiCore.OpenPopup("Info");
                 show_save_confirm_dialog = false;
             }
             
@@ -72,10 +74,10 @@ namespace ImGuiHelper
                 plugin.Settings.DrawModals();
             }
             
-            if (ImGui.BeginPopupModal("Info"))
+            if (ImGuiCore.BeginPopupModal("Info"))
             {
-                ImGui.Text("Settings Saved Successfully!");
-                ImGui.EndPopup();
+                ImGuiCore.Text("Settings Saved Successfully!");
+                ImGuiCore.EndPopup();
             }
 
         }
