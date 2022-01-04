@@ -89,12 +89,10 @@ namespace NibbleEditor
                 _ImGuiManager.ShowSettingsWindow();
 
             RenderState.settings = Settings.loadFromDisk();
-
+            
             //Pass rendering settings to the Window
             RenderFrequency = RenderState.settings.renderSettings.FPS;
             UpdateFrequency = 60;
-
-            
             
             //Populate GLControl
             SceneGraphNode sceneRoot = engine.CreateSceneNode("SCENE ROOT");
@@ -103,31 +101,21 @@ namespace NibbleEditor
             SceneGraphNode test2 = engine.CreateLocatorNode("Test Locator 2");
             sceneRoot.AddChild(test2);
 
-            //Register Entities
-            engine.RegisterEntity(sceneRoot, true, false);
-            engine.RegisterEntity(test1, true, false);
-            engine.RegisterEntity(test2, true, false);
-
             //Create Render Scene
             Scene scene = engine.CreateScene();
             scene.Name = "DEFAULT_SCENE";
-            scene.AddNode(sceneRoot);
-            scene.SetRoot(sceneRoot);
-            scene.AddNode(test1);
-            scene.AddNode(test2);
-            
             engine.sceneMgmtSys.SetActiveScene(scene);
+            
+            engine.RegisterSceneGraphNode(sceneRoot); //Also registers entities
+            scene.SetRoot(sceneRoot);
 
             //Request tranform update for the added nodes
             engine.transformSys.RequestEntityUpdate(sceneRoot);
             engine.transformSys.RequestEntityUpdate(test1);
             engine.transformSys.RequestEntityUpdate(test2);
 
-            //Force rootobject
-            engine.renderSys.populate(scene);
-
             //Populate SceneGraphView
-            _ImGuiManager.PopulateSceneGraph(scene);
+            _ImGuiManager.PopulateSceneGraph(scene); //Only sets the root node for now
 
             //Check if Temp folder exists
 #if DEBUG
@@ -773,8 +761,8 @@ namespace NibbleEditor
             _ImGuiManager.ProcessModals(this, ref current_file_path, ref IsOpenFileDialogOpen);
 
             //Draw plugin panels and popups
-            //foreach (PluginBase plugin in engine.Plugins.Values)
-            //    plugin.Draw();
+            foreach (PluginBase plugin in engine.Plugins.Values)
+                plugin.Draw();
 
             //Debugging Information
             if (ImGui.Begin("Statistics"))
