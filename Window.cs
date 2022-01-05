@@ -37,7 +37,6 @@ namespace NibbleEditor
         
         //ImGui stuff
         private NbVector2i SceneViewSize = new();
-        private bool isSceneViewActive = false;
         private bool firstDockSetup = true;
         private float scrolly = 0.0f;
         
@@ -611,7 +610,7 @@ namespace NibbleEditor
                                 new System.Numerics.Vector2(0.0f, 1.0f),
                                 new System.Numerics.Vector2(1.0f, 0.0f));
 
-                isSceneViewActive = ImGui.IsItemHovered();
+                engine.SetCaptureInputStatus(ImGui.IsItemHovered());
                 
                 if (csizetk != SceneViewSize)
                 {
@@ -623,6 +622,8 @@ namespace NibbleEditor
                 ImGui.End();
             }
             
+            
+
             
             if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse))
             {
