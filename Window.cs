@@ -94,24 +94,23 @@ namespace NibbleEditor
             UpdateFrequency = 60;
             
             //Populate GLControl
-            SceneGraphNode sceneRoot = engine.CreateSceneNode("SCENE ROOT");
             SceneGraphNode test1 = engine.CreateLocatorNode("Test Locator 1");
-            sceneRoot.AddChild(test1);
             SceneGraphNode test2 = engine.CreateLocatorNode("Test Locator 2");
-            sceneRoot.AddChild(test2);
+            test1.AddChild(test2);
+            SceneGraphNode test3 = engine.CreateLocatorNode("Test Locator 3");
+            test2.AddChild(test3);
 
             //Create Render Scene
             Scene scene = engine.CreateScene();
             scene.Name = "DEFAULT_SCENE";
             engine.sceneMgmtSys.SetActiveScene(scene);
             
-            engine.RegisterSceneGraphNode(sceneRoot); //Also registers entities
-            scene.SetRoot(sceneRoot);
-
+            engine.RegisterSceneGraphNode(test1); //Also registers entities
+            
             //Request tranform update for the added nodes
-            engine.transformSys.RequestEntityUpdate(sceneRoot);
             engine.transformSys.RequestEntityUpdate(test1);
             engine.transformSys.RequestEntityUpdate(test2);
+            engine.transformSys.RequestEntityUpdate(test3);
 
             //Populate SceneGraphView
             _ImGuiManager.PopulateSceneGraph(scene); //Only sets the root node for now
@@ -669,6 +668,11 @@ namespace NibbleEditor
                     //TODO Reset The models pose
                 }
 
+                if (ImGui.Button("Clear Active Scene", new System.Numerics.Vector2(80.0f, 40.0f)))
+                {
+                    engine.GetActiveScene().Clear();
+                }
+                
                 ImGui.End();
             }
             
