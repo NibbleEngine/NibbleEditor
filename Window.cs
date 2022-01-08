@@ -24,10 +24,14 @@ namespace NibbleEditor
 
         //Parameters
         private string current_file_path = Environment.CurrentDirectory;
-        
-        //Mouse Pos
-        private readonly MouseMovementState mouseState = new();
-        
+
+        //Mouse States
+        private NbMouseState currentMouseState = new();
+        private NbMouseState prevMouseState = new();
+
+        //Keyboard State
+        private new NbKeyboardState KeyboardState;
+
         //Engine
         private Engine engine;
 
@@ -40,7 +44,6 @@ namespace NibbleEditor
         private bool firstDockSetup = true;
         private float scrolly = 0.0f;
         
-        static private bool open_file_enabled = false;
         static private bool IsOpenFileDialogOpen = false;
 
         public Window() : base(GameWindowSettings.Default, 
@@ -126,32 +129,74 @@ namespace NibbleEditor
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            if (engine.rt_State == EngineRenderingState.ACTIVE)
-                engine.AddKeyboardState(KeyboardState);
+            //TODO: Make sure all keys are mapped so that we don't need to check everytime
+            if (OpenTKKeyMap.ContainsKey(e.Key))
+            {
+                KeyboardState.SetKeyDownStatus(OpenTKKeyMap[e.Key], true);
+            }
         }
         
         protected override void OnKeyUp(KeyboardKeyEventArgs e)
         {
-            if (engine.rt_State == EngineRenderingState.ACTIVE)
-                engine.AddKeyboardState(KeyboardState);
+            //TODO: Make sure all keys are mapped so that we don't need to check everytime
+            if (OpenTKKeyMap.ContainsKey(e.Key))
+            {
+                KeyboardState.SetKeyDownStatus(OpenTKKeyMap[e.Key], false);
+            }
         }
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
-            if (engine.rt_State == EngineRenderingState.ACTIVE)
-                engine.AddMouseState(MouseState);
+            switch (e.Button)
+            {
+                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Left:
+                    currentMouseState.SetButtonStatus(NbMouseButton.LEFT, true);
+                    break;
+                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Right:
+                    currentMouseState.SetButtonStatus(NbMouseButton.RIGHT, true);
+                    break;
+                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Middle:
+                    currentMouseState.SetButtonStatus(NbMouseButton.MIDDLE, true);
+                    break;
+            }
         }
         
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
-            if (engine.rt_State == EngineRenderingState.ACTIVE)
-                engine.AddMouseState(MouseState);
+            switch (e.Button)
+            {
+                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Left:
+                    currentMouseState.SetButtonStatus(NbMouseButton.LEFT, false);
+                    break;
+                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Right:
+                    currentMouseState.SetButtonStatus(NbMouseButton.RIGHT, false);
+                    break;
+                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Middle:
+                    currentMouseState.SetButtonStatus(NbMouseButton.MIDDLE, false);
+                    break;
+            }
         }
 
         protected override void OnMouseMove(MouseMoveEventArgs e)
         {
-            if (engine.rt_State == EngineRenderingState.ACTIVE)
-                engine.AddMouseState(MouseState);
+            currentMouseState.Position.X = e.X;
+            currentMouseState.Position.Y = e.Y;
+            currentMouseState.PositionDelta.X = e.X - prevMouseState.Position.X;
+            currentMouseState.PositionDelta.Y = e.Y - prevMouseState.Position.Y;
+        }
+
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            currentMouseState.Scroll.X += e.OffsetX;
+            currentMouseState.Scroll.Y += e.OffsetY;
+            //currentMouseState.ScrollDelta.X = e.OffsetX;
+            //currentMouseState.ScrollDelta.Y = e.OffsetY;
+            Callbacks.Log($"Wheel Offset X {e.OffsetX} , " +
+                $"Wheel Offset Y {e.OffsetY}, ",
+                LogVerbosityLevel.INFO);
+            Callbacks.Log($"Scroll X {currentMouseState.Scroll.X} , " +
+                $"Scroll Y {currentMouseState.Scroll.Y}, ",
+                LogVerbosityLevel.INFO);
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -162,9 +207,29 @@ namespace NibbleEditor
             _ImGuiManager.Resize(ClientSize.X, ClientSize.Y);
         }
 
+        
+        private void CloseWindow()
+        {
+            engine.CleanUp();
+            Close();
+        }
+        
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+
+
+            //Send Input
+            _ImGuiManager.SetMouseState(currentMouseState);
+            engine.SetMouseState(currentMouseState);
+            _ImGuiManager.SetKeyboardState(KeyboardState);
+            engine.SetKeyboardState(KeyboardState);
+            
+            prevMouseState = currentMouseState;
+            currentMouseState.PositionDelta.X = 0.0f;
+            currentMouseState.PositionDelta.Y = 0.0f;
+            currentMouseState.Scroll.X = 0.0f;
+            currentMouseState.Scroll.Y = 0.0f;
 
             //Pass Global rendering settings
             VSync = RenderState.settings.renderSettings.UseVSync ? VSyncMode.On : VSyncMode.Off;
@@ -193,8 +258,7 @@ namespace NibbleEditor
             Camera.UpdateCameraDirectionalVectors(RenderState.activeCam);
 
             engine.OnRenderUpdate(e.Time);
-            
-            _ImGuiManager.Update(e.Time, ref scrolly);
+            _ImGuiManager.Update(e.Time);
             
             //Bind Default Framebuffer
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
@@ -287,6 +351,9 @@ namespace NibbleEditor
                             OpenFile(filename, false, 0);
                             req.Status = THREAD_REQUEST_STATUS.FINISHED;
                             break;
+                        case THREAD_REQUEST_TYPE.WINDOW_CLOSE:
+                            CloseWindow();
+                            break;
                         default:
                             break; 
                     }
@@ -294,17 +361,6 @@ namespace NibbleEditor
                 else if (req.Status != THREAD_REQUEST_STATUS.FINISHED)
                     return;
                 
-                //Finalize finished requests
-                switch (req.Type)
-                {
-                    case THREAD_REQUEST_TYPE.WINDOW_LOAD_NMS_ARCHIVES:
-                        open_file_enabled = true;
-                        break;
-                    case THREAD_REQUEST_TYPE.ENGINE_TERMINATE_RENDER:
-                        Close();
-                        break;
-                }
-
                 //At this point the peeked request is finished so its safe to pop it from the queue
                 requestHandler.Fetch(); 
             }
@@ -609,8 +665,10 @@ namespace NibbleEditor
                                 new System.Numerics.Vector2(0.0f, 1.0f),
                                 new System.Numerics.Vector2(1.0f, 0.0f));
 
-                engine.SetCaptureInputStatus(ImGui.IsItemHovered());
-                
+                bool active_status = ImGui.IsItemHovered();
+                currentMouseState.UpdateScene = active_status;
+                KeyboardState.UpdateScene = active_status;
+
                 if (csizetk != SceneViewSize)
                 {
                     SceneViewSize = csizetk;
@@ -621,8 +679,6 @@ namespace NibbleEditor
                 ImGui.End();
             }
             
-            
-
             
             if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse))
             {
@@ -781,6 +837,58 @@ namespace NibbleEditor
 
 
         }
+
+
+        private static readonly Dictionary<OpenTK.Windowing.GraphicsLibraryFramework.Keys, NbKey> OpenTKKeyMap = new()
+        {
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.A, NbKey.A },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.B, NbKey.B },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.C, NbKey.C },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.D, NbKey.D },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.E, NbKey.E },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.F, NbKey.F },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.G, NbKey.G },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.H, NbKey.H },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.I, NbKey.I },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.J, NbKey.J },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.K, NbKey.K },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.L, NbKey.L },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.M, NbKey.M },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.N, NbKey.N },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.O, NbKey.O },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.P, NbKey.P },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Q, NbKey.Q },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.R, NbKey.R },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.S, NbKey.S },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.T, NbKey.T },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.U, NbKey.U },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.V, NbKey.V },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.W, NbKey.W },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.X, NbKey.X },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Y, NbKey.Y },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z, NbKey.Z },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Left, NbKey.LeftArrow },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Right, NbKey.RightArrow },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Up, NbKey.UpArrow },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Down, NbKey.DownArrow },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.LeftAlt, NbKey.LeftAlt },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.RightAlt, NbKey.RightAlt },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.LeftControl, NbKey.LeftCtrl },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.RightControl, NbKey.RightCtrl },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.LeftSuper, NbKey.LeftSuper },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.RightSuper, NbKey.RightSuper },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Backspace, NbKey.Backspace },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Space, NbKey.Space },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Home, NbKey.Home },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.End, NbKey.End },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Insert, NbKey.Insert },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Delete, NbKey.Delete },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.PageUp, NbKey.PageUp },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.PageDown, NbKey.PageDown },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Enter, NbKey.Enter },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape, NbKey.Escape },
+        };
+
         
 
     }
