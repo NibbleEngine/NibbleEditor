@@ -189,14 +189,6 @@ namespace NibbleEditor
         {
             currentMouseState.Scroll.X += e.OffsetX;
             currentMouseState.Scroll.Y += e.OffsetY;
-            //currentMouseState.ScrollDelta.X = e.OffsetX;
-            //currentMouseState.ScrollDelta.Y = e.OffsetY;
-            Callbacks.Log($"Wheel Offset X {e.OffsetX} , " +
-                $"Wheel Offset Y {e.OffsetY}, ",
-                LogVerbosityLevel.INFO);
-            Callbacks.Log($"Scroll X {currentMouseState.Scroll.X} , " +
-                $"Scroll Y {currentMouseState.Scroll.Y}, ",
-                LogVerbosityLevel.INFO);
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -669,7 +661,7 @@ namespace NibbleEditor
                 currentMouseState.UpdateScene = active_status;
                 KeyboardState.UpdateScene = active_status;
 
-                if (csizetk != SceneViewSize)
+                if (csizetk != engine.renderSys.GetViewportSize())
                 {
                     SceneViewSize = csizetk;
                     engine.renderSys.Resize(csizetk.X, csizetk.Y);
@@ -726,7 +718,7 @@ namespace NibbleEditor
 
                 if (ImGui.Button("Clear Active Scene", new System.Numerics.Vector2(80.0f, 40.0f)))
                 {
-                    engine.GetActiveScene().Clear();
+                    engine.sceneMgmtSys.ClearScene(engine.GetActiveScene());
                 }
                 
                 ImGui.End();
