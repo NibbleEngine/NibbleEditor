@@ -103,18 +103,21 @@ namespace NibbleEditor
             SceneGraphNode test3 = engine.CreateLocatorNode("Test Locator 3");
             test2.AddChild(test3);
 
+
+            SceneGraphNode light = engine.CreateLightNode("Default Light", 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
+            NbCore.Systems.TransformationSystem.SetEntityLocation(light, new NbVector3(100.0f, 100.0f, 100.0f));
+            test1.AddChild(light);
+
             //Create Render Scene
             Scene scene = engine.CreateScene();
             scene.Name = "DEFAULT_SCENE";
             engine.sceneMgmtSys.SetActiveScene(scene);
             
             engine.RegisterSceneGraphNode(test1); //Also registers entities
-            
-            //Request tranform update for the added nodes
-            engine.transformSys.RequestEntityUpdate(test1);
-            engine.transformSys.RequestEntityUpdate(test2);
-            engine.transformSys.RequestEntityUpdate(test3);
 
+            //Request tranform update for the added nodes
+            engine.RequestEntityTransformUpdate(test1);
+            
             //Populate SceneGraphView
             _ImGuiManager.PopulateSceneGraph(scene); //Only sets the root node for now
 
@@ -879,6 +882,7 @@ namespace NibbleEditor
             { OpenTK.Windowing.GraphicsLibraryFramework.Keys.PageDown, NbKey.PageDown },
             { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Enter, NbKey.Enter },
             { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape, NbKey.Escape },
+            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.KeyPadEnter, NbKey.KeyPadEnter },
         };
 
         
