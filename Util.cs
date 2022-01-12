@@ -14,10 +14,6 @@ namespace NibbleEditor
 {
     public static class Util
     {
-        public static int VersionMajor = 0;
-        public static int VersionMedium = 91;
-        public static int VersionMinor = 0;
-        
         public static string DonateLink = @"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4365XYBWGTBSU&currency_code=USD&source=url";
         public static readonly Random randgen = new();
         
@@ -30,13 +26,10 @@ namespace NibbleEditor
 
         public static string getVersion()
         {
-            string ver = string.Join(".", new string[] { VersionMajor.ToString(),
-                                           VersionMedium.ToString(),
-                                           VersionMinor.ToString()});
 #if DEBUG
-            return ver + " [DEBUG]";
+            return "v" + Version.AssemblyVersion + " [DEBUG]";
 #else
-            return ver;
+            return "v" + Version.AssemblyVersion;
 #endif
         }
 

@@ -47,7 +47,7 @@ namespace NibbleEditor
         static private bool IsOpenFileDialogOpen = false;
 
         public Window() : base(GameWindowSettings.Default, 
-            new NativeWindowSettings() { Size = new Vector2i(800, 600), APIVersion = new Version(4, 5) })
+            new NativeWindowSettings() { Size = new Vector2i(800, 600), APIVersion = new System.Version(4, 5) })
         {
             //Set Window Title
             Title = "Nibble Editor " + Util.getVersion();

@@ -4,6 +4,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	  <BaseOutputPath>..\Build</BaseOutputPath>
 	  <!--RuntimeIdentifier>linux-x64</RuntimeIdentifier-->
 	  <SelfContained>false</SelfContained>
@@ -17,20 +18,18 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 	<PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="$(SolutionDir)Resources\ianm32logo_border.png" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,8 +52,8 @@
   <!-->Copy Plugins-->
 	<Target Name="CopyPluginsBuild" AfterTargets="AfterBuild">
 		<!-->Message Importance="high" Text="$(TargetFramework)"-->
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\NibbleNMSPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\NibbleOBJPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleNMSPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleOBJPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
 	    <Copy SourceFiles="$(SolutionDir)lib\libMBIN.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\libPSARC.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\zlib.net.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
@@ -62,18 +61,16 @@
 
 	<Target Name="CopyPluginsPublish" AfterTargets="Publish">
 		<!-->Message Importance="high" Text="$(TargetFramework)"-->
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\NibbleNMSPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\NibbleOBJPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleNMSPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleOBJPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\libMBIN.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\libPSARC.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\zlib.net.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 	</Target>
 
-  
-
-  <ItemGroup>
-    <ProjectReference Include="..\Nibble\Nibble.csproj"/>
-  </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\NibbleDLL\NibbleDLL.csproj" />
+	</ItemGroup>
 
   <ItemGroup>
     <Reference Include="ImGui.NET">
