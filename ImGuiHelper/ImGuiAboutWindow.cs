@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NbCore;
+using System.Reflection;
 using NbCore.Common;
 using ImGuiCore = ImGuiNET.ImGui;
 using NibbleEditor;
@@ -17,10 +14,11 @@ namespace NbCore.UI.ImGui
         public ImGuiAboutWindow()
         {
             //Load Logo Texture to the GPU
-            byte[] imgData = Callbacks.getResource("ianm32logo_border.png");
+            byte[] imgData = Callbacks.getResourceFromAssembly(Assembly.GetExecutingAssembly(),
+                "ianm32logo_border.png");
 
             tex = new Texture();
-            tex.textureInit(imgData, "ianm32logo_border.png");
+            tex.textureInit(imgData, ".PNG");
         }
 
         private void TextCenter(string text, bool ishyperlink, string url = "")
@@ -99,11 +97,10 @@ namespace NbCore.UI.ImGui
 
         public void Draw()
         {
-
             //Assume that a Popup has begun
             ImGuiCore.BeginChild("AboutWindow", ImGuiCore.GetContentRegionAvail(),
-                true, ImGuiNET.ImGuiWindowFlags.NoDecoration | 
-                      ImGuiNET.ImGuiWindowFlags.NoResize | 
+                true, ImGuiNET.ImGuiWindowFlags.NoDecoration |
+                      ImGuiNET.ImGuiWindowFlags.NoResize |
                       ImGuiNET.ImGuiWindowFlags.NoCollapse);
 
             ImGuiCore.Image(new IntPtr(tex.texID),
@@ -111,7 +108,7 @@ namespace NbCore.UI.ImGui
                         new System.Numerics.Vector2(0, 0),
                         new System.Numerics.Vector2(1, 1));
 
-            if (ImGuiCore.BeginChildFrame(0, ImGuiCore.GetContentRegionAvail(), 
+            if (ImGuiCore.BeginChildFrame(111, ImGuiCore.GetContentRegionAvail(), 
                 ImGuiNET.ImGuiWindowFlags.NoBackground))
             {
                 TextCenter("No Man's Sky Model Viewer", false);
@@ -128,7 +125,8 @@ namespace NbCore.UI.ImGui
                 TextCenter("Created by gregkwaste", false);
                 ImGuiCore.EndChildFrame();
             }
-            ImGuiCore.EndChild();
+
+            //ImGuiCore.EndChild();
 
         }
 

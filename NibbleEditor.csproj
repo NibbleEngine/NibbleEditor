@@ -4,10 +4,15 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
-	<!--RuntimeIdentifier>linux-x64</RuntimeIdentifier-->
+	  <BaseOutputPath>..\Build</BaseOutputPath>
+	  <!--RuntimeIdentifier>linux-x64</RuntimeIdentifier-->
+	  <SelfContained>false</SelfContained>
+	  <PublishSingleFile>false</PublishSingleFile>
+	  <!--IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract-->
+	  <!--PublishReadyToRun>true</PublishReadyToRun-->
 	<ApplicationIcon />
     <StartupObject />
-    <BaseOutputPath>..\bin</BaseOutputPath>
+    
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -25,30 +30,44 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.Resources.Extensions" Version="5.0.0" />
-    <PackageReference Include="System.Resources.ResourceManager" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ShaderFiles Include="$(SolutionDir)Shaders\**\*.glsl" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
 
+  <ItemGroup>
+		<ShaderFiles Include="$(SolutionDir)Shaders\**\*.glsl" />
+	</ItemGroup>
 
-  <Target Name="CopyCustomContent" AfterTargets="AfterBuild">
-    <Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(TargetDir)Shaders" />
-  </Target>
+	<!-- Copy Shaders to the Build Directory-->
+	<Target Name="CopyCustomContentBuild" AfterTargets="AfterBuild">
+		<Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(TargetDir)Shaders" />
+		<Message Text="Shader files copied successfully." Importance="high" />
+	</Target>
 
+	<!-- Copy Shaders to the Publish Directory-->
+	<Target Name="CopyCustomContentPublish" AfterTargets="Publish">
+		<Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(PublishDir)Shaders" />
+		<Message Text="Shader files copied successfully to publish dir." Importance="high" />
+	</Target>
+	
+	
   <!-->Copy Plugins-->
-  <Target Name="CopyPlugins" AfterTargets="AfterBuild">
-    <Message Importance="high" Text="$(TargetFramework)" />
-    <Copy SourceFiles="..\bin\plugins\$(Configuration)\$(TargetFramework)\NibbleNMSPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-	<Copy SourceFiles="..\bin\plugins\$(Configuration)\$(TargetFramework)\NibbleOBJPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-  </Target>
+	<Target Name="CopyPluginsBuild" AfterTargets="AfterBuild">
+		<!-->Message Importance="high" Text="$(TargetFramework)"-->
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\NibbleNMSPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\NibbleOBJPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+	    <Copy SourceFiles="$(SolutionDir)lib\libMBIN.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)lib\libPSARC.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)lib\zlib.net.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+	</Target>
+
+	<Target Name="CopyPluginsPublish" AfterTargets="Publish">
+		<!-->Message Importance="high" Text="$(TargetFramework)"-->
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\NibbleNMSPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\NibbleOBJPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)lib\libMBIN.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)lib\libPSARC.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)lib\zlib.net.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
+	</Target>
 
   <ItemGroup>
     <Content Include="..\lib\cimgui\linux-x64\cimgui.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
@@ -60,12 +79,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Nibble\Nibble.csproj" />
+    <ProjectReference Include="..\Nibble\Nibble.csproj">
+      <CopyLocal>True</CopyLocal>
+      <CopyLocalSatelliteAssemblies>False</CopyLocalSatelliteAssemblies>
+    </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="ImGui.NET">
       <HintPath>..\lib\ImGui.NET.dll</HintPath>
+      <CopyLocal>True</CopyLocal>
     </Reference>
   </ItemGroup>
   

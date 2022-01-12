@@ -31,6 +31,9 @@ namespace NbCore.UI.ImGui
 
             foreach (PluginBase plugin in RenderState.engineRef.Plugins.Values)
             {
+                if (plugin.Settings == null)
+                    continue;
+                
                 if (ImGuiCore.CollapsingHeader(plugin.Name + " Settings"))
                 {
                     plugin.Settings.Draw();
@@ -71,7 +74,7 @@ namespace NbCore.UI.ImGui
             //Draw Plugin Modals
             foreach (PluginBase plugin in RenderState.engineRef.Plugins.Values)
             {
-                plugin.Settings.DrawModals();
+                plugin.Settings?.DrawModals();
             }
             
             if (ImGuiCore.BeginPopupModal("Info"))

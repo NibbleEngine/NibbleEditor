@@ -87,11 +87,9 @@ namespace NibbleEditor
                 ImGui.EndPopup();
             }
 
-            
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(290, 400), ImGuiCond.Always);
             if (ImGui.BeginPopupModal("show-about", ref isOpen, ImGuiWindowFlags.NoResize))
             {
-
-                ImGuiNative.igSetNextWindowSize(new System.Numerics.Vector2(256 + 36, 256 + 60), ImGuiCond.Appearing);
                 if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.Escape)))
                 {
                     ImGui.CloseCurrentPopup();
@@ -102,10 +100,9 @@ namespace NibbleEditor
                 ImGui.EndPopup();
             }
 
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(600, 400), ImGuiCond.Once);
             if (ImGui.BeginPopupModal("show-settings", ref isOpen))
             {
-
-                ImGuiNative.igSetNextWindowSize(new System.Numerics.Vector2(800, 256 + 60), ImGuiCond.Always);
                 if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.Escape)))
                 {
                     ImGui.CloseCurrentPopup();
