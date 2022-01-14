@@ -50,7 +50,7 @@ namespace NibbleEditor
 
         //SceneGraph Related Methods
 
-        public override void ProcessModals(GameWindow win, ref string current_file_path, ref bool OpenFileDialogFinished)
+        public override void ProcessModals(object ob, ref string current_file_path, ref bool OpenFileDialogFinished)
         {
             //Functionality
 
@@ -77,12 +77,12 @@ namespace NibbleEditor
             ImGui.SetNextWindowSize(winsize);
             if (ImGui.BeginPopupModal("open-file", ref isOpen, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize))
             {
-                var picker = FilePicker.GetFilePicker(win, current_file_path, ".SCENE.MBIN|.SCENE.EXML");
+                var picker = FilePicker.GetFilePicker(ob, current_file_path, ".SCENE.MBIN|.SCENE.EXML");
                 if (picker.Draw(new System.Numerics.Vector2(winsize.X, winsize.Y - 60)))
                 {
                     Console.WriteLine(picker.SelectedFile);
                     current_file_path = picker.CurrentFolder;
-                    FilePicker.RemoveFilePicker(win);
+                    FilePicker.RemoveFilePicker(ob);
                 }
                 ImGui.EndPopup();
             }
