@@ -50,6 +50,7 @@ namespace NibbleEditor
 
         public void OnResize(ResizeEventArgs e)
         {
+            Console.WriteLine("Resizing4444");
             // Tell ImGui of the new size
             _ImGuiManager.Resize(e.Width, e.Height);
             WindowSize = new(e.Width, e.Height);
@@ -70,7 +71,7 @@ namespace NibbleEditor
             //TODO: Move to UI Layer
             _ImGuiManager.SetMouseState(mouseState);
             _ImGuiManager.SetKeyboardState(keyboardState);
-
+            
             RenderState.activeCam.aspect = (float)SceneViewSize.X / SceneViewSize.Y;
             RenderState.activeCam.updateViewMatrix();
 
@@ -78,15 +79,16 @@ namespace NibbleEditor
 
         public override void OnRenderFrameUpdate(ref Queue<object> data, double dt)
         {
-            _ImGuiManager.Update(dt);
-
             //Bind Default Framebuffer
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
             GL.Viewport(0, 0, WindowSize.X, WindowSize.Y);
 
+            _ImGuiManager.Update(dt);
+
             //UI
             DrawUI();
 
+            
             //ImGui.ShowDemoWindow();
             _ImGuiManager.Render();
 

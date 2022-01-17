@@ -58,6 +58,23 @@ namespace NibbleEditor
 
         }
 
+        private void LoadPlugins()
+        {
+            if (!Directory.Exists("Plugins"))
+                return;
+
+            foreach (string filename in Directory.GetFiles("Plugins"))
+            {
+                if (!filename.EndsWith(("dll")))
+                    continue;
+
+                if (!Path.GetFileName(filename).StartsWith(("Nibble")))
+                    continue;
+
+                engine.LoadPlugin(filename);
+            }
+        }
+
         protected override void OnLoad()
         {
             base.OnLoad();
@@ -71,7 +88,9 @@ namespace NibbleEditor
             
             engine.init(Size.X, Size.Y); //Initialize Engine
 
-
+            //Load EnginePlugins
+            LoadPlugins();
+            
             //Initialize Application Layers
             _inputLayer = new(engine);
             _renderLayer = new(engine);
@@ -96,7 +115,9 @@ namespace NibbleEditor
             //Pass rendering settings to the Window
             RenderFrequency = RenderState.settings.renderSettings.FPS;
             UpdateFrequency = 60;
+            VSync = VSyncMode.Off;
             
+
             //Populate GLControl
             SceneGraphNode test1 = engine.CreateLocatorNode("Test Locator 1");
             SceneGraphNode test2 = engine.CreateLocatorNode("Test Locator 2");
@@ -131,6 +152,11 @@ namespace NibbleEditor
 
         }
 
+        protected override void OnResize(ResizeEventArgs e)
+        {
+            base.OnResize(e);
+        }
+
         private void CloseWindow()
         {
             engine.CleanUp();
@@ -146,7 +172,6 @@ namespace NibbleEditor
             _inputLayer.OnFrameUpdate(ref data, e.Time);
             _renderLayer.OnFrameUpdate(ref data, e.Time);
             _uiLayer.OnFrameUpdate(ref data, e.Time);
-            
             
             //Pass Global rendering settings
             VSync = RenderState.settings.renderSettings.UseVSync ? VSyncMode.On : VSyncMode.Off;
@@ -173,32 +198,7 @@ namespace NibbleEditor
             Callbacks.Log("* WINDOW : " + msg, lvl);
         }
 
-        public void findAnimScenes(SceneGraphNode node)
-        {
-            if (node.HasComponent<AnimComponent>())
-            {
-                engine.animationSys.Add(node);
-            }
-
-            foreach (SceneGraphNode child in node.Children)
-                findAnimScenes(child);
-        }
-
-        public void findActionScenes(SceneGraphNode node)
-        {
-            if (node.HasComponent<TriggerActionComponent>())
-            {
-                engine.actionSys.Add(node);
-            }
-            
-            foreach (SceneGraphNode child in node.Children)
-                findActionScenes(child);
-        }
-
-       
         
-        
-
     }
 
 
