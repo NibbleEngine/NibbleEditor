@@ -37,20 +37,21 @@ namespace NibbleEditor
             //Initialize ImGuiManager
             _ImGuiManager = new(win, e);
 
+            EngineRef.NewSceneEvent += new Engine.NewSceneEventHandler(OnNewScene);
+
             //Load Settings
             if (!File.Exists("settings.json"))
                 _ImGuiManager.ShowSettingsWindow();
         }
 
         //Event Handlers
-        public void OnNewScene(Scene s)
+        public void OnNewScene(SceneGraph s)
         {
             _ImGuiManager.PopulateSceneGraph(s);
         }
 
         public void OnResize(ResizeEventArgs e)
         {
-            Console.WriteLine("Resizing4444");
             // Tell ImGui of the new size
             _ImGuiManager.Resize(e.Width, e.Height);
             WindowSize = new(e.Width, e.Height);
@@ -209,9 +210,6 @@ namespace NibbleEditor
             }
 
 
-            Scene new_scene = null;
-            bool import_new_scene = true;
-
             //Main Menu
             if (ImGui.BeginMainMenuBar())
             {
@@ -237,7 +235,7 @@ namespace NibbleEditor
                     if (ImGui.BeginMenu("Export"))
                     {
                         foreach (PluginBase plugin in EngineRef.Plugins.Values)
-                            plugin.DrawExporters(EngineRef.GetActiveScene());
+                            plugin.DrawExporters(EngineRef.GetActiveSceneGraph());
                         ImGui.EndMenu();
                     }
 
@@ -377,7 +375,7 @@ namespace NibbleEditor
 
                 if (ImGui.Button("Clear Active Scene", new System.Numerics.Vector2(80.0f, 40.0f)))
                 {
-                    EngineRef.sceneMgmtSys.ClearScene(EngineRef.GetActiveScene());
+                    EngineRef.ClearActiveSceneGraph();
                 }
 
                 ImGui.End();
@@ -480,6 +478,7 @@ namespace NibbleEditor
             if (ImGui.Begin("Statistics"))
             {
                 ImGui.Text(string.Format("FPS : {0, 3:F1}", RenderStats.fpsCount));
+                ImGui.Text(string.Format("FrameTime : {0, 3:F6}", RenderStats.FrameTime));
                 ImGui.Text(string.Format("VertexCount : {0}", RenderStats.vertNum));
                 ImGui.Text(string.Format("TrisCount : {0}", RenderStats.trisNum));
                 ImGui.End();

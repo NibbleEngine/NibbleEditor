@@ -16,20 +16,21 @@ namespace NibbleEditor
 
         public override void OnFrameUpdate(ref Queue<object> data, double dt)
         {
-            //Update systems
-            EngineRef.transformSys.OnFrameUpdate(dt);
-            EngineRef.sceneMgmtSys.OnFrameUpdate(dt);
+            //Enable Animation System
+            //if (RenderState.settings.renderSettings.ToggleAnimations)
+            EngineRef.animationSys.OnFrameUpdate(dt);
 
+            //Update systems
+            EngineRef.sceneMgmtSys.OnFrameUpdate(dt);
+            EngineRef.transformSys.OnFrameUpdate(dt);
+            
             //Reset Stats
             RenderStats.occludedNum = 0;
 
             //Enable Action System
             if (RenderState.settings.viewSettings.EmulateActions)
                 EngineRef.actionSys.OnFrameUpdate(dt);
-            //Enable Animation System
-            if (RenderState.settings.renderSettings.ToggleAnimations)
-                EngineRef.animationSys.OnFrameUpdate(dt);
-
+            
             //Camera & Light Positions
             //Update common transforms
             
@@ -45,6 +46,7 @@ namespace NibbleEditor
         {
             //Per Frame System Updates
             EngineRef.transformSys.OnRenderUpdate(dt);
+            EngineRef.animationSys.OnRenderUpdate(dt);
             EngineRef.sceneMgmtSys.OnRenderUpdate(dt);
             EngineRef.renderSys.OnRenderUpdate(dt);
         }
