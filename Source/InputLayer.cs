@@ -66,7 +66,7 @@ namespace NibbleEditor
         private NbMouseState prevMouseState = new();
 
         //Keyboard State
-        private new NbKeyboardState KeyboardState;
+        private NbKeyboardState KeyboardState;
 
         //Input
         public BaseGamepadHandler gpHandler;

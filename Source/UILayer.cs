@@ -23,8 +23,7 @@ namespace NibbleEditor
         private NbVector2i SceneViewSize = new();
         private NbVector2i WindowSize = new();
         private bool firstDockSetup = true;
-        private float scrolly = 0.0f;
-
+        
         static private bool IsOpenFileDialogOpen = false;
         private string current_file_path = Environment.CurrentDirectory;
         
@@ -89,7 +88,8 @@ namespace NibbleEditor
             //UI
             DrawUI();
 
-            
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             //ImGui.ShowDemoWindow();
             _ImGuiManager.Render();
 
@@ -141,27 +141,29 @@ namespace NibbleEditor
             ImGuiWindowFlags window_flags = ImGuiWindowFlags.NoBackground |
                                             ImGuiWindowFlags.NoCollapse |
                                             ImGuiWindowFlags.NoResize |
+                                            ImGuiWindowFlags.NoTitleBar |
                                             ImGuiWindowFlags.NoDocking;
 
             ImGuiViewportPtr vp = ImGui.GetMainViewport();
             ImGui.SetNextWindowPos(vp.WorkPos);
             ImGui.SetNextWindowSize(vp.WorkSize);
             ImGui.SetNextWindowViewport(vp.ID);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0.0f);
-
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, new System.Numerics.Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new System.Numerics.Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
+            
             bool keep_window_open = true;
             int statusBarHeight = (int)(1.75f * ImGui.CalcTextSize("Status").Y);
-            ImGui.Begin("MainWindow", ref keep_window_open, window_flags);
-            ImGui.PopStyleVar(2);
+            ImGui.Begin("##MainWindow", ref keep_window_open, window_flags);
 
+            ImGui.PopStyleVar(1);
 
             uint dockSpaceID = ImGui.GetID("MainDockSpace");
             //System.Numerics.Vector2 dockSpaceSize = vp.GetWorkSize();
             System.Numerics.Vector2 dockSpaceSize = new(0.0f, -statusBarHeight);
             ImGui.DockSpace(dockSpaceID, dockSpaceSize, dockspace_flags);
 
+            
 
             unsafe
             {

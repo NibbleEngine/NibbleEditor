@@ -13,8 +13,7 @@ namespace NbCore.UI.ImGui
     public class ImGuiSettingsWindow
     {
         private bool show_save_confirm_dialog = false;
-        private FilePicker activePicker;
-
+        
         public ImGuiSettingsWindow()
         {
 
