@@ -93,6 +93,13 @@ namespace NibbleEditor
             //ImGui.ShowDemoWindow();
             _ImGuiManager.Render();
 
+            // Update and Render additional Platform Windows
+            if (ImGui.GetIO().ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable))
+            {
+                ImGui.UpdatePlatformWindows();
+                ImGui.RenderPlatformWindowsDefault();
+            }
+
             //ImGuiUtil.CheckGLError("End of frame");
 
         }
@@ -305,7 +312,7 @@ namespace NibbleEditor
 
             //Cause of ImguiNET that does not yet support DockBuilder. The main Viewport will be docked to the main window.
             //All other windows will be separate.
-            if (ImGui.Begin("Scene", ref scene_view, ImGuiWindowFlags.NoScrollbar))
+            if (ImGui.Begin("Scene", ref scene_view, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 //Update RenderSize
                 System.Numerics.Vector2 csize = ImGui.GetContentRegionAvail();
@@ -331,13 +338,15 @@ namespace NibbleEditor
             }
 
 
-            if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 _ImGuiManager.DrawSceneGraph();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Node Editor", ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin("Node Editor", ImGuiWindowFlags.NoCollapse | 
+                                           ImGuiWindowFlags.NoScrollbar | 
+                                           ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 _ImGuiManager.DrawObjectInfoViewer();
                 ImGui.End();
