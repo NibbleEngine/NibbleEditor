@@ -33,9 +33,10 @@ namespace NibbleEditor
 
         public UILayer(Window win, Engine e) : base(e)
         {
+            Name = "UI Layer";
+            
             //Initialize ImGuiManager
             _ImGuiManager = new(win, e);
-
             EngineRef.NewSceneEvent += new Engine.NewSceneEventHandler(OnNewScene);
 
             //Load Settings
@@ -72,7 +73,6 @@ namespace NibbleEditor
             _ImGuiManager.SetMouseState(mouseState);
             _ImGuiManager.SetKeyboardState(keyboardState);
             
-            RenderState.activeCam.aspect = (float)SceneViewSize.X / SceneViewSize.Y;
             RenderState.activeCam.updateViewMatrix();
 
         }
@@ -87,7 +87,6 @@ namespace NibbleEditor
 
             //UI
             DrawUI();
-
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             //ImGui.ShowDemoWindow();
@@ -155,6 +154,7 @@ namespace NibbleEditor
             ImGui.SetNextWindowPos(vp.WorkPos);
             ImGui.SetNextWindowSize(vp.WorkSize);
             ImGui.SetNextWindowViewport(vp.ID);
+            
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, new System.Numerics.Vector2(0.0f, 0.0f));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new System.Numerics.Vector2(0.0f, 0.0f));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
@@ -171,7 +171,6 @@ namespace NibbleEditor
             ImGui.DockSpace(dockSpaceID, dockSpaceSize, dockspace_flags);
 
             
-
             unsafe
             {
                 if (firstDockSetup)
@@ -282,7 +281,6 @@ namespace NibbleEditor
 
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
 
-
             if (ImGui.Begin("StatusBar", ImGuiWindowFlags.NoMove |
                                          ImGuiWindowFlags.NoDocking |
                                          ImGuiWindowFlags.NoDecoration))
@@ -301,7 +299,7 @@ namespace NibbleEditor
             }
             ImGui.PopStyleVar();
 
-            ImGui.End();
+            ImGui.End(); //End of main Window
 
             ImGui.SetCursorPosX(0.0f);
 
@@ -312,7 +310,7 @@ namespace NibbleEditor
 
             //Cause of ImguiNET that does not yet support DockBuilder. The main Viewport will be docked to the main window.
             //All other windows will be separate.
-            if (ImGui.Begin("Scene", ref scene_view, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoBringToFrontOnFocus))
+            if (ImGui.Begin("Scene", ref scene_view, ImGuiWindowFlags.NoScrollbar))
             {
                 //Update RenderSize
                 System.Numerics.Vector2 csize = ImGui.GetContentRegionAvail();
@@ -333,12 +331,12 @@ namespace NibbleEditor
                     EngineRef.renderSys.Resize(csizetk.X, csizetk.Y);
                 }
 
-                ImGui.PopStyleVar();
                 ImGui.End();
             }
 
+            ImGui.PopStyleVar();
 
-            if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoBringToFrontOnFocus))
+            if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse))
             {
                 _ImGuiManager.DrawSceneGraph();
                 ImGui.End();
@@ -406,11 +404,11 @@ namespace NibbleEditor
                 //Camera Settings
                 ImGui.BeginGroup();
                 ImGui.TextColored(ImGuiManager.DarkBlue, "Camera Settings");
-                ImGui.SliderFloat("FOV", ref RenderState.activeCam.fov, 15.0f, 100.0f);
-                ImGui.SliderFloat("Sensitivity", ref RenderState.activeCam.Sensitivity, 0.1f, 10.0f);
-                ImGui.InputFloat("MovementSpeed", ref RenderState.activeCam.Speed, 1.0f, 500000.0f);
-                ImGui.SliderFloat("zNear", ref RenderState.activeCam.zNear, 0.01f, 1.0f);
-                ImGui.SliderFloat("zFar", ref RenderState.activeCam.zFar, 101.0f, 30000.0f);
+                ImGui.SliderInt("FOV", ref RenderState.settings.camSettings.FOV, 15, 100);
+                ImGui.SliderFloat("Sensitivity", ref RenderState.settings.camSettings.Sensitivity, 0.01f, 2.0f);
+                ImGui.InputFloat("MovementSpeed", ref RenderState.settings.camSettings.Speed, 1.0f, 500000.0f);
+                ImGui.SliderFloat("zNear", ref RenderState.settings.camSettings.zNear, 0.01f, 1.0f);
+                ImGui.SliderFloat("zFar", ref RenderState.settings.camSettings.zFar, 101.0f, 100000.0f);
 
                 if (ImGui.Button("Reset Camera"))
                 {
@@ -478,6 +476,8 @@ namespace NibbleEditor
 
                 ImGui.End();
             }
+
+            
 
             _ImGuiManager.ProcessModals(this, ref current_file_path, ref IsOpenFileDialogOpen);
 

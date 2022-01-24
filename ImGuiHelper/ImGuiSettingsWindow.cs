@@ -42,21 +42,19 @@ namespace NbCore.UI.ImGui
             if (ImGuiCore.CollapsingHeader("Engine Settings"))
             {
                 //Render Settings
-                ImGuiCore.BeginGroup();
                 ImGuiCore.TextColored(ImGuiManager.DarkBlue, "Rendering Settings");
                 ImGuiCore.SliderFloat("HDR Exposure", ref RenderState.settings.renderSettings.HDRExposure, 0.001f, 0.5f);
                 ImGuiCore.InputInt("FPS", ref RenderState.settings.renderSettings.FPS);
                 ImGuiCore.Checkbox("Vsync", ref RenderState.settings.renderSettings.UseVSync);
-                ImGuiCore.EndGroup();
             }
-            
+
             if (ImGuiCore.Button("Save Settings"))
             {
                 Settings.saveToDisk(RenderState.settings);
                 //Save Plugin Settings to Disk
                 foreach (PluginBase plugin in RenderState.engineRef.Plugins.Values)
                 {
-                    plugin.Settings.SaveToFile();
+                    plugin.Settings?.SaveToFile();
                 }
                 show_save_confirm_dialog = true;
             }
