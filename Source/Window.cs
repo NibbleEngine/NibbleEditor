@@ -196,8 +196,6 @@ namespace NibbleEditor
             _renderLayer.OnRenderFrameUpdate(ref data, e.Time);
             _uiLayer.OnRenderFrameUpdate(ref data, e.Time);
 
-            RenderStats.fpsCount = 1.0f / (float)e.Time;
-            RenderStats.FrameTime = (float) e.Time;
             SwapBuffers();
         }
 
@@ -547,8 +545,12 @@ namespace NibbleEditor
             mat.add_flag(MaterialFlagEnum._F21_VERTEXCOLOUR);
             NbUniform uf = new()
             {
-                ID = 0,
                 Name = "gMaterialColourVec4",
+                State = new()
+                {
+                    Type = NbUniformType.Vector4,
+                    ShaderBinding = "mpCustomPerMaterial.uniforms[0]",
+                },
                 Values = new(1.0f, 1.0f, 1.0f, 1.0f)
             };
             mat.Uniforms.Add(uf);
@@ -571,8 +573,12 @@ namespace NibbleEditor
 
             uf = new()
             {
-                ID = 0,
                 Name = "gMaterialColourVec4",
+                State = new()
+                {
+                    Type = NbUniformType.Vector4,
+                    ShaderBinding = "mpCustomPerMaterial.uniforms[0]",
+                },
                 Values = new(1.0f, 0.0f, 0.0f, 1.0f)
             };
 
@@ -593,8 +599,12 @@ namespace NibbleEditor
 
             uf = new()
             {
-                ID = 0,
                 Name = "gMaterialColourVec4",
+                State = new()
+                {
+                    Type = NbUniformType.Vector4,
+                    ShaderBinding = "mpCustomPerMaterial.uniforms[0]",
+                },
                 Values = new(1.0f, 1.0f, 0.0f, 1.0f)
             };
 
@@ -616,8 +626,12 @@ namespace NibbleEditor
 
             uf = new()
             {
-                ID = 0,
                 Name = "gMaterialColourVec4",
+                State = new()
+                {
+                    Type = NbUniformType.Vector4,
+                    ShaderBinding = "mpCustomPerMaterial.uniforms[0]",
+                },
                 Values = new(0.7f, 0.7f, 0.7f, 1.0f)
             };
 
@@ -637,8 +651,12 @@ namespace NibbleEditor
 
             uf = new()
             {
-                ID = 0,
                 Name = "gMaterialColourVec4",
+                State = new()
+                {
+                    Type = NbUniformType.Vector4,
+                    ShaderBinding = "mpCustomPerMaterial.uniforms[0]",
+                },
                 Values = new(0.7f, 0.7f, 0.7f, 1.0f)
             };
 
@@ -657,8 +675,12 @@ namespace NibbleEditor
 
             uf = new()
             {
-                ID = 0,
                 Name = "gMaterialColourVec4",
+                State = new()
+                {
+                    Type = NbUniformType.Vector4,
+                    ShaderBinding = "mpCustomPerMaterial.uniforms[0]",
+                },
                 Values = new(0.8f, 0.8f, 0.2f, 1.0f)
             };
 

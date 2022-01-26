@@ -24,9 +24,6 @@ namespace NibbleEditor
             EngineRef.sceneMgmtSys.OnFrameUpdate(dt);
             EngineRef.transformSys.OnFrameUpdate(dt);
             
-            //Reset Stats
-            RenderStats.occludedNum = 0;
-
             //Enable Action System
             if (RenderState.settings.viewSettings.EmulateActions)
                 EngineRef.actionSys.OnFrameUpdate(dt);

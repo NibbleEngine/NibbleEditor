@@ -304,13 +304,12 @@ namespace NibbleEditor
             ImGui.SetCursorPosX(0.0f);
 
             //Scene Render
-            bool scene_view = true;
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new System.Numerics.Vector2(0.0f, 0.0f));
 
             //Cause of ImguiNET that does not yet support DockBuilder. The main Viewport will be docked to the main window.
             //All other windows will be separate.
-            if (ImGui.Begin("Scene", ref scene_view, ImGuiWindowFlags.NoScrollbar))
+            if (ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar))
             {
                 //Update RenderSize
                 System.Numerics.Vector2 csize = ImGui.GetContentRegionAvail();
@@ -336,39 +335,43 @@ namespace NibbleEditor
 
             ImGui.PopStyleVar();
 
-            if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse |
+                                          ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 _ImGuiManager.DrawSceneGraph();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Node Editor", ImGuiWindowFlags.NoCollapse | 
-                                           ImGuiWindowFlags.NoScrollbar | 
+            if (ImGui.Begin("Node Editor", ImGuiWindowFlags.NoCollapse |
                                            ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 _ImGuiManager.DrawObjectInfoViewer();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Material Editor", ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin("Material Editor", ImGuiWindowFlags.NoCollapse |
+                                               ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 _ImGuiManager.DrawMaterialEditor();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Shader Editor", ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin("Shader Editor", ImGuiWindowFlags.NoCollapse |
+                                             ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 _ImGuiManager.DrawShaderEditor();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Texture Editor", ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin("Texture Editor", ImGuiWindowFlags.NoCollapse |
+                                              ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 _ImGuiManager.DrawTextureEditor();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Tools", ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin("Tools", ImGuiWindowFlags.NoCollapse |
+                                     ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 if (ImGui.Button("ProcGen", new System.Numerics.Vector2(80.0f, 40.0f)))
                 {
@@ -387,6 +390,11 @@ namespace NibbleEditor
                     EngineRef.ClearActiveSceneGraph();
                 }
 
+                if (ImGui.Button("Create Texture Mixer Scene", new System.Numerics.Vector2(80.0f, 40.0f)))
+                {
+                    AddTextureMixerScene();
+                }
+
                 ImGui.End();
             }
 
@@ -399,7 +407,8 @@ namespace NibbleEditor
                 ImGui.End();
             }
 #endif
-            if (ImGui.Begin("Camera", ImGuiWindowFlags.NoCollapse))
+            bool isopen = false;
+            if (ImGui.Begin("Camera", ref isopen, ImGuiWindowFlags.NoCollapse))
             {
                 //Camera Settings
                 ImGui.BeginGroup();
@@ -488,16 +497,122 @@ namespace NibbleEditor
             //Debugging Information
             if (ImGui.Begin("Statistics"))
             {
-                ImGui.Text(string.Format("FPS : {0, 3:F1}", RenderStats.fpsCount));
-                ImGui.Text(string.Format("FrameTime : {0, 3:F6}", RenderStats.FrameTime));
-                ImGui.Text(string.Format("VertexCount : {0}", RenderStats.vertNum));
-                ImGui.Text(string.Format("TrisCount : {0}", RenderStats.trisNum));
+                ImGui.Text(string.Format("FPS : {0, 3:F1}", 1.0f / EngineRef.renderSys.frameStats.Frametime));
+                ImGui.Text(string.Format("FrameTime : {0, 3:F6}", EngineRef.renderSys.frameStats.Frametime));
+                ImGui.Text(string.Format("VertexCount : {0}", EngineRef.renderSys.frameStats.RenderedVerts));
+                ImGui.Text(string.Format("TrisCount : {0}", EngineRef.renderSys.frameStats.RenderedIndices / 3));
                 ImGui.End();
             }
 
 
-
         }
+
+
+        public void AddTextureMixerScene()
+        {
+            //Create Shader Configuration
+            GLSLShaderConfig conf;
+            conf = EngineRef.CreateShaderConfig(EngineRef.GetShaderSourceByFilePath("Shaders/Simple_VSEmpty.glsl"),
+                                      EngineRef.GetShaderSourceByFilePath("Shaders/texture_mixer_FS.glsl"),
+                                      null, null, null,
+                                      new() { }, NbShaderMode.DEFFERED, "TextureMixerConfig");
+            EngineRef.RegisterEntity(conf);
+
+
+            //Create Material
+            MeshMaterial mat = new();
+            mat.Name = "mixMaterial";
+            NbUniform uf = new()
+            {
+                Name = "UseAlphaTextures",
+                State = new()
+                {
+                    Type = NbUniformType.Float,
+                    ShaderBinding = "use_alpha_textures",
+                },
+                Values = new(1.0f, 1.0f, 1.0f, 1.0f)
+            };
+            mat.Uniforms.Add(uf);
+            uf = new()
+            {
+                Name = "UseLayer0",
+                State = new()
+                {
+                    Type = NbUniformType.Float,
+                    ShaderBinding = "lbaseLayersUsed[0]",
+                },
+                Values = new(1.0f, 0.0f, 0.0f, 0.0f)
+            };
+            mat.Uniforms.Add(uf);
+            uf = new()
+            {
+                Name = "UseLayer1",
+                State = new()
+                {
+                    Type = NbUniformType.Float,
+                    ShaderBinding = "lbaseLayersUsed[1]",
+                },
+                Values = new(1.0f, 0.0f, 0.0f, 0.0f)
+            };
+            mat.Uniforms.Add(uf);
+            uf = new()
+            {
+                Name = "Recolor0",
+                State = new()
+                {
+                    Type = NbUniformType.Vector4,
+                    ShaderBinding = "lRecolours[0]",
+                },
+                Values = new(1.0f, 0.0f, 0.0f, 0.5f)
+            };
+            mat.Uniforms.Add(uf);
+            uf = new()
+            {
+                Name = "Recolor1",
+                State = new()
+                {
+                    Type = NbUniformType.Vector4,
+                    ShaderBinding = "lRecolours[1]",
+                },
+                Values = new(1.0f, 1.0f, 0.0f, 0.5f)
+            };
+            mat.Uniforms.Add(uf);
+            mat.ShaderConfig = conf;
+
+            //Compile Shader
+            EngineRef.CompileMaterialShader(mat);
+            
+            //Register material
+            EngineRef.RegisterEntity(mat);
+
+            //Add Quad
+            //Create Mesh
+            NbCore.Primitives.Quad q = new(1.0f, 1.0f);
+
+            NbMeshData md = q.geom.GetData();
+            NbMeshMetaData mmd = q.geom.GetMetaData();
+            q.Dispose();
+
+            NbMesh nm = new()
+            {
+                Hash = (ulong)mmd.GetHashCode(),
+                MetaData = mmd,
+                Data = md,
+                Material = EngineRef.GetMaterialByName("mixMaterial")
+            };
+
+            //Create and register locator node
+            SceneGraphNode new_node = EngineRef.CreateMeshNode("Quad#1", nm);
+
+            //Register new locator node to engine
+            EngineRef.RegisterEntity(new_node);
+
+            //Set parent
+            new_node.SetParent(EngineRef.GetActiveSceneGraph().Root);
+            EngineRef.transformSys.RequestEntityUpdate(new_node);
+        }
+
+
 
 
 
