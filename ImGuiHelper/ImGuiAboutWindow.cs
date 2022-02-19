@@ -9,7 +9,7 @@ namespace NbCore.UI.ImGui
 {
     public class ImGuiAboutWindow
     {
-        Texture tex;
+        NbTexture tex;
 
         public ImGuiAboutWindow()
         {
@@ -17,8 +17,9 @@ namespace NbCore.UI.ImGui
             byte[] imgData = Callbacks.getResourceFromAssembly(Assembly.GetExecutingAssembly(),
                 "ianm32logo_border.png");
 
-            tex = new Texture();
+            tex = new NbTexture();
             tex.textureInit(imgData, ".PNG");
+            tex.Data = null;
         }
 
         private void TextCenter(string text, bool ishyperlink, string url = "")
