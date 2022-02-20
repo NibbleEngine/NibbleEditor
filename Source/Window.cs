@@ -142,7 +142,7 @@ namespace NibbleEditor
             test1.AddChild(light);
 
             //Request tranform update for the added nodes
-            engine.RegisterSceneGraphNode(test1);
+            engine.RegisterEntity(test1);
             engine.RequestEntityTransformUpdate(test1);
 
             graph.AddNode(test1);
@@ -445,37 +445,37 @@ namespace NibbleEditor
             {
                 Type = NbShaderType.LIGHT_PASS_LIT_SHADER
             };
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //GAUSSIAN HORIZONTAL BLUR SHADER
             shader_conf = engine.GetShaderConfigByName("Horizontal_Gaussian_Blur");
             shader = new();
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //GAUSSIAN VERTICAL BLUR SHADER
             shader_conf = engine.GetShaderConfigByName("Vertical_Gaussian_Blur");
             shader = new();
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //BRIGHTNESS EXTRACTION SHADER
             shader_conf = engine.GetShaderConfigByName("Brightness_Extract");
             shader = new();
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //ADDITIVE BLEND
             shader_conf = engine.GetShaderConfigByName("Additive_Blend");
             shader = new();
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //FXAA
             shader_conf = engine.GetShaderConfigByName("FXAA");
             shader = new();
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //TONE MAPPING + GAMMA CORRECTION
@@ -484,7 +484,7 @@ namespace NibbleEditor
             {
                 Type = NbShaderType.TONE_MAPPING
             };
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //INV TONE MAPPING + GAMMA CORRECTION
@@ -493,19 +493,19 @@ namespace NibbleEditor
             {
                 Type = NbShaderType.INV_TONE_MAPPING
             };
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //BWOIT SHADER
             shader_conf = engine.GetShaderConfigByName("BWOIT");
             shader = new();
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //Text Shaders
             shader_conf = engine.GetShaderConfigByName("Text");
             shader = new();
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //FILTERS - EFFECTS
@@ -516,7 +516,7 @@ namespace NibbleEditor
             {
                 Type = NbShaderType.PASSTHROUGH_SHADER
             };
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //Red Shader
@@ -525,7 +525,7 @@ namespace NibbleEditor
             {
                 Type = NbShaderType.RED_FILL_SHADER
             };
-            engine.renderSys.Renderer.CompileShader(ref shader, shader_conf);
+            NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
         }
