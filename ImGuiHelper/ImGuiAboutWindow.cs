@@ -1,5 +1,4 @@
 ﻿using System;
-using NbCore;
 using System.Reflection;
 using NbCore.Common;
 using ImGuiCore = ImGuiNET.ImGui;
@@ -16,12 +15,13 @@ namespace NbCore.UI.ImGui
             //Load Logo Texture to the GPU
             byte[] imgData = Callbacks.getResourceFromAssembly(Assembly.GetExecutingAssembly(),
                 "ianm32logo_border.png");
-
-            tex = new NbTexture();
-            tex.textureInit(imgData, ".PNG");
+            
+            tex = new NbTexture("ianm32logo_border.png", imgData);
+            Platform.Graphics.GraphicsAPI.GenerateTexture(tex);
+            Platform.Graphics.GraphicsAPI.UploadTexture(tex);
             tex.Data = null;
         }
-
+        
         private void TextCenter(string text, bool ishyperlink, string url = "")
         {
             float font_size = ImGuiCore.GetFontSize() * text.Length / 2;

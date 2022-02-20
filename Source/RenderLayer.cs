@@ -27,10 +27,13 @@ namespace NibbleEditor
             //Enable Action System
             if (RenderState.settings.viewSettings.EmulateActions)
                 EngineRef.actionSys.OnFrameUpdate(dt);
-            
+
+            //Post FrameUpdate Actions
+            EngineRef.animationSys.OnPostFrameUpdate();
+
             //Camera & Light Positions
             //Update common transforms
-            
+
             //Apply extra viewport rotation
             NbMatrix4 Rotx = NbMatrix4.CreateRotationX(MathUtils.radians(RenderState.rotAngles.X));
             NbMatrix4 Roty = NbMatrix4.CreateRotationY(MathUtils.radians(RenderState.rotAngles.Y));
@@ -45,6 +48,8 @@ namespace NibbleEditor
             EngineRef.transformSys.OnRenderUpdate(dt);
             EngineRef.animationSys.OnRenderUpdate(dt);
             EngineRef.sceneMgmtSys.OnRenderUpdate(dt);
+
+            //Rendering
             EngineRef.renderSys.OnRenderUpdate(dt);
         }
 
