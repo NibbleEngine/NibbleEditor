@@ -32,7 +32,6 @@ namespace NibbleEditor
         private UILayer _uiLayer;
 
         
-        
         public Window() : base(GameWindowSettings.Default, 
             new NativeWindowSettings() { Size = new Vector2i(800, 600), APIVersion = new System.Version(4, 5) })
         {
@@ -52,8 +51,6 @@ namespace NibbleEditor
 
             //Start worker thread
             workDispatcher.Start();
-
-
         }
 
         private void LoadPlugins()
@@ -113,6 +110,7 @@ namespace NibbleEditor
             MouseWheel += _inputLayer.OnMouseWheel;
             _uiLayer.CaptureInput += _inputLayer.OnCaptureInputChanged;
             _uiLayer.CloseWindowEvent += CloseWindow;
+            _uiLayer.SaveActiveSceneEvent += SaveActiveScene;
 
             TextInput += _uiLayer.OnTextInput;
             Resize += _uiLayer.OnResize;
@@ -157,6 +155,12 @@ namespace NibbleEditor
             //Set active Components
             Util.activeWindow = this;
 
+        }
+
+        private void SaveActiveScene()
+        {
+            SceneGraph g = engine.GetActiveSceneGraph();
+            g.Export("scene_output.nb");
         }
 
         protected override void OnResize(ResizeEventArgs e)

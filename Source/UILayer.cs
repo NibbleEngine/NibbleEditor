@@ -14,6 +14,7 @@ namespace NibbleEditor
 {
     public delegate void CloseWindowEventHandler();
     public delegate void CaptureInputHandler(bool state);
+    public delegate void SaveActiveSceneHandler();
 
     public class UILayer : ApplicationLayer
     {
@@ -23,13 +24,16 @@ namespace NibbleEditor
         private NbVector2i SceneViewSize = new();
         private NbVector2i WindowSize = new();
         private bool firstDockSetup = true;
-        
+        private NbKeyboardState keyboardState;
+        private NbMouseState mouseState;
+
         static private bool IsOpenFileDialogOpen = false;
         private string current_file_path = Environment.CurrentDirectory;
         
         //Events
         public event CloseWindowEventHandler CloseWindowEvent;
         public event CaptureInputHandler CaptureInput;
+        public event SaveActiveSceneHandler SaveActiveSceneEvent;
 
         public UILayer(Window win, Engine e) : base(e)
         {
@@ -65,11 +69,10 @@ namespace NibbleEditor
         public override void OnFrameUpdate(ref Queue<object> data, double dt)
         {
             //Fetch state from data
-            NbMouseState mouseState = (NbMouseState) data.Dequeue();
-            NbKeyboardState keyboardState = (NbKeyboardState) data.Dequeue();
-
+            mouseState = (NbMouseState) data.Dequeue();
+            keyboardState = (NbKeyboardState) data.Dequeue();
+            
             //Send Input
-            //TODO: Move to UI Layer
             _ImGuiManager.SetMouseState(mouseState);
             _ImGuiManager.SetKeyboardState(keyboardState);
             
@@ -223,14 +226,20 @@ namespace NibbleEditor
             {
                 if (ImGui.BeginMenu("File"))
                 {
-                    if (ImGui.MenuItem("New", "Ctrl + N"))
+                    if (ImGui.MenuItem("New"))
                     {
                         Log("Create new scene not implemented yet", LogVerbosityLevel.INFO);
                     }
 
-                    if (ImGui.MenuItem("Open", "Ctrl + O"))
+                    if (ImGui.MenuItem("Open"))
                     {
                         Log("Open scene not implemented yet", LogVerbosityLevel.INFO);
+                    }
+
+                    if (ImGui.MenuItem("Save"))
+                    {
+                        Log("Saving Scene", LogVerbosityLevel.INFO);
+                        SaveActiveSceneEvent.Invoke();
                     }
 
                     if (ImGui.BeginMenu("Import"))
@@ -258,7 +267,7 @@ namespace NibbleEditor
                         ThreadRequest req = new();
                         req.Type = THREAD_REQUEST_TYPE.ENGINE_TERMINATE_RENDER;
                         EngineRef.SendRequest(ref req);
-
+                        
                         CloseWindowEvent?.Invoke();
                     }
 
