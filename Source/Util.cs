@@ -20,10 +20,6 @@ namespace NibbleEditor
         //Current GLControl Handle
         public static OpenTK.Windowing.Desktop.NativeWindow activeWindow;
         
-        //Public LogFile
-        public static StreamWriter loggingSr;
-        
-
         public static string getVersion()
         {
 #if DEBUG
@@ -55,22 +51,10 @@ namespace NibbleEditor
             }
         }
 
-        //Generic Procedures - File Loading
-        
-        public static void Log(string msg, LogVerbosityLevel lvl)
-        {
-            if (lvl >= RenderState.settings.LogVerbosity)
-            {
-                Console.WriteLine(msg);
-                loggingSr.WriteLine(msg);
-                loggingSr.Flush();
-            }
-        }
-
         public static void Assert(bool status, string msg)
         {
             if (!status)
-                Callbacks.Log(msg, LogVerbosityLevel.ERROR);
+                Callbacks.Logger.Log(Assembly.GetCallingAssembly(), msg, LogVerbosityLevel.ERROR);
             System.Diagnostics.Trace.Assert(status);
         }
     

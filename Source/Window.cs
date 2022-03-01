@@ -38,15 +38,12 @@ namespace NibbleEditor
             //Set Window Title
             Title = "Nibble Editor " + Util.getVersion();
 
-            //Setup Logger
-            Util.loggingSr = new StreamWriter("log.out");
-
             //SETUP THE Callbacks FOR THE NbCore ENVIRONMENT
             Callbacks.SetDefaultCallbacks();
             Callbacks.updateStatus = Util.setStatus;
             Callbacks.showInfo = Util.showInfo;
             Callbacks.showError = Util.showError;
-            Callbacks.Log = Util.Log;
+            Callbacks.Logger = new NbLogger();
             Callbacks.Assert = Util.Assert;
 
             //Start worker thread
@@ -114,6 +111,7 @@ namespace NibbleEditor
 
             TextInput += _uiLayer.OnTextInput;
             Resize += _uiLayer.OnResize;
+            Callbacks.Logger.LogEvent += _uiLayer.OnLog;
 
             RenderState.settings = Settings.loadFromDisk();
             
@@ -203,11 +201,6 @@ namespace NibbleEditor
             SwapBuffers();
         }
 
-        private static void Log(string msg, LogVerbosityLevel lvl)
-        {
-            Callbacks.Log("* WINDOW : " + msg, lvl);
-        }
-
         #region ResourceManager
 
         private void SetupDefaultCamera()
@@ -254,7 +247,7 @@ namespace NibbleEditor
                         //Convert filepath to single 
                         string filepath = FileUtils.FixPath(file.FullName);
                         //Add source file
-                        Log($"Working On {filepath}", LogVerbosityLevel.INFO);
+                        Callbacks.Logger.Log(this, $"Working On {filepath}", LogVerbosityLevel.INFO);
                         if (engine.GetShaderSourceByFilePath(filepath) == null)
                         {
                             //Construction includes registration

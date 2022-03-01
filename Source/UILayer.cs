@@ -66,6 +66,11 @@ namespace NibbleEditor
             _ImGuiManager.SendChar((char)e.Unicode);
         }
 
+        public void OnLog(LogElement msg)
+        {
+            _ImGuiManager.Log(msg);
+        }
+        
         public override void OnFrameUpdate(ref Queue<object> data, double dt)
         {
             //Fetch state from data
@@ -205,6 +210,7 @@ namespace NibbleEditor
                     //Left 
                     ImGui.DockBuilderDockWindow("Scene", dockSpaceID);
                     ImGui.DockBuilderDockWindow("Statistics", dockSpaceLeftDown);
+                    ImGui.DockBuilderDockWindow("Log", dockSpaceLeftDown);
                     //Right
                     ImGui.DockBuilderDockWindow("SceneGraph", dockSpaceRightUp);
                     ImGui.DockBuilderDockWindow("Camera", dockSpaceRightUp);
@@ -510,6 +516,12 @@ namespace NibbleEditor
                 ImGui.Text(string.Format("FrameTime : {0, 3:F6}", EngineRef.renderSys.frameStats.Frametime));
                 ImGui.Text(string.Format("VertexCount : {0}", EngineRef.renderSys.frameStats.RenderedVerts));
                 ImGui.Text(string.Format("TrisCount : {0}", EngineRef.renderSys.frameStats.RenderedIndices / 3));
+                ImGui.End();
+            }
+
+            if (ImGui.Begin("Log"))
+            {
+                _ImGuiManager.DrawLogger();
                 ImGui.End();
             }
 
