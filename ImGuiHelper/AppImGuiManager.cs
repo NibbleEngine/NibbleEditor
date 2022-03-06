@@ -7,6 +7,65 @@ using NbCore.UI.ImGui;
 
 namespace NibbleEditor
 {
+    public abstract class ImGuiModal
+    {
+        public string Name;
+        public bool IsOpen = false;
+        public bool show_modal = false;
+        public abstract void Draw();
+
+        public void ShowModal()
+        {
+            show_modal = true;
+        }
+
+        protected ImGuiModal(string name)
+        {
+            Name = name;
+        }
+
+    }
+
+    public delegate void ImGuiOpenFileTriggerEventHandler(string filepath);
+    public class ImGuiOpenFileModal : ImGuiModal
+    {
+        public string current_file_path;
+        public string filter;
+        public ImGuiOpenFileTriggerEventHandler open_file_handler;
+        
+        public ImGuiOpenFileModal(string name, string cfp, string f) : base(name)
+        {
+            current_file_path = cfp;
+            filter = f;
+        }
+
+        public override void Draw()
+        {
+            if (show_modal)
+            {
+                ImGui.OpenPopup(Name);
+                show_modal = false;
+            }
+
+            //THIS MODAL IS NIBBLENMSPLUGIN SPECIFIC REMOVE
+            var isOpen = true;
+            var winsize = new System.Numerics.Vector2(800, 400);
+            ImGui.SetNextWindowSize(winsize);
+            if (ImGui.BeginPopupModal(Name, ref isOpen, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize))
+            {
+                var picker = FilePicker.GetFilePicker(this, current_file_path, filter);
+                if (picker.Draw(new System.Numerics.Vector2(winsize.X, winsize.Y - 60)))
+                {
+                    Console.WriteLine(picker.SelectedFile);
+                    current_file_path = picker.CurrentFolder;
+                    open_file_handler?.Invoke(picker.SelectedFile);
+                    FilePicker.RemoveFilePicker(this);
+                }
+                ImGui.EndPopup();
+            }
+        }
+    }
+
     class AppImGuiManager : ImGuiManager
     {
         //ImGui Variables
@@ -16,7 +75,10 @@ namespace NibbleEditor
         private readonly ImGuiShaderEditor ShaderEditor = new();
         private readonly ImGuiAboutWindow AboutWindow = new();
         private readonly ImGuiSettingsWindow SettingsWindow = new();
-        private bool show_open_file_dialog = false;
+
+        public ImGuiOpenFileModal OpenFileModal = new("open-scene", "", ".nb");
+
+        private bool show_open_scene_dialog = false;
         private bool show_settings_window = false;
         private bool show_about_window = false;
         private bool show_test_components = false;
@@ -26,6 +88,7 @@ namespace NibbleEditor
         {
             SceneGraphViewer = new(this);
             ObjectViewer = new(this);
+
         }
 
         public void ShowSettingsWindow()
@@ -43,9 +106,9 @@ namespace NibbleEditor
             show_test_components = true;
         }
 
-        public void ShowOpenFileDialog()
+        public void ShowOpenSceneDialog()
         {
-            show_open_file_dialog = true;
+            OpenFileModal.ShowModal();
         }
 
         //SceneGraph Related Methods
@@ -54,11 +117,7 @@ namespace NibbleEditor
         {
             //Functionality
 
-            if (show_open_file_dialog)
-            {
-                ImGui.OpenPopup("open-file");
-                show_open_file_dialog = false;
-            }
+            OpenFileModal.Draw();
 
             if (show_about_window)
             {
@@ -71,22 +130,10 @@ namespace NibbleEditor
                 ImGui.OpenPopup("show-settings");
                 show_settings_window = false;
             }
-            
-            var isOpen = true;
-            var winsize = new System.Numerics.Vector2(800, 400);
-            ImGui.SetNextWindowSize(winsize);
-            if (ImGui.BeginPopupModal("open-file", ref isOpen, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize))
-            {
-                var picker = FilePicker.GetFilePicker(ob, current_file_path, ".SCENE.MBIN|.SCENE.EXML");
-                if (picker.Draw(new System.Numerics.Vector2(winsize.X, winsize.Y - 60)))
-                {
-                    Console.WriteLine(picker.SelectedFile);
-                    current_file_path = picker.CurrentFolder;
-                    FilePicker.RemoveFilePicker(ob);
-                }
-                ImGui.EndPopup();
-            }
 
+
+
+            bool isOpen = true;
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(290, 400), ImGuiCond.Always);
             if (ImGui.BeginPopupModal("show-about", ref isOpen, ImGuiWindowFlags.NoResize))
             {

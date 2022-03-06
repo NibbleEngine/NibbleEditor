@@ -42,7 +42,8 @@ namespace NibbleEditor
             //Initialize ImGuiManager
             _ImGuiManager = new(win, e);
             EngineRef.NewSceneEvent += new Engine.NewSceneEventHandler(OnNewScene);
-
+            _ImGuiManager.OpenFileModal.open_file_handler = new ImGuiOpenFileTriggerEventHandler(EngineRef.DeserializeScene);
+            
             //Load Settings
             if (!File.Exists("settings.json"))
                 _ImGuiManager.ShowSettingsWindow();
@@ -239,7 +240,8 @@ namespace NibbleEditor
 
                     if (ImGui.MenuItem("Open"))
                     {
-                        Log("Open scene not implemented yet", LogVerbosityLevel.INFO);
+                        _ImGuiManager.ShowOpenSceneDialog();
+                        IsOpenFileDialogOpen = true;
                     }
 
                     if (ImGui.MenuItem("Save"))
@@ -501,9 +503,10 @@ namespace NibbleEditor
                 ImGui.End();
             }
 
-            
-
             _ImGuiManager.ProcessModals(this, ref current_file_path, ref IsOpenFileDialogOpen);
+
+
+
 
             //Draw plugin panels and popups
             foreach (PluginBase plugin in EngineRef.Plugins.Values)

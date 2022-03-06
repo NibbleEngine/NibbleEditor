@@ -141,6 +141,8 @@ namespace NibbleEditor
             engine.RegisterEntity(test1);
             engine.RequestEntityTransformUpdate(test1);
 
+            //Connect Serializers
+            
             graph.AddNode(test1);
             
             //Populate SceneGraphView
@@ -158,7 +160,7 @@ namespace NibbleEditor
         private void SaveActiveScene()
         {
             SceneGraph g = engine.GetActiveSceneGraph();
-            g.Export("scene_output.nb");
+            engine.SerializeScene(g, "scene_output.nb");
         }
 
         protected override void OnResize(ResizeEventArgs e)
@@ -415,20 +417,20 @@ namespace NibbleEditor
 
 #if (DEBUG)
             //Query GL Extensions
-            Log("OPENGL AVAILABLE EXTENSIONS:", LogVerbosityLevel.INFO);
+            Callbacks.Logger.Log(this, "OPENGL AVAILABLE EXTENSIONS:", LogVerbosityLevel.INFO);
             string[] ext = GL.GetString(StringNameIndexed.Extensions, 0).Split(' ');
             foreach (string s in ext)
             {
                 if (s.Contains("explicit"))
-                    Log(s, LogVerbosityLevel.INFO);
+                    Callbacks.Logger.Log(this, s, LogVerbosityLevel.INFO);
                 if (s.Contains("texture"))
-                    Log(s, LogVerbosityLevel.INFO);
+                    Callbacks.Logger.Log(this, s, LogVerbosityLevel.INFO);
                 if (s.Contains("16"))
-                    Log(s, LogVerbosityLevel.INFO);
+                    Callbacks.Logger.Log(this, s, LogVerbosityLevel.INFO);
             }
 
             //Query maximum buffer sizes
-            Log($"MaxUniformBlock Size {GL.GetInteger(GetPName.MaxUniformBlockSize)}", LogVerbosityLevel.INFO);
+            Callbacks.Logger.Log(this, $"MaxUniformBlock Size {GL.GetInteger(GetPName.MaxUniformBlockSize)}", LogVerbosityLevel.INFO);
 #endif
 
             GLSLShaderConfig shader_conf;

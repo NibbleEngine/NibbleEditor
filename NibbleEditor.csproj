@@ -13,7 +13,7 @@
 	  <!--PublishReadyToRun>true</PublishReadyToRun-->
 	<ApplicationIcon />
     <StartupObject />
-    <Configurations>Release;OpenGL_DEBUG</Configurations>
+    <Configurations>OpenGL_Release;OpenGL_DEBUG</Configurations>
     
   </PropertyGroup>
 
@@ -21,13 +21,14 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<PlatformTarget>x64</PlatformTarget>
-		<DefineConstants>$(DefineConstants)TRACE</DefineConstants>
+		<DefineConstants>$(DefineConstants)TRACE;DEBUG;OPENGL</DefineConstants>
 	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='OpenGL_Release|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <PlatformTarget>x64</PlatformTarget>
+	  <DefineConstants>$(DefineConstants)OPENGL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
