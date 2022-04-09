@@ -283,8 +283,9 @@ namespace NibbleEditor
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Simple_VSEmpty.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/Simple_FSEmpty.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/Simple_GS.glsl"), null, null,
-                                      new() { }, NbShaderMode.DEFFERED, "Debug");
+                                      new() { }, NbShaderMode.DEFFERED, "Debug", true);
             engine.RegisterEntity(conf);
+            
 
             //Test Shader
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Simple_VSEmpty.glsl"),
@@ -442,38 +443,39 @@ namespace NibbleEditor
             shader_conf = engine.GetShaderConfigByName("LightPass_Lit_Forward");
             shader = new()
             {
-                Type = NbShaderType.LIGHT_PASS_LIT_SHADER
+                Type = NbShaderType.LIGHT_PASS_LIT_SHADER,
+                IsGeneric = true
             };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //GAUSSIAN HORIZONTAL BLUR SHADER
             shader_conf = engine.GetShaderConfigByName("Horizontal_Gaussian_Blur");
-            shader = new();
+            shader = new() { IsGeneric = true };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //GAUSSIAN VERTICAL BLUR SHADER
             shader_conf = engine.GetShaderConfigByName("Vertical_Gaussian_Blur");
-            shader = new();
+            shader = new() { IsGeneric = true };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //BRIGHTNESS EXTRACTION SHADER
             shader_conf = engine.GetShaderConfigByName("Brightness_Extract");
-            shader = new();
+            shader = new() { IsGeneric = true };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //ADDITIVE BLEND
             shader_conf = engine.GetShaderConfigByName("Additive_Blend");
-            shader = new();
+            shader = new() { IsGeneric = true };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //FXAA
             shader_conf = engine.GetShaderConfigByName("FXAA");
-            shader = new();
+            shader = new() { IsGeneric = true };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
@@ -481,7 +483,8 @@ namespace NibbleEditor
             shader_conf = engine.GetShaderConfigByName("ToneMapping");
             shader = new()
             {
-                Type = NbShaderType.TONE_MAPPING
+                Type = NbShaderType.TONE_MAPPING,
+                IsGeneric = true
             };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
@@ -490,20 +493,21 @@ namespace NibbleEditor
             shader_conf = engine.GetShaderConfigByName("InverseToneMapping");
             shader = new()
             {
-                Type = NbShaderType.INV_TONE_MAPPING
+                Type = NbShaderType.INV_TONE_MAPPING,
+                IsGeneric = true
             };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //BWOIT SHADER
             shader_conf = engine.GetShaderConfigByName("BWOIT");
-            shader = new();
+            shader = new() { IsGeneric = true };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
             //Text Shaders
             shader_conf = engine.GetShaderConfigByName("Text");
-            shader = new();
+            shader = new() { IsGeneric = true };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
@@ -513,7 +517,8 @@ namespace NibbleEditor
             shader_conf = engine.GetShaderConfigByName("Passthrough");
             shader = new()
             {
-                Type = NbShaderType.PASSTHROUGH_SHADER
+                Type = NbShaderType.PASSTHROUGH_SHADER,
+                IsGeneric = true
             };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
@@ -522,13 +527,13 @@ namespace NibbleEditor
             shader_conf = engine.GetShaderConfigByName("RedFill");
             shader = new()
             {
-                Type = NbShaderType.RED_FILL_SHADER
+                Type = NbShaderType.RED_FILL_SHADER,
+                IsGeneric = true
             };
             NbCore.Platform.Graphics.GraphicsAPI.CompileShader(ref shader, shader_conf);
             engine.RegisterEntity(shader);
 
         }
-
 
         private void AddDefaultMaterials()
         {
