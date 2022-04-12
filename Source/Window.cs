@@ -559,7 +559,7 @@ namespace NibbleEditor
             };
             mat.Uniforms.Add(uf);
             mat.ShaderConfig = config_deferred;
-            shader = engine.CompileMaterialShader(mat);
+            shader = engine.CompileShader(mat);
 
 #if DEBUG
             //Report UBOs
@@ -588,7 +588,7 @@ namespace NibbleEditor
 
             mat.Uniforms.Add(uf);
             mat.ShaderConfig = config_deferred;
-            shader = engine.CompileMaterialShader(mat);
+            shader = engine.CompileShader(mat);
 
             engine.RegisterEntity(mat.Shader); //Register Shader
             engine.RegisterEntity(mat);
@@ -614,7 +614,7 @@ namespace NibbleEditor
 
             mat.Uniforms.Add(uf);
             mat.ShaderConfig = config_deferred;
-            shader = engine.CompileMaterialShader(mat);
+            shader = engine.CompileShader(mat);
 
             engine.RegisterEntity(mat.Shader); //Register Shader
             engine.RegisterEntity(mat);
@@ -641,7 +641,7 @@ namespace NibbleEditor
 
             mat.Uniforms.Add(uf);
             mat.ShaderConfig = config_deferred;
-            shader = engine.CompileMaterialShader(mat);
+            shader = engine.CompileShader(mat);
 
             engine.RegisterEntity(mat.Shader); //Register Shader
             engine.RegisterEntity(mat);
@@ -666,7 +666,7 @@ namespace NibbleEditor
 
             mat.Uniforms.Add(uf);
             mat.ShaderConfig = config_deferred_lit;
-            shader = engine.CompileMaterialShader(mat);
+            shader = engine.CompileShader(mat);
 
             engine.RegisterEntity(mat.Shader); //Register Shader
             engine.RegisterEntity(mat);
@@ -690,7 +690,7 @@ namespace NibbleEditor
 
             mat.Uniforms.Add(uf);
             mat.ShaderConfig = config_deferred;
-            shader = engine.CompileMaterialShader(mat);
+            shader = engine.CompileShader(mat);
 
             engine.RegisterEntity(mat.Shader); //Register Shader
             engine.RegisterEntity(mat);

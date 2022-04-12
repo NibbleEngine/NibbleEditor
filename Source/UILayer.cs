@@ -604,7 +604,7 @@ namespace NibbleEditor
             mat.ShaderConfig = conf;
 
             //Compile Shader
-            EngineRef.CompileMaterialShader(mat);
+            EngineRef.CompileShader(mat);
             
             //Register material
             EngineRef.RegisterEntity(mat);
