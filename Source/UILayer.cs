@@ -539,9 +539,8 @@ namespace NibbleEditor
             conf = EngineRef.CreateShaderConfig(EngineRef.GetShaderSourceByFilePath("Shaders/Simple_VSEmpty.glsl"),
                                       EngineRef.GetShaderSourceByFilePath("Shaders/texture_mixer_FS.glsl"),
                                       null, null, null,
-                                      new() { }, NbShaderMode.DEFFERED, "TextureMixerConfig");
+                                      NbShaderMode.DEFFERED, "TextureMixerConfig");
             EngineRef.RegisterEntity(conf);
-
 
             //Create Material
             MeshMaterial mat = new();
@@ -601,10 +600,9 @@ namespace NibbleEditor
                 Values = new(1.0f, 1.0f, 0.0f, 0.5f)
             };
             mat.Uniforms.Add(uf);
-            mat.ShaderConfig = conf;
 
-            //Compile Shader
-            EngineRef.CompileShader(mat);
+            NbShader shader = EngineRef.CreateShader(conf);
+            EngineRef.CompileShader(shader);
             
             //Register material
             EngineRef.RegisterEntity(mat);

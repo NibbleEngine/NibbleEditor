@@ -8,7 +8,7 @@ namespace NibbleEditor
     public static class Version
     {
 
-        internal const string VERSION_STRING = "1.0.91.0";
+        internal const string VERSION_STRING = "1.0.92.0";
 
         /// <summary>Shorthand for AssemblyVersion.Major</summary>
         public static int Major => AssemblyVersion.Major;
