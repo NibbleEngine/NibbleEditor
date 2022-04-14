@@ -611,7 +611,7 @@ namespace NibbleEditor
             //Create Mesh
             NbCore.Primitives.Quad q = new(1.0f, 1.0f);
 
-            NbMeshData md = q.geom.GetData();
+            NbMeshData md = q.geom.GetMeshData();
             NbMeshMetaData mmd = q.geom.GetMetaData();
             q.Dispose();
 

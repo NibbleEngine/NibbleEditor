@@ -44,8 +44,7 @@ namespace NibbleEditor
             Callbacks.showInfo = Util.showInfo;
             Callbacks.showError = Util.showError;
             Callbacks.Logger = new NbLogger();
-            Callbacks.Assert = Util.Assert;
-
+            
             //Start worker thread
             workDispatcher.Start();
         }
@@ -291,35 +290,35 @@ namespace NibbleEditor
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Simple_VSEmpty.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/Test_fs.glsl"),
                                       null, null, null,
-                                      NbShaderMode.DEFFERED, "Test");
+                                      NbShaderMode.DEFFERED, "Test", true);
             engine.RegisterEntity(conf);
 
             //UberShader Shader
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Simple_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/Simple_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.DEFFERED, "UberShader_Deferred");
+                                      NbShaderMode.DEFFERED, "UberShader_Deferred", true);
             engine.RegisterEntity(conf);
 
             //UberShader Lit Shader
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Simple_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/Simple_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.DEFFERED | NbShaderMode.LIT, "UberShader_Deferred_Lit");
+                                      NbShaderMode.DEFFERED | NbShaderMode.LIT, "UberShader_Deferred_Lit", true);
             engine.RegisterEntity(conf);
 
             //UNLIT
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/light_pass_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/light_pass_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.DEFFERED, "LightPass_Unlit_Forward"); ;
+                                      NbShaderMode.DEFFERED, "LightPass_Unlit_Forward", true); ;
             engine.RegisterEntity(conf);
 
             //UNLIT
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/light_pass_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/light_pass_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "LightPass_Unlit_Forward"); ;
+                                      NbShaderMode.FORWARD, "LightPass_Unlit_Forward", true); ;
             engine.RegisterEntity(conf);
 
 
@@ -327,7 +326,7 @@ namespace NibbleEditor
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/light_pass_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/light_pass_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD | NbShaderMode.LIT, "LightPass_Lit_Forward"); ;
+                                      NbShaderMode.FORWARD | NbShaderMode.LIT, "LightPass_Lit_Forward", true); ;
             engine.RegisterEntity(conf);
 
 
@@ -335,7 +334,7 @@ namespace NibbleEditor
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/gaussian_horizontalBlur_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "Horizontal_Gaussian_Blur");
+                                      NbShaderMode.FORWARD, "Horizontal_Gaussian_Blur", true);
             engine.RegisterEntity(conf);
 
 
@@ -343,63 +342,63 @@ namespace NibbleEditor
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/gaussian_verticalBlur_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.DEFAULT, "Vertical_Gaussian_Blur");
+                                      NbShaderMode.DEFAULT, "Vertical_Gaussian_Blur", true);
             engine.RegisterEntity(conf);
 
             //Brightness Extraction Shader
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/brightness_extract_shader_fs.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "Brightness_Extract");
+                                      NbShaderMode.FORWARD, "Brightness_Extract", true);
             engine.RegisterEntity(conf);
 
             //ADDITIVE BLEND
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/additive_blend_fs.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "Additive_Blend");
+                                      NbShaderMode.FORWARD, "Additive_Blend", true);
             engine.RegisterEntity(conf);
 
             //FXAA
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/fxaa_shader_fs.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "FXAA");
+                                      NbShaderMode.FORWARD, "FXAA", true);
             engine.RegisterEntity(conf);
 
             //TONE MAPPING + GAMMA CORRECTION
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/tone_mapping_fs.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "ToneMapping");
+                                      NbShaderMode.FORWARD, "ToneMapping", true);
             engine.RegisterEntity(conf);
 
             //INV TONE MAPPING
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/inv_tone_mapping_fs.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "InverseToneMapping");
+                                      NbShaderMode.FORWARD, "InverseToneMapping", true);
             engine.RegisterEntity(conf);
 
             //BWOIT SHADER
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/bwoit_shader_fs.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "BWOIT");
+                                      NbShaderMode.FORWARD, "BWOIT", true);
             engine.RegisterEntity(conf);
 
             //Text Shaders
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Text_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/Text_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "Text");
+                                      NbShaderMode.FORWARD, "Text", true);
             engine.RegisterEntity(conf);
 
             //Pass Shader
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/PassThrough_FS.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "Passthrough");
+                                      NbShaderMode.FORWARD, "Passthrough", true);
             engine.RegisterEntity(conf);
 
             //Red Shader
@@ -565,8 +564,11 @@ namespace NibbleEditor
             GLSLShaderConfig config_deferred_lit = engine.GetShaderConfigByName("UberShader_Deferred_Lit");
             NbShader shader;
 
-            mat = new();
-            mat.Name = "crossMat";
+            mat = new()
+            {
+                Name = "crossMat",
+                IsGeneric = true
+            };
             mat.add_flag(MaterialFlagEnum._F07_UNLIT);
             mat.add_flag(MaterialFlagEnum._F21_VERTEXCOLOUR);
             NbUniform uf = new()
@@ -589,13 +591,13 @@ namespace NibbleEditor
             //Report UBOs
             engine.renderSys.Renderer.ShaderReport(shader);
 #endif
-            engine.RegisterEntity(mat.Shader); //Register Shader
             engine.RegisterEntity(mat); //Register Material
             
             //Joint Material
             mat = new MeshMaterial
             {
-                Name = "jointMat"
+                Name = "jointMat",
+                IsGeneric = true
             };
             mat.add_flag(MaterialFlagEnum._F07_UNLIT);
 
@@ -626,7 +628,8 @@ namespace NibbleEditor
             //Light Material
             mat = new()
             {
-                Name = "lightMat"
+                Name = "lightMat",
+                IsGeneric = true
             };
             mat.add_flag(MaterialFlagEnum._F07_UNLIT);
 
@@ -657,7 +660,8 @@ namespace NibbleEditor
             //Default Material
             mat = new()
             {
-                Name = "defaultMat"
+                Name = "defaultMat",
+                IsGeneric = true
             };
             mat.add_flag(MaterialFlagEnum._F07_UNLIT);
 
@@ -715,11 +719,14 @@ namespace NibbleEditor
 
             mat.AttachShader(shader);
             engine.RegisterEntity(mat);
-            
+
 
             //Collision Material
-            mat = new();
-            mat.Name = "collisionMat";
+            mat = new()
+            {
+                Name = "collisionMat",
+                IsGeneric = true
+            };
             mat.add_flag(MaterialFlagEnum._F07_UNLIT);
 
             uf = new()
@@ -758,14 +765,12 @@ namespace NibbleEditor
             NbMesh mesh = new()
             {
                 Hash = (ulong)"default_quad".GetHashCode(),
-                Data = q.geom.GetData(),
+                Data = q.geom.GetMeshData(),
                 MetaData = q.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
             };
 
-            engine.renderSys.Renderer.AddMesh(mesh);
             engine.RegisterEntity(mesh);
-            engine.renderSys.GeometryMgr.AddPrimitiveMesh(mesh);
             q.Dispose();
 
             //Default render quad
@@ -774,12 +779,10 @@ namespace NibbleEditor
             mesh = new()
             {
                 Hash = (ulong)"default_renderquad".GetHashCode(),
-                Data = q.geom.GetData(),
+                Data = q.geom.GetMeshData(),
                 MetaData = q.geom.GetMetaData(),
             };
-            engine.renderSys.Renderer.AddMesh(mesh);
             engine.RegisterEntity(mesh);
-            engine.renderSys.GeometryMgr.AddPrimitiveMesh(mesh);
             q.Dispose();
 
             //Default cross
@@ -789,13 +792,12 @@ namespace NibbleEditor
             {
                 Type = NbMeshType.Locator, //Explicitly set as locator mesh
                 Hash = (ulong)"default_cross".GetHashCode(),
-                Data = c.geom.GetData(),
+                Data = c.geom.GetMeshData(),
                 MetaData = c.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("crossMat")
             };
-            engine.renderSys.Renderer.AddMesh(mesh);
+            
             engine.RegisterEntity(mesh);
-            engine.renderSys.GeometryMgr.AddPrimitiveMesh(mesh);
             c.Dispose();
 
 
@@ -805,13 +807,11 @@ namespace NibbleEditor
             mesh = new()
             {
                 Hash = (ulong)"default_box".GetHashCode(),
-                Data = bx.geom.GetData(),
+                Data = bx.geom.GetMeshData(),
                 MetaData = bx.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
             };
-            engine.renderSys.Renderer.AddMesh(mesh);
             engine.RegisterEntity(mesh);
-            engine.renderSys.GeometryMgr.AddPrimitiveMesh(mesh);
             bx.Dispose();
 
             //Default sphere
@@ -820,14 +820,12 @@ namespace NibbleEditor
             mesh = new()
             {
                 Hash = (ulong)"default_sphere".GetHashCode(),
-                Data = sph.geom.GetData(),
+                Data = sph.geom.GetMeshData(),
                 MetaData = sph.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
             };
 
-            engine.renderSys.Renderer.AddMesh(mesh);
             engine.RegisterEntity(mesh);
-            engine.renderSys.GeometryMgr.AddPrimitiveMesh(mesh);
             sph.Dispose();
 
             //Light Sphere Mesh
@@ -836,20 +834,15 @@ namespace NibbleEditor
             mesh = new()
             {
                 Hash = (ulong)"default_light_sphere".GetHashCode(),
-                Data = lsph.geom.GetData(),
+                Data = lsph.geom.GetMeshData(),
                 MetaData = lsph.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("lightMat")
             };
 
-            engine.renderSys.Renderer.AddMesh(mesh);
             engine.RegisterEntity(mesh);
-            engine.renderSys.GeometryMgr.AddPrimitiveMesh(mesh);
             lsph.Dispose();
 
             GenerateGizmoParts();
-
-
-
         }
 
 
@@ -901,11 +894,13 @@ namespace NibbleEditor
                 NbMesh mesh = new()
                 {
                     Hash = (ulong)name.GetHashCode(),
-                    Data = arr.geom.GetData(),
+                    Data = arr.geom.GetMeshData(),
                     MetaData = arr.geom.GetMetaData()
                 };
 
-                if (!engine.renderSys.GeometryMgr.AddPrimitiveMesh(mesh))
+                engine.RegisterEntity(mesh);
+                
+                if (!engine.IsEntityRegistered(mesh))
                     mesh.Dispose();
                 arr.Dispose();
             }
