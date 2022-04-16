@@ -132,17 +132,18 @@ namespace NibbleEditor
             SceneGraphNode test3 = engine.CreateLocatorNode("Test Locator 3");
             test2.AddChild(test3);
 
+            Console.WriteLine(NbHasher.Hash("asdasdas"));
+            Console.WriteLine(3.GetHashCode());
+            Console.WriteLine(test1.GetHashCode());
+
             SceneGraphNode light = engine.CreateLightNode("Default Light", 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
             NbCore.Systems.TransformationSystem.SetEntityLocation(light, new NbVector3(100.0f, 100.0f, 100.0f));
             test1.AddChild(light);
+            test1.SetParent(graph.Root);
 
             //Request tranform update for the added nodes
-            engine.RegisterEntity(test1);
+            engine.RegisterSceneGraphTree(test1, true);
             engine.RequestEntityTransformUpdate(test1);
-
-            //Connect Serializers
-            
-            graph.AddNode(test1);
             
             //Populate SceneGraphView
             engine.NewSceneEvent?.Invoke(graph);
@@ -614,7 +615,7 @@ namespace NibbleEditor
 
             mat.Uniforms.Add(uf);
 
-            int shader_hash = engine.CalculateShaderHash(config_deferred, engine.GetMaterialShaderDirectives(mat));
+            ulong shader_hash = engine.CalculateShaderHash(config_deferred, engine.GetMaterialShaderDirectives(mat));
             shader = engine.GetShaderByHash(shader_hash);
             if (shader == null)
             {
@@ -764,7 +765,7 @@ namespace NibbleEditor
 
             NbMesh mesh = new()
             {
-                Hash = (ulong)"default_quad".GetHashCode(),
+                Hash = NbHasher.Hash("default_quad"),
                 Data = q.geom.GetMeshData(),
                 MetaData = q.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
@@ -778,7 +779,7 @@ namespace NibbleEditor
 
             mesh = new()
             {
-                Hash = (ulong)"default_renderquad".GetHashCode(),
+                Hash = NbHasher.Hash("default_renderquad"),
                 Data = q.geom.GetMeshData(),
                 MetaData = q.geom.GetMetaData(),
             };
@@ -791,7 +792,7 @@ namespace NibbleEditor
             mesh = new()
             {
                 Type = NbMeshType.Locator, //Explicitly set as locator mesh
-                Hash = (ulong)"default_cross".GetHashCode(),
+                Hash = NbHasher.Hash("default_cross"),
                 Data = c.geom.GetMeshData(),
                 MetaData = c.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("crossMat")
@@ -800,13 +801,12 @@ namespace NibbleEditor
             engine.RegisterEntity(mesh);
             c.Dispose();
 
-
             //Default cube
             NbCore.Primitives.Box bx = new(1.0f, 1.0f, 1.0f, new NbVector3(1.0f), true);
 
             mesh = new()
             {
-                Hash = (ulong)"default_box".GetHashCode(),
+                Hash = NbHasher.Hash("default_box"),
                 Data = bx.geom.GetMeshData(),
                 MetaData = bx.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
@@ -819,7 +819,7 @@ namespace NibbleEditor
 
             mesh = new()
             {
-                Hash = (ulong)"default_sphere".GetHashCode(),
+                Hash = NbHasher.Hash("default_sphere"),
                 Data = sph.geom.GetMeshData(),
                 MetaData = sph.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
@@ -833,7 +833,7 @@ namespace NibbleEditor
 
             mesh = new()
             {
-                Hash = (ulong)"default_light_sphere".GetHashCode(),
+                Hash = NbHasher.Hash("default_light_sphere"),
                 Data = lsph.geom.GetMeshData(),
                 MetaData = lsph.geom.GetMetaData(),
                 Material = engine.renderSys.MaterialMgr.GetByName("lightMat")
@@ -893,7 +893,7 @@ namespace NibbleEditor
 
                 NbMesh mesh = new()
                 {
-                    Hash = (ulong)name.GetHashCode(),
+                    Hash = NbHasher.Hash(name),
                     Data = arr.geom.GetMeshData(),
                     MetaData = arr.geom.GetMetaData()
                 };
