@@ -507,7 +507,6 @@ namespace NibbleEditor
 
 
 
-
             //Draw plugin panels and popups
             foreach (PluginBase plugin in EngineRef.Plugins.Values)
                 plugin.Draw();

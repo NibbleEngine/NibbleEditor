@@ -133,8 +133,7 @@ namespace NibbleEditor
             test2.AddChild(test3);
 
             Console.WriteLine(NbHasher.Hash("asdasdas"));
-            Console.WriteLine(3.GetHashCode());
-            Console.WriteLine(test1.GetHashCode());
+            
 
             SceneGraphNode light = engine.CreateLightNode("Default Light", 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
             NbCore.Systems.TransformationSystem.SetEntityLocation(light, new NbVector3(100.0f, 100.0f, 100.0f));
@@ -442,93 +441,95 @@ namespace NibbleEditor
             //LIT
             shader = new()
             {
-                RefShaderConfig = engine.GetShaderConfigByName("LightPass_Lit_Forward"),
                 Type = NbShaderType.LIGHT_PASS_LIT_SHADER,
                 IsGeneric = true
             };
+
+            shader.SetShaderConfig(engine.GetShaderConfigByName("LightPass_Lit_Forward"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //GAUSSIAN HORIZONTAL BLUR SHADER
             shader = new()
             {
-                RefShaderConfig = engine.GetShaderConfigByName("Horizontal_Gaussian_Blur"),
                 IsGeneric = true
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("Horizontal_Gaussian_Blur"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //GAUSSIAN VERTICAL BLUR SHADER
             shader = new()
             {
-                RefShaderConfig = engine.GetShaderConfigByName("Vertical_Gaussian_Blur"),
                 IsGeneric = true 
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("Vertical_Gaussian_Blur"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //BRIGHTNESS EXTRACTION SHADER
             shader = new() 
             {
-                RefShaderConfig = engine.GetShaderConfigByName("Brightness_Extract"),
                 IsGeneric = true 
             };
+            
+            shader.SetShaderConfig(engine.GetShaderConfigByName("Brightness_Extract"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //ADDITIVE BLEND
             shader = new() 
             {
-                RefShaderConfig = engine.GetShaderConfigByName("Additive_Blend"),
                 IsGeneric = true 
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("Additive_Blend"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //FXAA
             shader = new() 
             { 
-                RefShaderConfig = engine.GetShaderConfigByName("FXAA"),
                 IsGeneric = true 
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("FXAA"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //TONE MAPPING + GAMMA CORRECTION
             shader = new()
             {
-                RefShaderConfig = engine.GetShaderConfigByName("ToneMapping"),
                 Type = NbShaderType.TONE_MAPPING,
                 IsGeneric = true
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("ToneMapping"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //INV TONE MAPPING + GAMMA CORRECTION
             shader = new()
             {
-                RefShaderConfig = engine.GetShaderConfigByName("InverseToneMapping"),
                 Type = NbShaderType.INV_TONE_MAPPING,
                 IsGeneric = true
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("InverseToneMapping"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //BWOIT SHADER
             shader = new() 
             {
-                RefShaderConfig = engine.GetShaderConfigByName("BWOIT"),
                 IsGeneric = true 
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("BWOIT"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //Text Shaders
             shader = new() 
             {
-                RefShaderConfig = engine.GetShaderConfigByName("Text"),
                 IsGeneric = true 
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("Text"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
@@ -537,10 +538,10 @@ namespace NibbleEditor
             //Pass Shader
             shader = new()
             {
-                RefShaderConfig = engine.GetShaderConfigByName("Passthrough"),
                 Type = NbShaderType.PASSTHROUGH_SHADER,
                 IsGeneric = true
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("Passthrough"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
@@ -548,10 +549,10 @@ namespace NibbleEditor
             shader_conf = engine.GetShaderConfigByName("RedFill");
             shader = new()
             {
-                RefShaderConfig = engine.GetShaderConfigByName("RedFill"),
                 Type = NbShaderType.RED_FILL_SHADER,
                 IsGeneric = true
             };
+            shader.SetShaderConfig(engine.GetShaderConfigByName("RedFill"));
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
