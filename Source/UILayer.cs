@@ -113,40 +113,6 @@ namespace NibbleEditor
         }
 
 
-        public void TestDrawUI()
-        {
-            //Enable docking in main view
-            ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags.None;
-            dockspace_flags |= ImGuiDockNodeFlags.PassthruCentralNode;
-
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags.NoBackground |
-                                            ImGuiWindowFlags.NoCollapse |
-                                            ImGuiWindowFlags.NoResize |
-                                            ImGuiWindowFlags.NoDocking;
-
-            ImGuiViewportPtr vp = ImGui.GetMainViewport();
-            ImGui.SetNextWindowPos(vp.WorkPos);
-            ImGui.SetNextWindowSize(vp.WorkSize);
-            ImGui.SetNextWindowViewport(vp.ID);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0.0f);
-
-            bool keep_window_open = true;
-            int statusBarHeight = (int)(1.75f * ImGui.CalcTextSize("Status").Y);
-            ImGui.Begin("MainWindow", ref keep_window_open, window_flags);
-            ImGui.PopStyleVar(2);
-
-            //Debugging Information
-            if (ImGui.Begin("Statistics"))
-            {
-                ImGui.Text("test");
-                ImGui.Text("test");
-                ImGui.Text("test");
-                ImGui.End();
-            }
-        }
-
         public void DrawUI()
         {
             //Enable docking in main view
@@ -390,26 +356,35 @@ namespace NibbleEditor
             if (ImGui.Begin("Tools", ImGuiWindowFlags.NoCollapse |
                                      ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
-                if (ImGui.Button("ProcGen", new System.Numerics.Vector2(80.0f, 40.0f)))
+                if (ImGui.CollapsingHeader("Engine Tools"))
                 {
-                    //TODO generate proc gen view
+                    if (ImGui.Button("Reset Pose"))
+                    {
+                        //TODO Reset The models pose
+                    }
+                    ImGui.SameLine();
+
+                    if (ImGui.Button("Clear Active Scene"))
+                    {
+                        EngineRef.ClearActiveSceneGraph();
+                    }
                 }
 
-                ImGui.SameLine();
-
-                if (ImGui.Button("Reset Pose", new System.Numerics.Vector2(80.0f, 40.0f)))
+                foreach (PluginBase plugin in EngineRef.Plugins.Values)
                 {
-                    //TODO Reset The models pose
-                }
-
-                if (ImGui.Button("Clear Active Scene", new System.Numerics.Vector2(80.0f, 40.0f)))
-                {
-                    EngineRef.ClearActiveSceneGraph();
-                }
-
-                if (ImGui.Button("Create Texture Mixer Scene", new System.Numerics.Vector2(80.0f, 40.0f)))
-                {
-                    AddTextureMixerScene();
+                    if (plugin.Tools.Count > 0)
+                    {
+                        if (ImGui.CollapsingHeader(plugin.Name + " Tools"))
+                        {
+                            foreach (ToolDescription tool in plugin.Tools)
+                            {
+                                if (ImGui.Button(tool.Name))
+                                {
+                                    tool.ToolFunc?.Invoke(EngineRef);
+                                }
+                            }
+                        }
+                    }
                 }
 
                 ImGui.End();

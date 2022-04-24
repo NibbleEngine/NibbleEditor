@@ -223,7 +223,7 @@ namespace NibbleEditor
 
             //Set Camera Initial State
             TransformController tcontroller = engine.transformSys.GetEntityTransformController(cam);
-            tcontroller.AddFutureState(new NbVector3(), NbQuaternion.FromEulerAngles(0.0f, -3.14f / 2.0f, 0.0f, "XYZ"), new NbVector3(1.0f));
+            tcontroller.AddFutureState(new NbVector3(0.0f, 0.2f, 0.5f), NbQuaternion.FromEulerAngles(0.0f, -3.14f / 2.0f, 0.0f, "XYZ"), new NbVector3(1.0f));
         }
 
 
