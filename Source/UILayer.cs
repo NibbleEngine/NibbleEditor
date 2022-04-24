@@ -414,15 +414,17 @@ namespace NibbleEditor
                 if (ImGui.Button("Reset Camera"))
                 {
                     RenderState.activeCam.Position = new NbVector3(0.0f);
+                    TransformController t_controller = RenderState.engineRef.transformSys.GetEntityTransformController(RenderState.activeCam);
+                    t_controller.AddFutureState(new NbVector3(0.0f),
+                                                NbQuaternion.FromEulerAngles(0.0f, MathUtils.radians(90.0f), 0.0f, "XYZ"),
+                                                t_controller.Scale);
                 }
 
                 ImGui.SameLine();
 
                 if (ImGui.Button("Reset Scene Rotation"))
                 {
-                    //TODO :Maybe enclose all settings in a function
-                    RenderState.activeCam.pitch = 0.0f;
-                    RenderState.activeCam.yaw = -90.0f;
+                    RenderState.rotAngles = new NbVector3(0.0f);
                 }
 
                 ImGui.EndGroup();
