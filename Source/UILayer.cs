@@ -42,7 +42,7 @@ namespace NibbleEditor
             //Initialize ImGuiManager
             _ImGuiManager = new(win, e);
             EngineRef.NewSceneEvent += new Engine.NewSceneEventHandler(OnNewScene);
-            _ImGuiManager.OpenFileModal.open_file_handler = new ImGuiOpenFileTriggerEventHandler(EngineRef.DeserializeScene);
+            _ImGuiManager.OpenFileModal.open_file_handler = new ImGuiOpenFileTriggerEventHandler(EngineRef.OpenScene);
             
             //Load Settings
             if (!File.Exists("settings.json"))
@@ -299,7 +299,7 @@ namespace NibbleEditor
                 csize.X = Math.Max(csize.X, 100);
                 csize.Y = Math.Max(csize.Y, 100);
                 NbVector2i csizetk = new((int)csize.X, (int)csize.Y);
-                ImGui.Image(new IntPtr(EngineRef.renderSys.getRenderFBO().GetChannel(0)),
+                ImGui.Image(new IntPtr(EngineRef.renderSys.getRenderFBO().GetTexture(NbFBOAttachment.Attachment0).texID),
                                 csize,
                                 new System.Numerics.Vector2(0.0f, 1.0f),
                                 new System.Numerics.Vector2(1.0f, 0.0f));
@@ -421,14 +421,14 @@ namespace NibbleEditor
                 }
 
                 ImGui.SameLine();
-
+                
                 if (ImGui.Button("Reset Scene Rotation"))
                 {
                     RenderState.rotAngles = new NbVector3(0.0f);
                 }
 
                 ImGui.EndGroup();
-
+                
                 ImGui.Separator();
                 ImGui.BeginGroup();
                 ImGui.TextColored(ImGuiManager.DarkBlue, "Camera Controls");

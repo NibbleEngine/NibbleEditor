@@ -112,7 +112,7 @@ namespace NbCore.UI.ImGui
             if (ImGuiCore.BeginChildFrame(111, ImGuiCore.GetContentRegionAvail(), 
                 ImGuiNET.ImGuiWindowFlags.NoBackground))
             {
-                TextCenter("No Man's Sky Model Viewer", false);
+                TextCenter("Nibble Editor", false);
                 ImGuiCore.NewLine();
                 TextCenter(Util.getVersion(), false);
                 ImGuiCore.NewLine();

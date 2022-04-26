@@ -1,23 +1,18 @@
 ﻿using System;
 using System.Threading;
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Desktop;
-using ImGuiNET;
-using OpenTK.Windowing.Common;
+
 using NbCore;
 using NbCore.Math;
 using NbCore.Common;
 using NbCore.Plugins;
 using NbCore.Utils;
 using System.Collections.Generic;
-using NbCore.UI.ImGui;
+using NbCore.Platform.Graphics;
 using System.IO;
-
 
 namespace NibbleEditor
 {
-    public class Window : GameWindow
+    public class Window : NbWindow
     {
         //Engine
         private Engine engine;
@@ -32,8 +27,7 @@ namespace NibbleEditor
         private UILayer _uiLayer;
 
         
-        public Window() : base(GameWindowSettings.Default, 
-            new NativeWindowSettings() { Size = new Vector2i(800, 600), APIVersion = new System.Version(4, 5) })
+        public Window() : base()
         {
             //Set Window Title
             Title = "Nibble Editor " + Util.getVersion();
@@ -44,7 +38,12 @@ namespace NibbleEditor
             Callbacks.showInfo = Util.showInfo;
             Callbacks.showError = Util.showError;
             Callbacks.Logger = new NbLogger();
-            
+
+            //Connect Window Callbacks
+            OnRenderUpdate += RenderFrame;
+            OnFrameUpdate += UpdateFrame;
+            OnWindowLoad += WindowLoad;
+
             //Start worker thread
             workDispatcher.Start();
         }
@@ -66,10 +65,8 @@ namespace NibbleEditor
             }
         }
 
-        protected override void OnLoad()
+        private void WindowLoad()
         {
-            base.OnLoad();
-            
             //OVERRIDE SETTINGS
             //FileUtils.dirpath = "I:\\SteamLibrary1\\steamapps\\common\\No Man's Sky\\GAMEDATA\\PCBANKS";
 
@@ -117,23 +114,22 @@ namespace NibbleEditor
             //Pass rendering settings to the Window
             RenderFrequency = RenderState.settings.renderSettings.FPS;
             UpdateFrequency = 60;
-            VSync = VSyncMode.Off;
-
-
+            SetRenderFrameFrequency(RenderState.settings.renderSettings.FPS);
+            SetFrameUpdateFrequency(60);
+            SetVSync(false);
+            
             //Create Default SceneGraph
             engine.sceneMgmtSys.CreateSceneGraph();
             engine.sceneMgmtSys.SetActiveScene(engine.sceneMgmtSys.SceneGraphs[0]);
             SceneGraph graph = engine.GetActiveSceneGraph();
 
+#if DEBUG
             //Create Test Scene
             SceneGraphNode test1 = engine.CreateLocatorNode("Test Locator 1");
             SceneGraphNode test2 = engine.CreateLocatorNode("Test Locator 2");
             test1.AddChild(test2);
             SceneGraphNode test3 = engine.CreateLocatorNode("Test Locator 3");
             test2.AddChild(test3);
-
-            Console.WriteLine(NbHasher.Hash("asdasdas"));
-            
 
             SceneGraphNode light = engine.CreateLightNode("Default Light", 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
             NbCore.Systems.TransformationSystem.SetEntityLocation(light, new NbVector3(100.0f, 100.0f, 100.0f));
@@ -143,7 +139,7 @@ namespace NibbleEditor
             //Request tranform update for the added nodes
             engine.RegisterSceneGraphTree(test1, true);
             engine.RequestEntityTransformUpdate(test1);
-            
+#endif
             //Populate SceneGraphView
             engine.NewSceneEvent?.Invoke(graph);
             
@@ -162,44 +158,33 @@ namespace NibbleEditor
             engine.SerializeScene(g, "scene_output.nb");
         }
 
-        protected override void OnResize(ResizeEventArgs e)
-        {
-            base.OnResize(e);
-        }
-
         private void CloseWindow()
         {
             engine.CleanUp();
             Close();
         }
         
-        protected override void OnUpdateFrame(FrameEventArgs e)
+        public void UpdateFrame(double dt)
         {
-            base.OnUpdateFrame(e);
-            
             Queue<object> data = new();
             
-            _inputLayer.OnFrameUpdate(ref data, e.Time);
-            _renderLayer.OnFrameUpdate(ref data, e.Time);
-            _uiLayer.OnFrameUpdate(ref data, e.Time);
-            
+            _inputLayer.OnFrameUpdate(ref data, dt);
+            _renderLayer.OnFrameUpdate(ref data, dt);
+            _uiLayer.OnFrameUpdate(ref data, dt);
+
             //Pass Global rendering settings
-            VSync = RenderState.settings.renderSettings.UseVSync ? VSyncMode.On : VSyncMode.Off;
+            SetVSync(RenderState.settings.renderSettings.UseVSync);
             RenderFrequency = RenderState.settings.renderSettings.FPS;
         }
 
-        protected override void OnRenderFrame(FrameEventArgs e)
+        public void RenderFrame(double dt)
         {
-            base.OnRenderFrame(e);
-
             //Render data
             Queue<object> data = new();
-
+            
             //_inputLayer.OnRenderFrameUpdate(ref data, e.Time);
-            _renderLayer.OnRenderFrameUpdate(ref data, e.Time);
-            _uiLayer.OnRenderFrameUpdate(ref data, e.Time);
-
-            SwapBuffers();
+            _renderLayer.OnRenderFrameUpdate(ref data, dt);
+            _uiLayer.OnRenderFrameUpdate(ref data, dt);
         }
 
         #region ResourceManager
@@ -415,29 +400,9 @@ namespace NibbleEditor
         {
             //Populate shader list
 
-#if (DEBUG)
-            //Query GL Extensions
-            Callbacks.Logger.Log(this, "OPENGL AVAILABLE EXTENSIONS:", LogVerbosityLevel.INFO);
-            string[] ext = GL.GetString(StringNameIndexed.Extensions, 0).Split(' ');
-            foreach (string s in ext)
-            {
-                if (s.Contains("explicit"))
-                    Callbacks.Logger.Log(this, s, LogVerbosityLevel.INFO);
-                if (s.Contains("texture"))
-                    Callbacks.Logger.Log(this, s, LogVerbosityLevel.INFO);
-                if (s.Contains("16"))
-                    Callbacks.Logger.Log(this, s, LogVerbosityLevel.INFO);
-            }
-
-            //Query maximum buffer sizes
-            Callbacks.Logger.Log(this, $"MaxUniformBlock Size {GL.GetInteger(GetPName.MaxUniformBlockSize)}", LogVerbosityLevel.INFO);
-#endif
-
             GLSLShaderConfig shader_conf;
             NbShader shader;
 
-            //Light Pass Shaders
-            
             //LIT
             shader = new()
             {

@@ -47,7 +47,6 @@ namespace NibbleEditor
                 show_modal = false;
             }
 
-            //THIS MODAL IS NIBBLENMSPLUGIN SPECIFIC REMOVE
             var isOpen = true;
             var winsize = new System.Numerics.Vector2(800, 400);
             ImGui.SetNextWindowSize(winsize);
