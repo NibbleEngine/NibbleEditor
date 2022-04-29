@@ -5,7 +5,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
 	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-	  <BaseOutputPath>..\Build</BaseOutputPath>
+	  <BaseOutputPath>Build</BaseOutputPath>
 	  <!--RuntimeIdentifier>linux-x64</RuntimeIdentifier-->
 	  <SelfContained>false</SelfContained>
 	  <PublishSingleFile>false</PublishSingleFile>
@@ -31,56 +31,44 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="$(SolutionDir)Resources\ianm32logo_border.png" />
+    <EmbeddedResource Include="Resources\ianm32logo_border.png" />
   </ItemGroup>
 
   <ItemGroup>
-		<ShaderFiles Include="$(SolutionDir)Shaders\**\*.glsl" />
-	</ItemGroup>
+	<ShaderFiles Include="Shaders\**\*.glsl" />
+  </ItemGroup>
 
+  <ItemGroup>
+	<Cimgui Include="lib\cimgui\linux-x64\cimgui.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' " />
+	<Cimgui Include="lib\cimgui\win-x64\cimgui.dll" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' " />
+  </ItemGroup>
+	
 	<!-- Copy Shaders to the Build Directory-->
 	<Target Name="CopyCustomContentBuild" AfterTargets="AfterBuild">
 		<Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(TargetDir)Shaders" />
+		<Copy SourceFiles="@(Cimgui)" DestinationFolder="$(TargetDir)" />
 		<Message Text="Shader files copied successfully." Importance="high" />
 	</Target>
 
 	<!-- Copy Shaders to the Publish Directory-->
 	<Target Name="CopyCustomContentPublish" AfterTargets="Publish">
 		<Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(PublishDir)Shaders" />
+		<Copy SourceFiles="@(Cimgui)" DestinationFolder="$(PublishDir)" />
 		<Message Text="Shader files copied successfully to publish dir." Importance="high" />
 	</Target>
-	
-	
-  <!-->Copy Plugins-->
-	<Target Name="CopyPluginsBuild" AfterTargets="AfterBuild">
-		<!-->Message Importance="high" Text="$(TargetFramework)"-->
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleNMSPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleOBJPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleAssimpPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-	    <Copy SourceFiles="$(SolutionDir)lib\libMBIN.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)lib\libPSARC.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)lib\zlib.net.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
-	</Target>
-
-	<Target Name="CopyPluginsPublish" AfterTargets="Publish">
-		<!-->Message Importance="high" Text="$(TargetFramework)"-->
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleNMSPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleOBJPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleAssimpPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)lib\libMBIN.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)lib\libPSARC.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
-		<Copy SourceFiles="$(SolutionDir)lib\zlib.net.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
-	</Target>
-
 	<ItemGroup>
-		<ProjectReference Include="..\NibbleDLL\NibbleDLL.csproj">
-			<SetConfiguration>Configuration=$(Configuration)</SetConfiguration>
-		</ProjectReference>
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	  <PackageReference Condition="$(DefineConstants.Contains('OPENGL'))" Include="OpenTK" Version="4.6.7" />
+	  <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
 	</ItemGroup>
+	
 
   <ItemGroup>
+	<Reference Include="Nibble">
+	  <HintPath>lib\Nibble.dll</HintPath>
+	</Reference>
     <Reference Include="ImGui.NET">
-      <HintPath>..\lib\ImGui.NET.dll</HintPath>
+      <HintPath>lib\ImGui.NET.dll</HintPath>
     </Reference>
   </ItemGroup>
   

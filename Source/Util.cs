@@ -8,8 +8,6 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 
-
-
 namespace NibbleEditor
 {
     public static class Util
