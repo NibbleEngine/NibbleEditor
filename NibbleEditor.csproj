@@ -57,6 +57,7 @@
 		<!-->Message Importance="high" Text="$(TargetFramework)"-->
 		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleNMSPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleOBJPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleAssimpPlugin.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
 	    <Copy SourceFiles="$(SolutionDir)lib\libMBIN.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\libPSARC.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\zlib.net.dll" DestinationFolder="$(TargetDir)Plugins" ContinueOnError="true" />
@@ -66,10 +67,15 @@
 		<!-->Message Importance="high" Text="$(TargetFramework)"-->
 		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleNMSPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleOBJPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
+		<Copy SourceFiles="$(SolutionDir)Build\Plugins\NibbleAssimpPlugin.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\libMBIN.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\libPSARC.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 		<Copy SourceFiles="$(SolutionDir)lib\zlib.net.dll" DestinationFolder="$(PublishDir)Plugins" ContinueOnError="true" />
 	</Target>
+
+	<ItemGroup>
+	  <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="6.0.1" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\NibbleDLL\NibbleDLL.csproj" Condition="$(Configuration)=='OpenGL_DEBUG'">

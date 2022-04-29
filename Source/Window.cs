@@ -119,8 +119,8 @@ namespace NibbleEditor
             SetVSync(false);
             
             //Create Default SceneGraph
-            engine.sceneMgmtSys.CreateSceneGraph();
-            engine.sceneMgmtSys.SetActiveScene(engine.sceneMgmtSys.SceneGraphs[0]);
+            engine.GetSystem<NbCore.Systems.SceneManagementSystem>().CreateSceneGraph();
+            engine.GetSystem<NbCore.Systems.SceneManagementSystem>().SetActiveScene(engine.GetSystem<NbCore.Systems.SceneManagementSystem>().SceneGraphs[0]);
             SceneGraph graph = engine.GetActiveSceneGraph();
 
 #if DEBUG
@@ -149,7 +149,7 @@ namespace NibbleEditor
 #endif
             //Set active Components
             Util.activeWindow = this;
-
+        
         }
 
         private void SaveActiveScene()
@@ -175,6 +175,7 @@ namespace NibbleEditor
             //Pass Global rendering settings
             SetVSync(RenderState.settings.renderSettings.UseVSync);
             RenderFrequency = RenderState.settings.renderSettings.FPS;
+        
         }
 
         public void RenderFrame(double dt)
@@ -207,7 +208,7 @@ namespace NibbleEditor
             RenderState.activeCam = cam;
 
             //Set Camera Initial State
-            TransformController tcontroller = engine.transformSys.GetEntityTransformController(cam);
+            TransformController tcontroller = engine.GetSystem<NbCore.Systems.TransformationSystem>().GetEntityTransformController(cam);
             tcontroller.AddFutureState(new NbVector3(0.0f, 0.2f, 0.5f), NbQuaternion.FromEulerAngles(0.0f, -3.14f / 2.0f, 0.0f, "XYZ"), new NbVector3(1.0f));
         }
 
@@ -536,8 +537,8 @@ namespace NibbleEditor
                 Name = "crossMat",
                 IsGeneric = true
             };
-            mat.add_flag(MaterialFlagEnum._F07_UNLIT);
-            mat.add_flag(MaterialFlagEnum._F21_VERTEXCOLOUR);
+            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._F21_VERTEXCOLOUR);
             NbUniform uf = new()
             {
                 Name = "gMaterialColourVec4",
@@ -556,7 +557,7 @@ namespace NibbleEditor
             
 #if DEBUG
             //Report UBOs
-            engine.renderSys.Renderer.ShaderReport(shader);
+            engine.GetSystem<NbCore.Systems.RenderingSystem>().Renderer.ShaderReport(shader);
 #endif
             engine.RegisterEntity(mat); //Register Material
             
@@ -566,7 +567,7 @@ namespace NibbleEditor
                 Name = "jointMat",
                 IsGeneric = true
             };
-            mat.add_flag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
 
             uf = new()
             {
@@ -598,7 +599,7 @@ namespace NibbleEditor
                 Name = "lightMat",
                 IsGeneric = true
             };
-            mat.add_flag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
 
             uf = new()
             {
@@ -630,7 +631,7 @@ namespace NibbleEditor
                 Name = "defaultMat",
                 IsGeneric = true
             };
-            mat.add_flag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
 
             uf = new()
             {
@@ -694,7 +695,7 @@ namespace NibbleEditor
                 Name = "collisionMat",
                 IsGeneric = true
             };
-            mat.add_flag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
 
             uf = new()
             {
@@ -734,7 +735,7 @@ namespace NibbleEditor
                 Hash = NbHasher.Hash("default_quad"),
                 Data = q.geom.GetMeshData(),
                 MetaData = q.geom.GetMetaData(),
-                Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
+                Material = engine.GetSystem<NbCore.Systems.RenderingSystem>().MaterialMgr.GetByName("defaultMat")
             };
 
             engine.RegisterEntity(mesh);
@@ -761,7 +762,7 @@ namespace NibbleEditor
                 Hash = NbHasher.Hash("default_cross"),
                 Data = c.geom.GetMeshData(),
                 MetaData = c.geom.GetMetaData(),
-                Material = engine.renderSys.MaterialMgr.GetByName("crossMat")
+                Material = engine.GetSystem<NbCore.Systems.RenderingSystem>().MaterialMgr.GetByName("crossMat")
             };
             
             engine.RegisterEntity(mesh);
@@ -775,7 +776,7 @@ namespace NibbleEditor
                 Hash = NbHasher.Hash("default_box"),
                 Data = bx.geom.GetMeshData(),
                 MetaData = bx.geom.GetMetaData(),
-                Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
+                Material = engine.GetSystem<NbCore.Systems.RenderingSystem>().MaterialMgr.GetByName("defaultMat")
             };
             engine.RegisterEntity(mesh);
             bx.Dispose();
@@ -788,7 +789,7 @@ namespace NibbleEditor
                 Hash = NbHasher.Hash("default_sphere"),
                 Data = sph.geom.GetMeshData(),
                 MetaData = sph.geom.GetMetaData(),
-                Material = engine.renderSys.MaterialMgr.GetByName("defaultMat")
+                Material = engine.GetSystem<NbCore.Systems.RenderingSystem>().MaterialMgr.GetByName("defaultMat")
             };
 
             engine.RegisterEntity(mesh);
@@ -802,7 +803,7 @@ namespace NibbleEditor
                 Hash = NbHasher.Hash("default_light_sphere"),
                 Data = lsph.geom.GetMeshData(),
                 MetaData = lsph.geom.GetMetaData(),
-                Material = engine.renderSys.MaterialMgr.GetByName("lightMat")
+                Material = engine.GetSystem<NbCore.Systems.RenderingSystem>().MaterialMgr.GetByName("lightMat")
             };
 
             engine.RegisterEntity(mesh);

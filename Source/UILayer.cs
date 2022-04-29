@@ -9,6 +9,8 @@ using NbCore.Math;
 using NbCore.Plugins;
 using NbCore.UI.ImGui;
 using OpenTK.Graphics.OpenGL4;
+using System.Diagnostics;
+using System.Linq;
 
 namespace NibbleEditor
 {
@@ -34,6 +36,12 @@ namespace NibbleEditor
         public event CloseWindowEventHandler CloseWindowEvent;
         public event CaptureInputHandler CaptureInput;
         public event SaveActiveSceneHandler SaveActiveSceneEvent;
+
+        //Stats
+        float TotalProcMemory = 0.0f;
+        double CPUUsage = 0.0;
+        TimeSpan lastProcTotalTime = new TimeSpan();
+        DateTime lastTime = DateTime.Now;
 
         public UILayer(Window win, Engine e) : base(e)
         {
@@ -84,6 +92,15 @@ namespace NibbleEditor
             
             RenderState.activeCam.updateViewMatrix();
 
+            //Accumulate Stats
+            //TODO: Move that to the window class?
+            Process prc = Process.GetCurrentProcess();
+            TimeSpan curTotalProcessorTime = prc.TotalProcessorTime;
+            TotalProcMemory = prc.PrivateMemorySize64 / 1024.0f / 1024.0f;
+            DateTime curTime = DateTime.Now;
+            CPUUsage = (curTotalProcessorTime.TotalMilliseconds - lastProcTotalTime.TotalMilliseconds) * 100.0 / curTime.Subtract(lastTime).TotalMilliseconds / Environment.ProcessorCount;
+            lastTime = curTime;
+            lastProcTotalTime = curTotalProcessorTime;
         }
 
         public override void OnRenderFrameUpdate(ref Queue<object> data, double dt)
@@ -299,7 +316,7 @@ namespace NibbleEditor
                 csize.X = Math.Max(csize.X, 100);
                 csize.Y = Math.Max(csize.Y, 100);
                 NbVector2i csizetk = new((int)csize.X, (int)csize.Y);
-                ImGui.Image(new IntPtr(EngineRef.renderSys.getRenderFBO().GetTexture(NbFBOAttachment.Attachment0).texID),
+                ImGui.Image(new IntPtr(EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().getRenderFBO().GetTexture(NbFBOAttachment.Attachment0).texID),
                                 csize,
                                 new System.Numerics.Vector2(0.0f, 1.0f),
                                 new System.Numerics.Vector2(1.0f, 0.0f));
@@ -307,10 +324,10 @@ namespace NibbleEditor
                 bool active_status = ImGui.IsItemHovered();
                 CaptureInput?.Invoke(active_status);
 
-                if (csizetk != EngineRef.renderSys.GetViewportSize())
+                if (csizetk != EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().GetViewportSize())
                 {
                     SceneViewSize = csizetk;
-                    EngineRef.renderSys.Resize(csizetk.X, csizetk.Y);
+                    EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().Resize(csizetk.X, csizetk.Y);
                 }
 
                 ImGui.End();
@@ -414,7 +431,7 @@ namespace NibbleEditor
                 if (ImGui.Button("Reset Camera"))
                 {
                     RenderState.activeCam.Position = new NbVector3(0.0f);
-                    TransformController t_controller = RenderState.engineRef.transformSys.GetEntityTransformController(RenderState.activeCam);
+                    TransformController t_controller = RenderState.engineRef.GetSystem<NbCore.Systems.TransformationSystem>().GetEntityTransformController(RenderState.activeCam);
                     t_controller.AddFutureState(new NbVector3(0.0f),
                                                 NbQuaternion.FromEulerAngles(0.0f, MathUtils.radians(90.0f), 0.0f, "XYZ"),
                                                 t_controller.Scale);
@@ -491,10 +508,31 @@ namespace NibbleEditor
             //Debugging Information
             if (ImGui.Begin("Statistics"))
             {
-                ImGui.Text(string.Format("FPS : {0, 3:F1}", 1.0f / EngineRef.renderSys.frameStats.Frametime));
-                ImGui.Text(string.Format("FrameTime : {0, 3:F6}", EngineRef.renderSys.frameStats.Frametime));
-                ImGui.Text(string.Format("VertexCount : {0}", EngineRef.renderSys.frameStats.RenderedVerts));
-                ImGui.Text(string.Format("TrisCount : {0}", EngineRef.renderSys.frameStats.RenderedIndices / 3));
+
+                if (ImGui.CollapsingHeader("Application"))
+                {
+                    ImGui.Text(string.Format("RAM : {0, 3:F1} MBs", TotalProcMemory));
+                    ImGui.Text(string.Format("CPU Usage : {0, 4:F3} ", CPUUsage));
+                }
+                
+                if (ImGui.CollapsingHeader("Rendering"))
+                {
+                    ImGui.Text(string.Format("FPS : {0, 3:F1}", 1.0f / EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().frameStats.Frametime));
+                    ImGui.Text(string.Format("FrameTime : {0, 3:F6}", EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().frameStats.Frametime));
+                    ImGui.Text(string.Format("Vertices : {0}", EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().frameStats.RenderedVerts));
+                    ImGui.Text(string.Format("Tris : {0}", EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().frameStats.RenderedIndices / 3));
+                    ImGui.Text(string.Format("Meshes : {0}", EngineRef.GetEntityListCount(EntityType.Mesh)));
+                    ImGui.Text(string.Format("Materials : {0}", EngineRef.GetEntityListCount(EntityType.Material)));
+                    ImGui.Text(string.Format("Textures : {0}", EngineRef.GetEntityListCount(EntityType.Texture)));
+                    ImGui.Text(string.Format("Shaders : {0}", EngineRef.GetEntityListCount(EntityType.Shader)));
+                }
+
+                if (ImGui.CollapsingHeader("Scripting"))
+                {
+                    ImGui.Text(string.Format("Scripts : {0}", EngineRef.GetEntityListCount(EntityType.Script)));
+                    ImGui.Text(string.Format("Script Evaluations : {0}", EngineRef.GetSystem<NbCore.Systems.ScriptingSystem>().EntityDataMap.Values.Count));
+                }
+
                 ImGui.End();
             }
 
@@ -607,7 +645,7 @@ namespace NibbleEditor
 
             //Set parent
             new_node.SetParent(EngineRef.GetActiveSceneGraph().Root);
-            EngineRef.transformSys.RequestEntityUpdate(new_node);
+            EngineRef.GetSystem<NbCore.Systems.TransformationSystem>().RequestEntityUpdate(new_node);
         }
 
 

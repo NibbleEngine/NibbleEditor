@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NbCore;
 using NbCore.Common;
 using NbCore.Math;
+using NbCore.Systems;
 
 namespace NibbleEditor
 {
@@ -18,19 +19,20 @@ namespace NibbleEditor
         {
             //Enable Animation System
             //if (RenderState.settings.renderSettings.ToggleAnimations)
-            EngineRef.animationSys.OnFrameUpdate(dt);
+            EngineRef.GetSystem<AnimationSystem>().OnFrameUpdate(dt);
 
             //Update systems
-            EngineRef.sceneMgmtSys.OnFrameUpdate(dt);
-            EngineRef.transformSys.OnFrameUpdate(dt);
+            EngineRef.GetSystem<SceneManagementSystem>().OnFrameUpdate(dt);
+            EngineRef.GetSystem<TransformationSystem>().OnFrameUpdate(dt);
+            EngineRef.GetSystem<ScriptingSystem>().OnFrameUpdate(dt);
             
             //Enable Action System
             if (RenderState.settings.viewSettings.EmulateActions)
-                EngineRef.actionSys.OnFrameUpdate(dt);
+                EngineRef.GetSystem<ActionSystem>().OnFrameUpdate(dt);
 
             //Post FrameUpdate Actions
-            EngineRef.animationSys.OnPostFrameUpdate();
-
+            EngineRef.GetSystem<AnimationSystem>().OnPostFrameUpdate();
+            
             //Camera & Light Positions
             //Update common transforms
 
@@ -45,12 +47,12 @@ namespace NibbleEditor
         public override void OnRenderFrameUpdate(ref Queue<object> data, double dt)
         {
             //Per Frame System Updates
-            EngineRef.transformSys.OnRenderUpdate(dt);
-            EngineRef.animationSys.OnRenderUpdate(dt);
-            EngineRef.sceneMgmtSys.OnRenderUpdate(dt);
+            EngineRef.GetSystem<TransformationSystem>().OnRenderUpdate(dt);
+            EngineRef.GetSystem<AnimationSystem>().OnRenderUpdate(dt);
+            EngineRef.GetSystem<SceneManagementSystem>().OnRenderUpdate(dt);
 
             //Rendering
-            EngineRef.renderSys.OnRenderUpdate(dt);
+            EngineRef.GetSystem<RenderingSystem>().OnRenderUpdate(dt);
         }
 
     }
