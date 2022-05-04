@@ -7,8 +7,6 @@
 //Includes
 #include "common.glsl"
 #include "common_structs.glsl"
-#include "common_lighting.glsl"
-
 
 in vec2 uv;
 uniform vec3 color;
@@ -18,7 +16,6 @@ uniform CustomPerMaterialUniforms mpCustomPerMaterial;
 
 //Deferred Shading outputs
 out vec4 fragColor;
-
 
 
 void main(){

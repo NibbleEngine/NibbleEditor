@@ -20,9 +20,9 @@
  
 //Includes
 #include "common.glsl"
+#include "brdf.glsl"
 #include "common_structs.glsl"
 #include "common_lighting.glsl"
-
 
 //TODO: Do some queries internally and figure out the exact locations of the uniforms
 uniform CustomPerMaterialUniforms mpCustomPerMaterial;
@@ -69,7 +69,7 @@ out vec4 outcolors[3];
 //New Decoding function - RGTC
 vec3 DecodeNormalMap(vec4 lNormalTexVec4 ){
     lNormalTexVec4 = normalize(2.0 * lNormalTexVec4 - 1.0);
-    return ( vec3( lNormalTexVec4.r, lNormalTexVec4.g, sqrt( max( 1.0 - lNormalTexVec4.r*lNormalTexVec4.r - lNormalTexVec4.g*lNormalTexVec4.g, 0.0 ) ) ) );
+	return ( vec3( lNormalTexVec4.r, lNormalTexVec4.g, sqrt( max( 1.0 - lNormalTexVec4.r*lNormalTexVec4.r - lNormalTexVec4.g*lNormalTexVec4.g, 0.0 ) ) ) );
 }
 
 float
@@ -314,7 +314,8 @@ void pbr_lighting(){
 					vec4 lTexColour = texture(mpCustomPerMaterial.gNormalMap, lTexCoordsVec4.xy);
 	            #endif 
 	        
-	        	vec3 lNormalTexVec3 = DecodeNormalMap( lTexColour );
+	        	//vec3 lNormalTexVec3 = DecodeNormalMap( lTexColour );
+				vec3 lNormalTexVec3 = 2.0 * lTexColour.rgb - 1.0;
 	        #endif
 	            
 	         lNormalVec3 = lNormalTexVec3;
@@ -373,7 +374,7 @@ void pbr_lighting(){
 	            }
 	            #endif
 
-	            lfRoughness = 1.0 - lfRoughness;
+	            //lfRoughness = 1.0 - lfRoughness;
 	        }
 	        #endif
 
@@ -381,7 +382,7 @@ void pbr_lighting(){
 
 	        #ifdef _F39_METALLIC_MASK
 	        {
-	            lfMetallic = lHighAlpha;
+	            lfMetallic = lMasks.b;
 
 	            #ifdef _D_DETAIL
 	            {
@@ -391,11 +392,11 @@ void pbr_lighting(){
 	            }
 	            #endif        
 	        }
-	        #else 
-	        	lfMetallic = mpCustomPerMaterial.uniforms[1].z;
-        	#endif
-
-	        #ifdef _F40_SUBSURFACE_MASK
+	        
+			#endif
+			lfMetallic *= mpCustomPerMaterial.uniforms[1].z;
+        	
+			#ifdef _F40_SUBSURFACE_MASK
 	        	lfSubsurface = lMasks.r;
 	        #endif
 

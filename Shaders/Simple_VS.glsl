@@ -102,18 +102,18 @@ void main()
     //mat4 nMat =  transpose(inverse(instanceData[gl_InstanceID].worldMat));
     
     //OLD
-    vec4 lWorldTangentVec4 = normalize(nMat * lLocalTangentVec4);
-    vec4 lWorldNormalVec4 = normalize(nMat * lLocalNormalVec4);
-    vec4 lWorldBitangentVec4 = normalize(nMat * lLocalBitangentVec4);
+    vec3 lWorldTangentVec4 = normalize(vec3(nMat * vec4(lLocalTangentVec4.xyz, 0.0)));
+    vec3 lWorldNormalVec4 = normalize(vec3(nMat * vec4(lLocalNormalVec4.xyz, 0.0)));
+    vec3 lWorldBitangentVec4 = cross(lWorldNormalVec4, lWorldTangentVec4);
     
     //Re-orthogonalize tangent
     //lWorldTangentVec4.xyz = normalize(lWorldTangentVec4.xyz - dot(lWorldTangentVec4.xyz, lWorldNormalVec4.xyz) * lWorldNormalVec4.xyz);
     
     //vec4 lWorldBitangentVec4 = normalize(vec4( cross(lWorldNormalVec4.xyz, lWorldTangentVec4.xyz), 0.0));
     
-    TBN = mat3( lWorldTangentVec4.xyz,
-                lWorldBitangentVec4.xyz,
-                lWorldNormalVec4.xyz );
+    TBN = mat3( lWorldTangentVec4,
+                lWorldBitangentVec4,
+                lWorldNormalVec4 );
 
     //Send world normal to fragment shader
     mTangentSpaceNormalVec3 = lWorldNormalVec4.xyz;

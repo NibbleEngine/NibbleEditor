@@ -6,14 +6,15 @@
 //Includes
 #include "common.glsl"
 #include "common_structs.glsl"
+#include "brdf.glsl"
 #include "common_lighting.glsl"
-
 
 //Diffuse Textures
 uniform sampler2D albedoTex;
 uniform sampler2D normalTex;
+uniform sampler2D parameterTex01;
+uniform sampler2D parameterTex02;
 uniform sampler2D depthTex;
-uniform sampler2D parameterTex;
 
 in vec4 screenPos;
 in vec4 lightPos;
@@ -72,42 +73,34 @@ void main()
     
 	vec4 albedoColor = texture(albedoTex, uv);	
 	vec4 fragNormal = texture(normalTex, uv);
-	vec4 fragParams = texture(parameterTex, uv);
+	vec4 fragParams01 = texture(parameterTex01, uv);
+	vec4 fragParams02 = texture(parameterTex02, uv);
 	vec4 depthColor = texture(depthTex, uv);
 	
 	//Calculate fragment Position from depth
 	vec4 fragPos = worldfromDepth(uv, depthColor.r);
 
 	//Load Frag Info
-	float ao = fragParams.x;
-	float lfMetallic = fragParams.y;
-	float lfRoughness = fragParams.z;
-	float lfSubsurface = fragParams.a;
-	float isLit = fragNormal.a;
+	float lfAo = fragParams01.x;
+	float lfAoStrength = fragParams01.y;
+	float lfMetallic = fragParams01.z;
+	float lfRoughness = fragParams01.w;
+	vec3 lfEmissive = fragParams02.rgb;
 	
+
 	vec4 finalColor = vec4(0.0);
-    
-    //finalColor = mix(finalColor, albedoColor, lfGlow);
-	vec4 ambient = vec4(vec3(0.03) * albedoColor.rgb, 0.0);
-
-
-	if (isLit > 0.0)
-	{
-		Light light;
-		light.position = lightPos;
-		light.direction = lightDirection;
-		light.color = lightColor;
-		light.parameters = lightParameters;
-		
-		finalColor.rgb = calcLighting(light, fragPos, fragNormal.xyz, 
-				mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, albedoColor.rgb, lfMetallic, lfRoughness, ao);
-		
-		//finalColor.rgb = vec3(0.0, 1.0, 0.0);
-
-		finalColor.a = albedoColor.a;
-	} else {
-		finalColor = albedoColor;	
-	}
 	
-	fragColor = finalColor;
+	Light light;
+	light.position = lightPos;
+	light.direction = lightDirection;
+	light.color = lightColor;
+	light.parameters = lightParameters;
+	
+	finalColor.rgb = calcLighting(light, fragPos, fragNormal.xyz, 
+			mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, 
+			albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
+	finalColor.a = albedoColor.a;
+
+	fragColor = mix(albedoColor, finalColor, fragNormal.w);
+	
 }

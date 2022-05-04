@@ -9,7 +9,6 @@
 //These defines are used for quick reference on the material flags.
 //For ease of use all the includes will be the same flags with an underscore 
 
-
 // #define _F01_DIFFUSEMAP 0
 // #define _F02_SKINNED 1
 // #define _F03_NORMALMAP 2

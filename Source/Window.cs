@@ -281,14 +281,14 @@ namespace NibbleEditor
 
             //UberShader Shader
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Simple_VS.glsl"),
-                                      engine.GetShaderSourceByFilePath("Shaders/Simple_FS.glsl"),
+                                      engine.GetShaderSourceByFilePath("Shaders/ubershader_fs.glsl"),
                                       null, null, null,
                                       NbShaderMode.DEFFERED, "UberShader_Deferred", true);
             engine.RegisterEntity(conf);
 
             //UberShader Lit Shader
             conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Simple_VS.glsl"),
-                                      engine.GetShaderSourceByFilePath("Shaders/Simple_FS.glsl"),
+                                      engine.GetShaderSourceByFilePath("Shaders/ubershader_fs.glsl"),
                                       null, null, null,
                                       NbShaderMode.DEFFERED | NbShaderMode.LIT, "UberShader_Deferred_Lit", true);
             engine.RegisterEntity(conf);
@@ -346,10 +346,10 @@ namespace NibbleEditor
             engine.RegisterEntity(conf);
 
             //FXAA
-            conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/Gbuffer_VS.glsl"),
+            conf = engine.CreateShaderConfig(engine.GetShaderSourceByFilePath("Shaders/fxaa_shader_vs.glsl"),
                                       engine.GetShaderSourceByFilePath("Shaders/fxaa_shader_fs.glsl"),
                                       null, null, null,
-                                      NbShaderMode.FORWARD, "FXAA", true);
+                                      NbShaderMode.DEFAULT, "FXAA", true);
             engine.RegisterEntity(conf);
 
             //TONE MAPPING + GAMMA CORRECTION
@@ -412,7 +412,7 @@ namespace NibbleEditor
             };
 
             shader.SetShaderConfig(engine.GetShaderConfigByName("LightPass_Lit_Forward"));
-            engine.CompileShader(shader);
+            Callbacks.Assert(engine.CompileShader(shader), "Error on shader compilation");
             engine.RegisterEntity(shader);
 
             //GAUSSIAN HORIZONTAL BLUR SHADER
@@ -455,10 +455,11 @@ namespace NibbleEditor
             //FXAA
             shader = new() 
             { 
-                IsGeneric = true 
+                IsGeneric = true,
+                Type = NbShaderType.FXAA_SHADER,
             };
             shader.SetShaderConfig(engine.GetShaderConfigByName("FXAA"));
-            engine.CompileShader(shader);
+            Callbacks.Assert(engine.CompileShader(shader), "Error on shader compilation");
             engine.RegisterEntity(shader);
 
             //TONE MAPPING + GAMMA CORRECTION
@@ -491,16 +492,13 @@ namespace NibbleEditor
             engine.RegisterEntity(shader);
 
             //Text Shaders
-            shader = new() 
-            {
-                IsGeneric = true 
-            };
-            shader.SetShaderConfig(engine.GetShaderConfigByName("Text"));
+            shader = engine.CreateShader(engine.GetShaderConfigByName("Text"), new List<string> { MaterialFlagEnum._NB_DIFFUSE_MAP.ToString() });
+            shader.IsGeneric = true;
             engine.CompileShader(shader);
             engine.RegisterEntity(shader);
 
             //FILTERS - EFFECTS
-
+            
             //Pass Shader
             shader = new()
             {
@@ -537,7 +535,7 @@ namespace NibbleEditor
                 Name = "crossMat",
                 IsGeneric = true
             };
-            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._NB_UNLIT);
             mat.AddFlag(MaterialFlagEnum._F21_VERTEXCOLOUR);
             NbUniform uf = new()
             {
@@ -552,7 +550,7 @@ namespace NibbleEditor
             mat.Uniforms.Add(uf);
 
             shader = engine.CreateShader(config_deferred, engine.GetMaterialShaderDirectives(mat));
-            engine.CompileShader(shader);
+            Callbacks.Assert(engine.CompileShader(shader), "Error during shader compilation");
             mat.AttachShader(shader);
             
 #if DEBUG
@@ -567,7 +565,7 @@ namespace NibbleEditor
                 Name = "jointMat",
                 IsGeneric = true
             };
-            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._NB_UNLIT);
 
             uf = new()
             {
@@ -587,7 +585,7 @@ namespace NibbleEditor
             if (shader == null)
             {
                 shader = engine.CreateShader(config_deferred, engine.GetMaterialShaderDirectives(mat));
-                engine.CompileShader(shader);
+                NbCore.Common.Callbacks.Assert(engine.CompileShader(shader), "Error during shader compilation");
             }
             
             mat.AttachShader(shader);
@@ -599,7 +597,7 @@ namespace NibbleEditor
                 Name = "lightMat",
                 IsGeneric = true
             };
-            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._NB_UNLIT);
 
             uf = new()
             {
@@ -619,7 +617,7 @@ namespace NibbleEditor
             if (shader == null)
             {
                 shader = engine.CreateShader(config_deferred, engine.GetMaterialShaderDirectives(mat));
-                engine.CompileShader(shader);
+                NbCore.Common.Callbacks.Assert(engine.CompileShader(shader), "Error during shader compilation");
             }
 
             mat.AttachShader(shader);
@@ -631,7 +629,7 @@ namespace NibbleEditor
                 Name = "defaultMat",
                 IsGeneric = true
             };
-            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._NB_UNLIT);
 
             uf = new()
             {
@@ -651,7 +649,7 @@ namespace NibbleEditor
             if (shader == null)
             {
                 shader = engine.CreateShader(config_deferred, engine.GetMaterialShaderDirectives(mat));
-                engine.CompileShader(shader);
+                NbCore.Common.Callbacks.Assert(engine.CompileShader(shader), "Error during shader compilation");
             }
 
             mat.AttachShader(shader);
@@ -682,7 +680,7 @@ namespace NibbleEditor
             if (shader == null)
             {
                 shader = engine.CreateShader(config_deferred, engine.GetMaterialShaderDirectives(mat));
-                engine.CompileShader(shader);
+                NbCore.Common.Callbacks.Assert(engine.CompileShader(shader), "Error during shader compilation");
             }
 
             mat.AttachShader(shader);

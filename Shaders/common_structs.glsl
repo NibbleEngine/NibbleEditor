@@ -55,7 +55,7 @@ struct CommonPerFrameSamplers
     sampler2DArray shadowMap; //Dummy - NOT USED
 };
 
-//Custom Per Frame Struct
+
 struct CustomPerMaterialUniforms  //locations:73
 {
     #ifdef _F55_MULTITEXTURE
@@ -64,22 +64,39 @@ struct CustomPerMaterialUniforms  //locations:73
         sampler2DArray gMasksMap;
         sampler2DArray gNormalMap;
     #else
-        sampler2D gDiffuseMap;
-        sampler2D gDiffuse2Map;
-        sampler2D gMasksMap;
-        sampler2D gNormalMap;
+        
+        #if defined(_NB_DIFFUSE_MAP)
+            sampler2D gDiffuseMap;
+        #endif
+        #ifdef _F16_DIFFUSE2MAP
+            sampler2D gDiffuse2Map;
+        #endif
+        
+        #if defined(_NB_AO_METALLIC_ROUGHNESS_MAP) || defined(_NB_METALLIC_ROUGHNESS_MAP)
+            sampler2D gMasksMap;
+        #endif
+        
+        #if defined(_NB_AO_MAP)
+            sampler2D gAoMap;
+        #endif
+        
+        #if defined(_NB_NORMAL_MAP)
+            sampler2D gNormalMap;
+        #endif
+
+        #if defined(_NB_EMISSIVE_MAP)
+            sampler2D gEmissiveMap;
+        #endif
+
     #endif
 
-    vec4 uniforms[10];
-    
-    //Uniform Index Convention
-    //0: MaterialColour
-    //1: MaterialParameters
-    //2: MaterialSFX
-    //3: MaterailSFXColours
-    //4: UVScrollStep
-    //5: DissolveData
-    //6: CustomParameters
+    //Uniforms
+    vec3 uDiffuseFactor;
+    float uMetallicFactor;
+    float uRoughnessFactor;
+    float uOcclusionStrength;
+    vec3 uEmissiveFactor;
+    float uEmissiveStrength;
 
 };
 

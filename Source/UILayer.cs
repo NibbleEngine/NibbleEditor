@@ -55,6 +55,12 @@ namespace NibbleEditor
             //Load Settings
             if (!File.Exists("settings.json"))
                 _ImGuiManager.ShowSettingsWindow();
+
+            //CPU stats timer
+            System.Timers.Timer sysPerfTimer = new();
+            sysPerfTimer.Elapsed += FetchAppPerformanceStats;
+            sysPerfTimer.Interval = 10000;
+            sysPerfTimer.Start();
         }
 
         //Event Handlers
@@ -92,6 +98,11 @@ namespace NibbleEditor
             
             RenderState.activeCam.updateViewMatrix();
 
+            
+        }
+
+        private void FetchAppPerformanceStats(object sender, System.Timers.ElapsedEventArgs args)
+        {
             //Accumulate Stats
             //TODO: Move that to the window class?
             Process prc = Process.GetCurrentProcess();
