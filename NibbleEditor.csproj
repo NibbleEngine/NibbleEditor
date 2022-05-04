@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\ianm32logo_border.png" />
+    <EmbeddedResource Include="Resources\Roboto-Medium.ttf" />
   </ItemGroup>
 
   <ItemGroup>
