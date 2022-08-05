@@ -52,7 +52,7 @@ namespace NibbleEditor
         public static void Assert(bool status, string msg)
         {
             if (!status)
-                Callbacks.Logger.Log(Assembly.GetCallingAssembly(), msg, LogVerbosityLevel.ERROR);
+                Callbacks.Log(Assembly.GetCallingAssembly(), msg, LogVerbosityLevel.ERROR);
             System.Diagnostics.Trace.Assert(status);
         }
     

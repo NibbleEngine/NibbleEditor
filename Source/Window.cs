@@ -25,7 +25,7 @@ namespace NibbleEditor
         private InputLayer _inputLayer;
         private RenderLayer _renderLayer;
         private UILayer _uiLayer;
-
+        private NbLogger _logger;
         
         public Window() : base()
         {
@@ -37,7 +37,10 @@ namespace NibbleEditor
             Callbacks.updateStatus = Util.setStatus;
             Callbacks.showInfo = Util.showInfo;
             Callbacks.showError = Util.showError;
-            Callbacks.Logger = new NbLogger();
+
+
+            _logger = new NbLogger();
+            Callbacks.Log = _logger.Log;
 
             //Connect Window Callbacks
             OnRenderUpdate += RenderFrame;
@@ -107,8 +110,8 @@ namespace NibbleEditor
 
             TextInput += _uiLayer.OnTextInput;
             Resize += _uiLayer.OnResize;
-            Callbacks.Logger.LogEvent += _uiLayer.OnLog;
-
+            _logger.LogEvent += _uiLayer.OnLog;
+            
             RenderState.settings = Settings.loadFromDisk();
             
             //Pass rendering settings to the Window
@@ -234,7 +237,7 @@ namespace NibbleEditor
                         //Convert filepath to single 
                         string filepath = FileUtils.FixPath(file.FullName);
                         //Add source file
-                        Callbacks.Logger.Log(this, $"Working On {filepath}", LogVerbosityLevel.INFO);
+                        Callbacks.Log(this, $"Working On {filepath}", LogVerbosityLevel.INFO);
                         if (engine.GetShaderSourceByFilePath(filepath) == null)
                         {
                             //Construction includes registration
@@ -525,7 +528,7 @@ namespace NibbleEditor
         private void AddDefaultMaterials()
         {
             //Cross Material
-            MeshMaterial mat;
+            NbMaterial mat;
             GLSLShaderConfig config_deferred = engine.GetShaderConfigByName("UberShader_Deferred");
             GLSLShaderConfig config_deferred_lit = engine.GetShaderConfigByName("UberShader_Deferred_Lit");
             NbShader shader;
@@ -536,7 +539,7 @@ namespace NibbleEditor
                 IsGeneric = true
             };
             mat.AddFlag(MaterialFlagEnum._NB_UNLIT);
-            mat.AddFlag(MaterialFlagEnum._F21_VERTEXCOLOUR);
+            mat.AddFlag(MaterialFlagEnum._NB_VERTEX_COLOUR);
             NbUniform uf = new()
             {
                 Name = "gMaterialColourVec4",
@@ -560,7 +563,7 @@ namespace NibbleEditor
             engine.RegisterEntity(mat); //Register Material
             
             //Joint Material
-            mat = new MeshMaterial
+            mat = new NbMaterial
             {
                 Name = "jointMat",
                 IsGeneric = true
@@ -693,7 +696,7 @@ namespace NibbleEditor
                 Name = "collisionMat",
                 IsGeneric = true
             };
-            mat.AddFlag(MaterialFlagEnum._F07_UNLIT);
+            mat.AddFlag(MaterialFlagEnum._NB_UNLIT);
 
             uf = new()
             {

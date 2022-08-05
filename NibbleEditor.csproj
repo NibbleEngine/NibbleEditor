@@ -6,9 +6,9 @@
     <TargetFramework>net5.0</TargetFramework>
 	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	  <BaseOutputPath>Build</BaseOutputPath>
-	  <!--RuntimeIdentifier>linux-x64</RuntimeIdentifier-->
 	  <SelfContained>false</SelfContained>
 	  <PublishSingleFile>false</PublishSingleFile>
+	  <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
 	  <!--IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract-->
 	  <!--PublishReadyToRun>true</PublishReadyToRun-->
 	<ApplicationIcon />
@@ -40,6 +40,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Roboto-Medium.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
 	<Cimgui Include="lib\cimgui\linux-x64\cimgui.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' " />
 	<Cimgui Include="lib\cimgui\win-x64\cimgui.dll" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' " />
   </ItemGroup>
@@ -60,15 +64,17 @@
 	<ItemGroup>
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 	  <PackageReference Condition="$(DefineConstants.Contains('OPENGL'))" Include="OpenTK" Version="4.6.7" />
-	  <PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" />
+	  <!--PackageReference Include="SixLabors.ImageSharp" Version="2.1.1" /-->
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\NibbleDLL\NibbleDLL\NibbleDLL.csproj">
+			<Configuration>$(Configuration)</Configuration>
+		</ProjectReference>
 	</ItemGroup>
 	
 
   <ItemGroup>
-	<Reference Include="Nibble">
-	  <HintPath>lib\Nibble.dll</HintPath>
-	</Reference>
-    <Reference Include="ImGui.NET">
+	<Reference Include="ImGui.NET">
       <HintPath>lib\ImGui.NET.dll</HintPath>
     </Reference>
   </ItemGroup>

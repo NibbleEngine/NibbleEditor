@@ -568,7 +568,7 @@ namespace NibbleEditor
             EngineRef.RegisterEntity(conf);
 
             //Create Material
-            MeshMaterial mat = new();
+            NbMaterial mat = new();
             mat.Name = "mixMaterial";
             NbUniform uf = new()
             {

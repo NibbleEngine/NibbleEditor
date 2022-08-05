@@ -127,9 +127,11 @@ void pbr_lighting(){
     float mipmaplevel = mip_map_level(uv.xy);
     
     //Load Base albedo color
-    #ifdef _NB_DIFFUSE_MAP
+    #if defined(_NB_DIFFUSE_MAP)
         lColourVec4 = textureLod(mpCustomPerMaterial.gDiffuseMap, lTexCoordsVec4.xy, mipmaplevel);
-    #else
+    #elif defined(_NB_VERTEX_COLOUR)
+		lColourVec4 = vec4(vertColor.rgb, 1.0);
+	#else
         lColourVec4 = vec4(mpCustomPerMaterial.uDiffuseFactor, 1.0);
     #endif
     
@@ -202,7 +204,7 @@ void pbr_lighting(){
 		//FORWARD LIGHTING
 		vec4 finalColor = lColourVec4;
 
-		#ifndef _F07_UNLIT
+		#ifndef _NB_UNLIT
 		//TODO: Remove that lighting code, I don't like that at all.
 		//I should find a way to light everything in the light pass
 		if (mpCommonPerFrame.use_lighting > 0.0) {

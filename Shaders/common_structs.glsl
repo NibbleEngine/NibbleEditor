@@ -97,6 +97,7 @@ struct CustomPerMaterialUniforms  //locations:73
     float uOcclusionStrength;
     vec3 uEmissiveFactor;
     float uEmissiveStrength;
+    float testValue;
 
 };
 
