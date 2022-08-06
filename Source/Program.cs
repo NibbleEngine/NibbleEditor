@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NbCore.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,8 +11,10 @@ namespace NibbleEditor
     {   
         static void Main()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += LibUtils.LoadAssembly;
             Window wnd = new Window();
             wnd.Run();
         }
     }
 }
+ 

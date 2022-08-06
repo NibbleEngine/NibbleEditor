@@ -9,6 +9,7 @@ using NbCore.Utils;
 using System.Collections.Generic;
 using NbCore.Platform.Graphics;
 using System.IO;
+using System.Reflection;
 
 namespace NibbleEditor
 {
@@ -31,16 +32,15 @@ namespace NibbleEditor
         {
             //Set Window Title
             Title = "Nibble Editor " + Util.getVersion();
-
-            //SETUP THE Callbacks FOR THE NbCore ENVIRONMENT
-            Callbacks.SetDefaultCallbacks();
-            Callbacks.updateStatus = Util.setStatus;
-            Callbacks.showInfo = Util.showInfo;
-            Callbacks.showError = Util.showError;
-
-
+            
+            
+            //Initialize Logger
             _logger = new NbLogger();
             Callbacks.Log = _logger.Log;
+
+            //Initialize Engine backend
+            engine = new Engine();
+            RenderState.engineRef = engine; //Set reference to engine [Should do before initialization]
 
             //Connect Window Callbacks
             OnRenderUpdate += RenderFrame;
@@ -49,6 +49,40 @@ namespace NibbleEditor
 
             //Start worker thread
             workDispatcher.Start();
+        
+        }
+
+        private Assembly LoadAssembly(object sender, ResolveEventArgs args)
+        {
+            Console.WriteLine("Nibble Editor Assembly Loader");
+            Assembly result = null;
+            if (args != null && !string.IsNullOrEmpty(args.Name))
+            {
+                //Get current exe fullpath
+                FileInfo info = new FileInfo(Assembly.GetExecutingAssembly().Location);
+
+                //Get folder of the executing .exe
+                var folderPath = info.Directory.FullName;
+
+                //Build potential fullpath to the loading assembly
+                var assemblyName = args.Name.Split(new string[] { "," }, StringSplitOptions.None)[0];
+                var assemblyExtension = "dll";
+                var assemblyPath = Path.Combine(folderPath, string.Format("{0}.{1}", assemblyName, assemblyExtension));
+
+                //Check if the assembly exists in our "Libs" directory
+                if (File.Exists(assemblyPath))
+                {
+                    //Load the required assembly using our custom path
+                    result = Assembly.LoadFrom(assemblyPath);
+                }
+                else
+                {
+                    //Keep default loading
+                    return args.RequestingAssembly;
+                }
+            }
+
+            return result;
         }
 
         private void LoadPlugins()
@@ -73,9 +107,14 @@ namespace NibbleEditor
             //OVERRIDE SETTINGS
             //FileUtils.dirpath = "I:\\SteamLibrary1\\steamapps\\common\\No Man's Sky\\GAMEDATA\\PCBANKS";
 
-            //Initialize Engine backend
-            engine = new Engine(this);
-            RenderState.engineRef = engine; //Set reference to engine [Should do before initialization]
+            //Set Window Callbacks
+            Callbacks.SetDefaultCallbacks();
+            Callbacks.updateStatus = Util.setStatus;
+            Callbacks.showInfo = Util.showInfo;
+            Callbacks.showError = Util.showError;
+
+            
+
 
             //Add Default Resources
             AddDefaultShaderSources();

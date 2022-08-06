@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32728.150
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleEditor", "NibbleEditor.csproj", "{9935F909-D50A-4AD5-94FA-3ED69633C5E0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		OpenGL_DEBUG|Any CPU = OpenGL_DEBUG|Any CPU
+		OpenGL_RELEASE|Any CPU = OpenGL_RELEASE|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.OpenGL_DEBUG|Any CPU.ActiveCfg = OpenGL_DEBUG|Any CPU
+		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.OpenGL_DEBUG|Any CPU.Build.0 = OpenGL_DEBUG|Any CPU
+		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.OpenGL_RELEASE|Any CPU.ActiveCfg = OpenGL_RELEASE|Any CPU
+		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.OpenGL_RELEASE|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C7441CBC-D51B-4A11-A124-6564AA3548CF}
+	EndGlobalSection
+EndGlobal
