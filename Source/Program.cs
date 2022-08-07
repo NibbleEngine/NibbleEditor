@@ -1,9 +1,6 @@
 ﻿using NbCore.Utils;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace NibbleEditor
 {
@@ -12,6 +9,13 @@ namespace NibbleEditor
         static void Main()
         {
             AppDomain.CurrentDomain.AssemblyResolve += LibUtils.LoadAssembly;
+            var assemblydir = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            
+            Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" +
+                assemblydir);
+            Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" +
+                System.IO.Path.Combine(assemblydir, "lib"));
+            
             Window wnd = new Window();
             wnd.Run();
         }

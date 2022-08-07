@@ -2,13 +2,11 @@
 using System.IO;
 using System.Collections.Generic;
 using NbCore;
-using OpenTK.Windowing.Common;
 using ImGuiNET;
 using NbCore.Common;
 using NbCore.Math;
 using NbCore.Plugins;
 using NbCore.UI.ImGui;
-using OpenTK.Graphics.OpenGL4;
 using System.Diagnostics;
 using System.Linq;
 
@@ -23,8 +21,8 @@ namespace NibbleEditor
         private AppImGuiManager _ImGuiManager;
 
         //ImGui stuff
-        private NbVector2i SceneViewSize = new();
         private NbVector2i WindowSize = new();
+        private NbVector2i SceneViewSize = new();
         private bool firstDockSetup = true;
         private NbKeyboardState keyboardState;
         private NbMouseState mouseState;
@@ -69,17 +67,20 @@ namespace NibbleEditor
             _ImGuiManager.PopulateSceneGraph(s);
         }
 
-        public void OnResize(ResizeEventArgs e)
+        
+        public void OnResize(NbCore.Platform.Windowing.NbResizeArgs e)
         {
             // Tell ImGui of the new size
             _ImGuiManager.Resize(e.Width, e.Height);
             WindowSize = new(e.Width, e.Height);
         }
 
+        /*  
         public void OnTextInput(TextInputEventArgs e)
         {
             _ImGuiManager.SendChar((char)e.Unicode);
         }
+        */
 
         public void OnLog(LogElement msg)
         {
@@ -117,15 +118,17 @@ namespace NibbleEditor
         public override void OnRenderFrameUpdate(ref Queue<object> data, double dt)
         {
             //Bind Default Framebuffer
-            GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, 0);
-            GL.Viewport(0, 0, WindowSize.X, WindowSize.Y);
-
+            NbCore.Systems.RenderingSystem rs = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>();
+            rs.Renderer.BindFrameBuffer(0);
+            rs.Renderer.SetViewPort(0, 0, WindowSize.X, WindowSize.Y);
+            
             _ImGuiManager.Update(dt);
 
             //UI
             DrawUI();
 
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            rs.Renderer.ClearDrawBuffer(NbCore.Platform.Graphics.NbBufferMask.Color | NbCore.Platform.Graphics.NbBufferMask.Depth);
             //ImGui.ShowDemoWindow();
             _ImGuiManager.Render();
 

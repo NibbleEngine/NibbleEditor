@@ -7,13 +7,13 @@ using NbCore.Common;
 using NbCore.Plugins;
 using NbCore.Utils;
 using System.Collections.Generic;
-using NbCore.Platform.Graphics;
+using NbCore.Platform.Windowing;
 using System.IO;
 using System.Reflection;
 
 namespace NibbleEditor
 {
-    public class Window : NbWindow
+    public class Window : NbOpenGLWindow
     {
         //Engine
         private Engine engine;
@@ -28,11 +28,10 @@ namespace NibbleEditor
         private UILayer _uiLayer;
         private NbLogger _logger;
         
-        public Window() : base()
+        public Window() : base(new NbVector2i(800,600))
         {
             //Set Window Title
             Title = "Nibble Editor " + Util.getVersion();
-            
             
             //Initialize Logger
             _logger = new NbLogger();
@@ -114,8 +113,6 @@ namespace NibbleEditor
             Callbacks.showError = Util.showError;
 
             
-
-
             //Add Default Resources
             AddDefaultShaderSources();
             AddDefaultShaderConfigs();
@@ -137,25 +134,24 @@ namespace NibbleEditor
             _uiLayer = new(this, engine);
 
             //Attach Layers to events
-            KeyDown += _inputLayer.OnKeyDown;
-            KeyUp += _inputLayer.OnKeyUp;
-            MouseDown += _inputLayer.OnMouseDown;
-            MouseMove += _inputLayer.OnMouseMove;
-            MouseUp += _inputLayer.OnMouseUp;
-            MouseWheel += _inputLayer.OnMouseWheel;
+            OnKeyDown += _inputLayer.OnKeyDown;
+            OnKeyUp += _inputLayer.OnKeyUp;
+
+            OnMouseButtonDown += _inputLayer.OnMouseDown;
+            OnMouseMove += _inputLayer.OnMouseMove;
+            OnMouseButtonUp += _inputLayer.OnMouseUp;
+            OnMouseWheel += _inputLayer.OnMouseWheel;
             _uiLayer.CaptureInput += _inputLayer.OnCaptureInputChanged;
             _uiLayer.CloseWindowEvent += CloseWindow;
             _uiLayer.SaveActiveSceneEvent += SaveActiveScene;
 
-            TextInput += _uiLayer.OnTextInput;
-            Resize += _uiLayer.OnResize;
+            //TextInput += _uiLayer.OnTextInput;
+            OnResize += _uiLayer.OnResize;
             _logger.LogEvent += _uiLayer.OnLog;
             
             RenderState.settings = Settings.loadFromDisk();
             
             //Pass rendering settings to the Window
-            RenderFrequency = RenderState.settings.renderSettings.FPS;
-            UpdateFrequency = 60;
             SetRenderFrameFrequency(RenderState.settings.renderSettings.FPS);
             SetFrameUpdateFrequency(60);
             SetVSync(false);
@@ -189,9 +185,6 @@ namespace NibbleEditor
 #if DEBUG
             if (!Directory.Exists("Temp")) Directory.CreateDirectory("Temp");
 #endif
-            //Set active Components
-            Util.activeWindow = this;
-        
         }
 
         private void SaveActiveScene()
@@ -216,8 +209,7 @@ namespace NibbleEditor
 
             //Pass Global rendering settings
             SetVSync(RenderState.settings.renderSettings.UseVSync);
-            RenderFrequency = RenderState.settings.renderSettings.FPS;
-        
+            SetRenderFrameFrequency(RenderState.settings.renderSettings.FPS);
         }
 
         public void RenderFrame(double dt)

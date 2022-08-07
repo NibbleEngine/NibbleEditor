@@ -15,9 +15,6 @@ namespace NibbleEditor
         public static string DonateLink = @"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=4365XYBWGTBSU&currency_code=USD&source=url";
         public static readonly Random randgen = new();
         
-        //Current GLControl Handle
-        public static OpenTK.Windowing.Desktop.NativeWindow activeWindow;
-        
         public static string getVersion()
         {
 #if DEBUG

@@ -1,6 +1,4 @@
 ﻿using ImGuiNET;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Desktop;
 using System;
 using NbCore;
 using NbCore.UI.ImGui;
@@ -83,7 +81,7 @@ namespace NibbleEditor
         private bool show_test_components = false;
         
         
-        public AppImGuiManager(Window win, Engine engine) : base(win, engine)
+        public AppImGuiManager(Window win, Engine engine) : base(win.ClientSize.X, win.ClientSize.Y, engine)
         {
             SceneGraphViewer = new(this);
             ObjectViewer = new(this);

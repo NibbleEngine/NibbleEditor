@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using OpenTK.Windowing.Common;
 using NbCore;
 using NbCore.Common;
 using NbCore.Input;
@@ -10,56 +9,7 @@ namespace NibbleEditor
 
     public class InputLayer : ApplicationLayer
     {
-        private static readonly Dictionary<OpenTK.Windowing.GraphicsLibraryFramework.Keys, NbKey> OpenTKKeyMap = new()
-        {
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.A, NbKey.A },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.B, NbKey.B },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.C, NbKey.C },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.D, NbKey.D },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.E, NbKey.E },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.F, NbKey.F },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.G, NbKey.G },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.H, NbKey.H },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.I, NbKey.I },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.J, NbKey.J },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.K, NbKey.K },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.L, NbKey.L },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.M, NbKey.M },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.N, NbKey.N },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.O, NbKey.O },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.P, NbKey.P },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Q, NbKey.Q },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.R, NbKey.R },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.S, NbKey.S },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.T, NbKey.T },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.U, NbKey.U },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.V, NbKey.V },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.W, NbKey.W },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.X, NbKey.X },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Y, NbKey.Y },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z, NbKey.Z },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Left, NbKey.LeftArrow },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Right, NbKey.RightArrow },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Up, NbKey.UpArrow },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Down, NbKey.DownArrow },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.LeftAlt, NbKey.LeftAlt },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.RightAlt, NbKey.RightAlt },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.LeftControl, NbKey.LeftCtrl },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.RightControl, NbKey.RightCtrl },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.LeftSuper, NbKey.LeftSuper },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.RightSuper, NbKey.RightSuper },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Backspace, NbKey.Backspace },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Space, NbKey.Space },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Home, NbKey.Home },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.End, NbKey.End },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Insert, NbKey.Insert },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Delete, NbKey.Delete },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.PageUp, NbKey.PageUp },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.PageDown, NbKey.PageDown },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Enter, NbKey.Enter },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.Escape, NbKey.Escape },
-            { OpenTK.Windowing.GraphicsLibraryFramework.Keys.KeyPadEnter, NbKey.KeyPadEnter },
-        };
+        
 
         //Mouse States
         private NbMouseState currentMouseState = new();
@@ -82,57 +32,35 @@ namespace NibbleEditor
 
         #region EventHandlers
 
-        public void OnKeyDown(KeyboardKeyEventArgs e)
+        public void OnKeyDown(NbCore.Platform.Windowing.NbKeyArgs e)
         {
             //TODO: Make sure all keys are mapped so that we don't need to check everytime
-            if (OpenTKKeyMap.ContainsKey(e.Key))
+            if (NbCore.Platform.Windowing.NbKeyArgs.SupportedKeys.Contains(e.Key))
             {
-                KeyboardState.SetKeyDownStatus(OpenTKKeyMap[e.Key], true);
+                KeyboardState.SetKeyDownStatus(e.Key, true);
             }
         }
 
-        public void OnKeyUp(KeyboardKeyEventArgs e)
+        public void OnKeyUp(NbCore.Platform.Windowing.NbKeyArgs e)
         {
             //TODO: Make sure all keys are mapped so that we don't need to check everytime
-            if (OpenTKKeyMap.ContainsKey(e.Key))
+            if (NbCore.Platform.Windowing.NbKeyArgs.SupportedKeys.Contains(e.Key))
             {
-                KeyboardState.SetKeyDownStatus(OpenTKKeyMap[e.Key], false);
+                KeyboardState.SetKeyDownStatus(e.Key, false);
             }
         }
 
-        public void OnMouseDown(MouseButtonEventArgs e)
+        public void OnMouseDown(NbCore.Platform.Windowing.NbMouseButtonArgs e)
         {
-            switch (e.Button)
-            {
-                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Left:
-                    currentMouseState.SetButtonStatus(NbMouseButton.LEFT, true);
-                    break;
-                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Right:
-                    currentMouseState.SetButtonStatus(NbMouseButton.RIGHT, true);
-                    break;
-                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Middle:
-                    currentMouseState.SetButtonStatus(NbMouseButton.MIDDLE, true);
-                    break;
-            }
+            currentMouseState.SetButtonStatus(e.Button, true);
         }
 
-        public void OnMouseUp(MouseButtonEventArgs e)
+        public void OnMouseUp(NbCore.Platform.Windowing.NbMouseButtonArgs e)
         {
-            switch (e.Button)
-            {
-                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Left:
-                    currentMouseState.SetButtonStatus(NbMouseButton.LEFT, false);
-                    break;
-                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Right:
-                    currentMouseState.SetButtonStatus(NbMouseButton.RIGHT, false);
-                    break;
-                case OpenTK.Windowing.GraphicsLibraryFramework.MouseButton.Middle:
-                    currentMouseState.SetButtonStatus(NbMouseButton.MIDDLE, false);
-                    break;
-            }
+            currentMouseState.SetButtonStatus(e.Button, false);
         }
 
-        public void OnMouseMove(MouseMoveEventArgs e)
+        public void OnMouseMove(NbCore.Platform.Windowing.NbMouseMoveArgs e)
         {
             currentMouseState.Position.X = e.X;
             currentMouseState.Position.Y = e.Y;
@@ -140,7 +68,7 @@ namespace NibbleEditor
             currentMouseState.PositionDelta.Y = e.Y - prevMouseState.Position.Y;
         }
 
-        public void OnMouseWheel(MouseWheelEventArgs e)
+        public void OnMouseWheel(NbCore.Platform.Windowing.NbMouseWheelArgs e)
         {
             currentMouseState.Scroll.X += e.OffsetX;
             currentMouseState.Scroll.Y += e.OffsetY;
@@ -249,7 +177,7 @@ namespace NibbleEditor
             //targetCameraPos.Rotation.Xy += new Vector2(0.55f, 0);
             if (currentMouseState.IsButtonDown(NbMouseButton.LEFT))
             {
-                OpenTK.Mathematics.Vector2 deltaVec = new(currentMouseState.PositionDelta.X,
+                NbCore.Math.NbVector2 deltaVec = new(currentMouseState.PositionDelta.X,
                     currentMouseState.PositionDelta.Y);
 
                 //Log("Mouse Delta {0} {1}", deltax, deltay);

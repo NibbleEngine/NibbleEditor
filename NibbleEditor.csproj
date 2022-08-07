@@ -50,6 +50,7 @@
   <ItemGroup>
 	<Cimgui Include="lib\cimgui\linux-x64\cimgui.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' " />
 	<Cimgui Include="lib\cimgui\win-x64\cimgui.dll" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' " />
+	<NibbleDeps Include="deps\OpenGL\*.dll" Condition="$(DefineConstants.Contains('OPENGL'))"/>
   </ItemGroup>
 
 	<!-- Copy Shaders to the Build Directory-->
@@ -70,7 +71,6 @@
 	
 	<ItemGroup>
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-	  <PackageReference Condition="$(DefineConstants.Contains('OPENGL'))" Include="OpenTK" Version="4.7.4" />
 	</ItemGroup>
 	
   <ItemGroup>
@@ -78,7 +78,6 @@
       <HintPath>lib\ImGui.NET.dll</HintPath>
     </Reference>
 	<Reference Include="Nibble">
-		<Private>false</Private>
 	  <HintPath>lib\Nibble.dll</HintPath>
 	</Reference>
 	  
