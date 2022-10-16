@@ -75,13 +75,11 @@ namespace NibbleEditor
             WindowSize = new(e.Width, e.Height);
         }
 
-        /*  
-        public void OnTextInput(TextInputEventArgs e)
+        public void OnTextInput(NbCore.Platform.Windowing.NbTextInputArgs e)
         {
             _ImGuiManager.SendChar((char)e.Unicode);
         }
-        */
-
+        
         public void OnLog(LogElement msg)
         {
             _ImGuiManager.Log(msg);
@@ -98,8 +96,6 @@ namespace NibbleEditor
             _ImGuiManager.SetKeyboardState(keyboardState);
             
             RenderState.activeCam.updateViewMatrix();
-
-            
         }
 
         private void FetchAppPerformanceStats(object sender, System.Timers.ElapsedEventArgs args)
@@ -247,20 +243,23 @@ namespace NibbleEditor
                         SaveActiveSceneEvent.Invoke();
                     }
 
-                    if (ImGui.BeginMenu("Import"))
+                    if (EngineRef.Plugins.Count > 0)
                     {
-                        foreach (PluginBase plugin in EngineRef.Plugins.Values)
-                            plugin.DrawImporters();
-                        ImGui.EndMenu();
-                    }
+                        if (ImGui.BeginMenu("Import"))
+                        {
+                            foreach (PluginBase plugin in EngineRef.Plugins.Values)
+                                plugin.DrawImporters();
+                            ImGui.EndMenu();
+                        }
 
-                    if (ImGui.BeginMenu("Export"))
-                    {
-                        foreach (PluginBase plugin in EngineRef.Plugins.Values)
-                            plugin.DrawExporters(EngineRef.GetActiveSceneGraph());
-                        ImGui.EndMenu();
+                        if (ImGui.BeginMenu("Export"))
+                        {
+                            foreach (PluginBase plugin in EngineRef.Plugins.Values)
+                                plugin.DrawExporters(EngineRef.GetActiveSceneGraph());
+                            ImGui.EndMenu();
+                        }
                     }
-
+                    
                     if (ImGui.MenuItem("Settings"))
                     {
                         _ImGuiManager.ShowSettingsWindow();
@@ -424,9 +423,9 @@ namespace NibbleEditor
 #if (DEBUG)
             if (ImGui.Begin("Test Options", ImGuiWindowFlags.NoCollapse))
             {
-                ImGui.DragFloat("Test Option 1", ref RenderState.settings.renderSettings.testOpt1);
-                ImGui.DragFloat("Test Option 2", ref RenderState.settings.renderSettings.testOpt2);
-                ImGui.DragFloat("Test Option 3", ref RenderState.settings.renderSettings.testOpt3);
+                ImGui.DragFloat("Test Option 1", ref RenderState.settings.RenderSettings.testOpt1);
+                ImGui.DragFloat("Test Option 2", ref RenderState.settings.RenderSettings.testOpt2);
+                ImGui.DragFloat("Test Option 3", ref RenderState.settings.RenderSettings.testOpt3);
                 ImGui.End();
             }
 #endif
@@ -436,11 +435,11 @@ namespace NibbleEditor
                 //Camera Settings
                 ImGui.BeginGroup();
                 ImGui.TextColored(ImGuiManager.DarkBlue, "Camera Settings");
-                ImGui.SliderInt("FOV", ref RenderState.settings.camSettings.FOV, 15, 100);
-                ImGui.SliderFloat("Sensitivity", ref RenderState.settings.camSettings.Sensitivity, 0.01f, 2.0f);
-                ImGui.InputFloat("MovementSpeed", ref RenderState.settings.camSettings.Speed, 1.0f, 500000.0f);
-                ImGui.SliderFloat("zNear", ref RenderState.settings.camSettings.zNear, 0.01f, 1.0f);
-                ImGui.SliderFloat("zFar", ref RenderState.settings.camSettings.zFar, 101.0f, 100000.0f);
+                ImGui.SliderInt("FOV", ref RenderState.settings.CamSettings.FOV, 15, 100);
+                ImGui.SliderFloat("Sensitivity", ref RenderState.settings.CamSettings.Sensitivity, 0.01f, 2.0f);
+                ImGui.InputFloat("MovementSpeed", ref RenderState.settings.CamSettings.Speed, 1.0f, 500000.0f);
+                ImGui.SliderFloat("zNear", ref RenderState.settings.CamSettings.zNear, 0.01f, 1.0f);
+                ImGui.SliderFloat("zFar", ref RenderState.settings.CamSettings.zFar, 101.0f, 100000.0f);
 
                 if (ImGui.Button("Reset Camera"))
                 {
@@ -485,36 +484,41 @@ namespace NibbleEditor
             if (ImGui.Begin("Options", ImGuiWindowFlags.NoCollapse))
             {
                 ImGui.LabelText("View Options", "");
-                ImGui.Checkbox("Show Lights", ref RenderState.settings.viewSettings.ViewLights);
-                ImGui.Checkbox("Show Light Volumes", ref RenderState.settings.viewSettings.ViewLightVolumes);
-                ImGui.Checkbox("Show Joints", ref RenderState.settings.viewSettings.ViewJoints);
-                ImGui.Checkbox("Show Locators", ref RenderState.settings.viewSettings.ViewLocators);
-                ImGui.Checkbox("Show Collisions", ref RenderState.settings.viewSettings.ViewCollisions);
-                ImGui.Checkbox("Show Bounding Hulls", ref RenderState.settings.viewSettings.ViewBoundHulls);
-                ImGui.Checkbox("Emulate Actions", ref RenderState.settings.viewSettings.EmulateActions);
+                ImGui.Checkbox("Show Lights", ref RenderState.settings.ViewSettings.ViewLights);
+                ImGui.Checkbox("Show Light Volumes", ref RenderState.settings.ViewSettings.ViewLightVolumes);
+                ImGui.Checkbox("Show Joints", ref RenderState.settings.ViewSettings.ViewJoints);
+                ImGui.Checkbox("Show Locators", ref RenderState.settings.ViewSettings.ViewLocators);
+                ImGui.Checkbox("Show Collisions", ref RenderState.settings.ViewSettings.ViewCollisions);
+                ImGui.Checkbox("Show Bounding Hulls", ref RenderState.settings.ViewSettings.ViewBoundHulls);
+                ImGui.Checkbox("Emulate Actions", ref RenderState.settings.ViewSettings.EmulateActions);
 
                 ImGui.Separator();
                 ImGui.LabelText("Rendering Options", "");
 
-                ImGui.Checkbox("Use Textures", ref RenderState.settings.renderSettings.UseTextures);
-                ImGui.Checkbox("Use Lighting", ref RenderState.settings.renderSettings.UseLighting);
-                ImGui.Checkbox("Use VSYNC", ref RenderState.settings.renderSettings.UseVSync);
-                ImGui.Checkbox("Show Animations", ref RenderState.settings.renderSettings.ToggleAnimations);
-                ImGui.Checkbox("Wireframe", ref RenderState.settings.renderSettings.RenderWireFrame);
-                ImGui.Checkbox("FXAA", ref RenderState.settings.renderSettings.UseFXAA);
-                ImGui.Checkbox("Bloom", ref RenderState.settings.renderSettings.UseBLOOM);
-                ImGui.Checkbox("LOD Filtering", ref RenderState.settings.renderSettings.LODFiltering);
+                ImGui.Checkbox("Use Textures", ref RenderState.settings.RenderSettings.UseTextures);
+                ImGui.Checkbox("Use Lighting", ref RenderState.settings.RenderSettings.UseLighting);
+                ImGui.Checkbox("Use VSYNC", ref RenderState.settings.RenderSettings.UseVSync);
+                ImGui.Checkbox("Show Animations", ref RenderState.settings.RenderSettings.ToggleAnimations);
+                ImGui.Checkbox("Wireframe", ref RenderState.settings.RenderSettings.RenderWireFrame);
+                ImGui.Checkbox("FXAA", ref RenderState.settings.RenderSettings.UseFXAA);
+                ImGui.Checkbox("Bloom", ref RenderState.settings.RenderSettings.UseBLOOM);
+                ImGui.Checkbox("LOD Filtering", ref RenderState.settings.RenderSettings.LODFiltering);
 
-                ImGui.InputInt("FPS", ref RenderState.settings.renderSettings.FPS);
-                ImGui.InputFloat("HDR Exposure", ref RenderState.settings.renderSettings.HDRExposure);
+                int val = RenderState.settings.RenderSettings.FPS;
+                if (ImGui.InputInt("FPS", ref val, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+                    RenderState.settings.RenderSettings.FPS = val;
 
+                val = RenderState.settings.TickRate;
+                if (ImGui.InputInt("Engine Tick Rate", ref val , 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
+                    RenderState.settings.TickRate = val;
+
+                ImGui.InputFloat("HDR Exposure", ref RenderState.settings.RenderSettings.HDRExposure);
                 ImGui.End();
             }
 
             _ImGuiManager.ProcessModals(this, ref current_file_path, ref IsOpenFileDialogOpen);
 
-
-
+            
             //Draw plugin panels and popups
             foreach (PluginBase plugin in EngineRef.Plugins.Values)
                 plugin.Draw();

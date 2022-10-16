@@ -9,6 +9,7 @@
 	  <SelfContained>false</SelfContained>
 	  <PublishSingleFile>false</PublishSingleFile>
 	  <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+	  <PreserveCompilationContext>false</PreserveCompilationContext>
 	  <!--IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract-->
 	  <!--PublishReadyToRun>true</PublishReadyToRun-->
 	<ApplicationIcon />
@@ -50,7 +51,7 @@
   <ItemGroup>
 	<Cimgui Include="lib\cimgui\linux-x64\cimgui.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' " />
 	<Cimgui Include="lib\cimgui\win-x64\cimgui.dll" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' " />
-	<NibbleDeps Include="deps\OpenGL\*.dll" Condition="$(DefineConstants.Contains('OPENGL'))"/>
+	<NibbleDeps Include="deps\OpenGL\*.dll" Condition="$(DefineConstants.Contains('OPENGL'))" />
   </ItemGroup>
 
 	<!-- Copy Shaders to the Build Directory-->

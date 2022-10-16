@@ -27,7 +27,7 @@ namespace NibbleEditor
             EngineRef.GetSystem<ScriptingSystem>().OnFrameUpdate(dt);
             
             //Enable Action System
-            if (RenderState.settings.viewSettings.EmulateActions)
+            if (RenderState.settings.ViewSettings.EmulateActions)
                 EngineRef.GetSystem<ActionSystem>().OnFrameUpdate(dt);
 
             //Post FrameUpdate Actions

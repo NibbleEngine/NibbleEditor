@@ -1,4 +1,5 @@
 ﻿using NbCore.Utils;
+using NbCore;
 using System;
 using System.Reflection;
 
@@ -8,15 +9,9 @@ namespace NibbleEditor
     {   
         static void Main()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += LibUtils.LoadAssembly;
-            var assemblydir = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            Engine nibble = new Engine();
             
-            Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" +
-                assemblydir);
-            Environment.SetEnvironmentVariable("PATH", Environment.GetEnvironmentVariable("PATH") + ";" +
-                System.IO.Path.Combine(assemblydir, "lib"));
-            
-            Window wnd = new Window();
+            Window wnd = new Window(nibble);
             wnd.Run();
         }
     }

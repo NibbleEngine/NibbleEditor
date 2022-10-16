@@ -43,14 +43,15 @@ namespace NbCore.UI.ImGui
             {
                 //Render Settings
                 ImGuiCore.TextColored(ImGuiManager.DarkBlue, "Rendering Settings");
-                ImGuiCore.SliderFloat("HDR Exposure", ref RenderState.settings.renderSettings.HDRExposure, 0.001f, 0.5f);
-                ImGuiCore.InputInt("FPS", ref RenderState.settings.renderSettings.FPS);
-                ImGuiCore.Checkbox("Vsync", ref RenderState.settings.renderSettings.UseVSync);
+                ImGuiCore.SliderFloat("HDR Exposure", ref RenderState.settings.RenderSettings.HDRExposure, 0.001f, 0.5f);
+                ImGuiCore.InputInt("FPS", ref RenderState.settings.RenderSettings.FPS);
+                ImGuiCore.InputInt("Engine Tick Rate", ref RenderState.settings.TickRate);
+                ImGuiCore.Checkbox("Vsync", ref RenderState.settings.RenderSettings.UseVSync);
             }
 
             if (ImGuiCore.Button("Save Settings"))
             {
-                Settings.saveToDisk(RenderState.settings);
+                EngineSettings.saveToDisk(RenderState.settings);
                 //Save Plugin Settings to Disk
                 foreach (PluginBase plugin in RenderState.engineRef.Plugins.Values)
                 {
