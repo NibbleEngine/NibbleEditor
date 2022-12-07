@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Reflection;
+using NbCore;
 using NbCore.Common;
 using ImGuiCore = ImGuiNET.ImGui;
-using NibbleEditor;
 
-namespace NbCore.UI.ImGui
+
+namespace NibbleEditor
 {
     public class ImGuiAboutWindow
     {
@@ -17,13 +18,13 @@ namespace NbCore.UI.ImGui
                 "ianm32logo_border.png");
             
             tex = new NbTexture("ianm32logo_border.png", imgData);
-            Platform.Graphics.GraphicsAPI.GenerateTexture(tex);
-            Platform.Graphics.GraphicsAPI.UploadTexture(tex);
+            NbCore.Platform.Graphics.GraphicsAPI.GenerateTexture(tex);
+            NbCore.Platform.Graphics.GraphicsAPI.UploadTexture(tex);
             tex.Data = null;
         }
         
         private void TextCenter(string text, bool ishyperlink, string url = "")
-        {
+        {   
             float font_size = ImGuiCore.GetFontSize() * text.Length / 2;
             ImGuiCore.SameLine(
                 ImGuiCore.GetColumnWidth() / 2 -

@@ -2,8 +2,11 @@
   
   
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+      <OutputType>Exe</OutputType>
+      <TargetFramework>net5.0</TargetFramework>
+	  <RuntimeIdentifier Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' ">win-x64</RuntimeIdentifier>
+	  <RuntimeIdentifier Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">linux-x64</RuntimeIdentifier>
+	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	  <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	  <BaseOutputPath>Build</BaseOutputPath>
 	  <SelfContained>false</SelfContained>
@@ -18,21 +21,21 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='OpenGL_DEBUG|AnyCPU'">
-	<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+	
+	<RuntimeIdentifier Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' ">win-x64</RuntimeIdentifier>
 	<PlatformTarget>x64</PlatformTarget>
  	<DefineConstants>$(DefineConstants)TRACE;DEBUG;OPENGL</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='OpenGL_RELEASE|AnyCPU'">
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-	<RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <PlatformTarget>x64</PlatformTarget>
+	<PlatformTarget>x64</PlatformTarget>
     <DefineConstants>$(DefineConstants)OPENGL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\ianm32logo_border.png" />
+    <EmbeddedResource Include="Resources\lamp.png" />
     <EmbeddedResource Include="Resources\Roboto-Medium.ttf" />
   </ItemGroup>
 
@@ -41,17 +44,17 @@
   </ItemGroup>
 
   <ItemGroup>
-	<NibbleDeps Include="deps\*.dll" />
+	<NibbleDeps Include="deps\$(Configuration)\*.dll" />
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Resources\lamp.png" />
     <None Remove="Resources\Roboto-Medium.ttf" />
   </ItemGroup>
 
   <ItemGroup>
 	<Cimgui Include="lib\cimgui\linux-x64\cimgui.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' " />
 	<Cimgui Include="lib\cimgui\win-x64\cimgui.dll" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' " />
-	<NibbleDeps Include="deps\OpenGL\*.dll" Condition="$(DefineConstants.Contains('OPENGL'))" />
   </ItemGroup>
 
 	<!-- Copy Shaders to the Build Directory-->
@@ -71,16 +74,20 @@
 	
 	
 	<ItemGroup>
-	  <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <ProjectReference Include="..\Nibble\NibbleDLL\NibbleDLL.csproj" />
 	</ItemGroup>
 	
   <ItemGroup>
 	<Reference Include="ImGui.NET">
       <HintPath>lib\ImGui.NET.dll</HintPath>
     </Reference>
-	<Reference Include="Nibble">
+	<!-->Reference Include="Nibble">
 	  <HintPath>lib\Nibble.dll</HintPath>
-	</Reference>
+	</Reference-->
 	  
   </ItemGroup>
 	

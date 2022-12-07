@@ -1,13 +1,13 @@
-﻿using System;
-using System.Threading;
-
-using NbCore;
+﻿using NbCore;
 using NbCore.Math;
 using NbCore.Common;
-using System.Collections.Generic;
+using NbCore.Platform.Graphics;
 using NbCore.Platform.Windowing;
 using System.IO;
 
+using System.Reflection;
+using NbCore.Primitives;
+using NbCore.Systems;
 
 namespace NibbleEditor
 {
@@ -18,11 +18,14 @@ namespace NibbleEditor
         private readonly RequestHandler requestHandler = new();
         
         //Application Layers
-        private InputLayer _inputLayer;
         private RenderLayer _renderLayer;
         private UILayer _uiLayer;
         private NbLogger _logger;
-        
+
+        //Camera Stuff
+        public CameraPos targetCameraPos;
+
+
         public Window(Engine e) : base(new NbVector2i(800,600), e)
         {
             //Set Window Title
@@ -76,28 +79,22 @@ namespace NibbleEditor
             Callbacks.showError = Util.showError;
             Callbacks.Log = _logger.Log;
 
+            Engine.Init(); //Initialize Engine
+
             //Add Default Resources
             SetupDefaultCamera();
 
-            Engine.Init(); //Initialize Engine
+            //Add Editor Resources
+            SetupResources();
 
             //Load EnginePlugins
             LoadPlugins();
             
             //Initialize Application Layers
-            _inputLayer = new(Engine);
             _renderLayer = new(Engine);
             _uiLayer = new(this, Engine);
 
             //Attach Layers to events
-            OnKeyDown += _inputLayer.OnKeyDown;
-            OnKeyUp += _inputLayer.OnKeyUp;
-
-            OnMouseButtonDown += _inputLayer.OnMouseDown;
-            OnMouseMove += _inputLayer.OnMouseMove;
-            OnMouseButtonUp += _inputLayer.OnMouseUp;
-            OnMouseWheel += _inputLayer.OnMouseWheel;
-            _uiLayer.CaptureInput += _inputLayer.OnCaptureInputChanged;
             _uiLayer.CloseWindowEvent += CloseWindow;
             _uiLayer.SaveActiveSceneEvent += SaveActiveScene;
 
@@ -115,7 +112,7 @@ namespace NibbleEditor
             Engine.GetSystem<NbCore.Systems.SceneManagementSystem>().SetActiveScene(Engine.GetSystem<NbCore.Systems.SceneManagementSystem>().SceneGraphs[0]);
             SceneGraph graph = Engine.GetActiveSceneGraph();
 
-#if DEBUG
+#if (TRUE)
             //Create Test Scene
             SceneGraphNode test1 = Engine.CreateLocatorNode("Test Locator 1");
             SceneGraphNode test2 = Engine.CreateLocatorNode("Test Locator 2");
@@ -124,7 +121,7 @@ namespace NibbleEditor
             test2.AddChild(test3);
 
             SceneGraphNode light = Engine.CreateLightNode("Default Light", 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
-            NbCore.Systems.TransformationSystem.SetEntityLocation(light, new NbVector3(100.0f, 100.0f, 100.0f));
+            TransformationSystem.SetEntityLocation(light, new NbVector3(0.0f, 0.0f, 0.0f));
             test1.AddChild(light);
             test1.SetParent(graph.Root);
 
@@ -136,9 +133,8 @@ namespace NibbleEditor
             Engine.NewSceneEvent?.Invoke(graph);
             
             //Check if Temp folder exists
-#if DEBUG
             if (!Directory.Exists("Temp")) Directory.CreateDirectory("Temp");
-#endif
+
         }
 
         private void SaveActiveScene()
@@ -155,12 +151,8 @@ namespace NibbleEditor
         
         public void UpdateFrame(double dt)
         {
-            Queue<object> data = new();
+            _renderLayer.OnFrameUpdate(this, dt);
             
-            _inputLayer.OnFrameUpdate(ref data, dt);
-            _renderLayer.OnFrameUpdate(ref data, dt);
-            _uiLayer.OnFrameUpdate(ref data, dt);
-
             //Pass Global rendering settings
             SetVSync(RenderState.settings.RenderSettings.UseVSync);
             SetRenderFrameFrequency(RenderState.settings.RenderSettings.FPS);
@@ -169,12 +161,159 @@ namespace NibbleEditor
 
         public void RenderFrame(double dt)
         {
-            //Render data
-            Queue<object> data = new();
+            UpdateInput();
+
+            //Update Camera
+            Camera.UpdateCameraDirectionalVectors(RenderState.activeCam);
+            RenderState.activeCam.updateViewMatrix();
             
-            //_inputLayer.OnRenderFrameUpdate(ref data, e.Time);
-            _renderLayer.OnRenderFrameUpdate(ref data, dt);
-            _uiLayer.OnRenderFrameUpdate(ref data, dt);
+            //Render data
+            _renderLayer.OnRenderFrameUpdate(this, dt);
+            _uiLayer.OnRenderFrameUpdate(this, dt);
+        }
+
+        private void SetupResources()
+        {
+            //Initialize Logo Atlas Texture
+            byte[] imgData = Callbacks.getResourceFromAssembly(Assembly.GetExecutingAssembly(),
+            "lamp.png");
+            
+            NbTexture tex = new NbTexture("atlas.png", imgData);
+            GraphicsAPI.GenerateTexture(tex);
+            GraphicsAPI.UploadTexture(tex);
+            tex.Data.Data = null; //Release cpu data
+            Engine.RegisterEntity(tex);
+
+            
+            //Create Imposter Shader Config 
+            NbShaderConfig conf = Engine.CreateShaderConfig(Engine.GetShaderSourceByFilePath("Shaders/imposter_vs.glsl"),
+                                  Engine.GetShaderSourceByFilePath("Shaders/imposter_fs.glsl"),
+                                  null, null, null,
+                                  NbShaderMode.DEFFERED, "Imposter", true);
+            
+            Engine.RegisterEntity(conf);
+
+            //Create Imposter Material
+            NbMaterial imposterMat = new()
+            {
+                Name = "ImposterMat",
+            };
+
+            imposterMat.Samplers.Add(new NbSampler()
+            {
+                Texture = tex,
+                Name = "Tex",
+                SamplerID = 0,
+                ShaderBinding = "mpCustomPerMaterial.gDiffuseMap"
+            });
+            
+            imposterMat.AddFlag(NbMaterialFlagEnum._NB_DIFFUSE_MAP);
+            imposterMat.AddFlag(NbMaterialFlagEnum._NB_UNLIT);
+            Engine.RegisterEntity(imposterMat);
+
+            NbShader ImposterShader = Engine.CreateShader(conf, Engine.GetMaterialShaderDirectives(imposterMat));
+            
+            if (Engine.CompileShader(ImposterShader))
+                Engine.SetMaterialShader(imposterMat, conf);
+            else
+            {
+                Log("Error during shader compilation", LogVerbosityLevel.ERROR);
+            }
+            
+            //Create Imposter Mesh
+            //Imposter quad
+            Quad q = new Quad();
+
+            NbMesh mesh = new()
+            {
+                Hash = NbHasher.Hash("default_imposter_quad"),
+                Data = q.geom.GetMeshData(),
+                MetaData = q.geom.GetMetaData(),
+                Material = imposterMat
+            };
+
+            Engine.RegisterEntity(mesh);
+            q.Dispose();
+
+        }
+
+        #region INPUT_HANDLERS
+
+        //Gamepad handler
+        //private void gamepadController()
+        //{
+        //    if (gpHandler == null) return;
+        //    if (!gpHandler.isConnected()) return;
+
+        //    //Camera Movement
+        //    float cameraSensitivity = 2.0f;
+        //    float x, y, z, rotx, roty;
+
+        //    x = gpHandler.getAction(ControllerActions.MOVE_X);
+        //    y = gpHandler.getAction(ControllerActions.ACCELERATE) - gpHandler.getAction(ControllerActions.DECELERATE);
+        //    z = gpHandler.getAction(ControllerActions.MOVE_Y_NEG) - gpHandler.getAction(ControllerActions.MOVE_Y_POS);
+        //    rotx = -cameraSensitivity * gpHandler.getAction(ControllerActions.CAMERA_MOVE_H);
+        //    roty = cameraSensitivity * gpHandler.getAction(ControllerActions.CAMERA_MOVE_V);
+
+        //    targetCameraPos.PosImpulse.X = x;
+        //    targetCameraPos.PosImpulse.Y = y;
+        //    targetCameraPos.PosImpulse.Z = z;
+        //    targetCameraPos.Rotation.X = rotx;
+        //    targetCameraPos.Rotation.Y = roty;
+        //}
+
+        //Keyboard handler
+        private int keyDownStateToInt(NbKey k)
+        {
+            bool state = IsKeyDown(k);
+            return state ? 1 : 0;
+        }
+
+        public void UpdateInput()
+        {
+            keyboardController();
+            mouseController();
+            //gpController(); //TODO: Re-add controller support
+
+            Camera.CalculateNextCameraState(RenderState.activeCam, targetCameraPos);
+
+            targetCameraPos.Reset();
+        }
+
+        #endregion
+
+        private void keyboardController()
+        {
+            //Camera Movement
+            float step = 0.002f;
+            float x, y, z;
+
+            x = keyDownStateToInt(NbKey.D) - keyDownStateToInt(NbKey.A);
+            y = keyDownStateToInt(NbKey.W) - keyDownStateToInt(NbKey.S);
+            z = keyDownStateToInt(NbKey.R) - keyDownStateToInt(NbKey.F);
+
+            //Camera rotation is done exclusively using the mouse
+
+            //rotx = 50 * step * (kbHandler.getKeyStatus(OpenTK.Input.Key.E) - kbHandler.getKeyStatus(OpenTK.Input.Key.Q));
+            //float roty = (kbHandler.getKeyStatus(Key.C) - kbHandler.getKeyStatus(Key.Z));
+
+            RenderState.rotAngles.Y += 100 * step * (keyDownStateToInt(NbKey.E) - keyDownStateToInt(NbKey.Q));
+            RenderState.rotAngles.Y %= 360;
+
+            //Move Camera
+            targetCameraPos.PosImpulse.X = x;
+            targetCameraPos.PosImpulse.Y = y;
+            targetCameraPos.PosImpulse.Z = z;
+        }
+
+        //Mouse Methods
+
+        public void mouseController()
+        {
+            if (IsMouseButtonDown(NbMouseButton.RIGHT) | IsKeyDown(NbKey.LeftAlt))
+            {
+                targetCameraPos.Rotation = MouseDelta;
+            } 
         }
 
         #region ResourceManager

@@ -45,7 +45,7 @@ vec4 worldfromDepth(in vec2 screen, in float depth)
 
 	world = mpCommonPerFrame.projMatInv * world;
 	world /= world.w;
-	world = mpCommonPerFrame.lookMatInv * world;
+	world = mpCommonPerFrame.viewMatInv * world;
 	//world /= world.w;
 
 	return world;

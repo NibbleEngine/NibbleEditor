@@ -63,13 +63,14 @@ namespace NibbleEditor
         }
     }
 
-    class AppImGuiManager : ImGuiManager
+    public class AppImGuiManager : ImGuiManager
     {
         //ImGui Variables
         private readonly ImGuiObjectViewer ObjectViewer;
         private readonly ImGuiSceneGraphViewer SceneGraphViewer;
         private readonly ImGuiMaterialEditor MaterialEditor = new();
         private readonly ImGuiShaderEditor ShaderEditor = new();
+        private readonly ImGuiTextureEditor TextureEditor = new();
         private readonly ImGuiAboutWindow AboutWindow = new();
         private readonly ImGuiSettingsWindow SettingsWindow = new();
 
@@ -85,7 +86,7 @@ namespace NibbleEditor
         {
             SceneGraphViewer = new(this);
             ObjectViewer = new(this);
-
+            SetWindowRef(win);
         }
 
         public void ShowSettingsWindow()
@@ -107,6 +108,74 @@ namespace NibbleEditor
         {
             OpenFileModal.ShowModal();
         }
+
+
+        //Texture Viewer Related Methods
+        public void DrawTextureEditor()
+        {
+            TextureEditor?.Draw();
+        }
+
+        public void SetActiveTexture(NbTexture t)
+        {
+            TextureEditor.SetTexture(t);
+        }
+
+        //Material Viewer Related Methods
+        public void DrawMaterialEditor()
+        {
+            MaterialEditor?.Draw();
+        }
+
+        public void SetActiveMaterial(Entity m)
+        {
+            if (m.HasComponent<MeshComponent>())
+            {
+                MeshComponent mc = m.GetComponent<MeshComponent>() as MeshComponent;
+                MaterialEditor.SetMaterial(mc.Mesh.Material);
+            }
+        }
+
+        //Shader Editor Related Methods
+        public void DrawShaderEditor()
+        {
+            ShaderEditor?.Draw();
+        }
+
+        public void SetActiveShaderConfig(NbShaderConfig s)
+        {
+            ShaderEditor.SetShader(s);
+        }
+
+        //Object Viewer Related Methods
+
+        public void DrawObjectInfoViewer()
+        {
+            ObjectViewer?.Draw();
+        }
+
+        public void SetObjectReference(SceneGraphNode m)
+        {
+            ObjectViewer.SetModel(m);
+        }
+
+        //SceneGraph Related Methods
+
+        public void DrawSceneGraph()
+        {
+            SceneGraphViewer?.Draw();
+        }
+
+        public void PopulateSceneGraph(SceneGraph scn)
+        {
+            SceneGraphViewer.Init(scn.Root);
+        }
+
+        public void ClearSceneGraph()
+        {
+            SceneGraphViewer.Clear();
+        }
+
 
         //SceneGraph Related Methods
 

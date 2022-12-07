@@ -9,6 +9,7 @@ using NbCore.Plugins;
 using NbCore.UI.ImGui;
 using System.Diagnostics;
 using System.Linq;
+using NbCore.Platform.Windowing;
 
 namespace NibbleEditor
 {
@@ -18,15 +19,13 @@ namespace NibbleEditor
 
     public class UILayer : ApplicationLayer
     {
+        private NbVector2i SceneViewSize = new();
         private AppImGuiManager _ImGuiManager;
 
         //ImGui stuff
         private NbVector2i WindowSize = new();
-        private NbVector2i SceneViewSize = new();
         private bool firstDockSetup = true;
-        private NbKeyboardState keyboardState;
-        private NbMouseState mouseState;
-
+        
         static private bool IsOpenFileDialogOpen = false;
         private string current_file_path = Environment.CurrentDirectory;
         
@@ -44,12 +43,12 @@ namespace NibbleEditor
         public UILayer(Window win, Engine e) : base(e)
         {
             Name = "UI Layer";
-            
+            SceneViewSize = win.ClientSize;
             //Initialize ImGuiManager
             _ImGuiManager = new(win, e);
             EngineRef.NewSceneEvent += new Engine.NewSceneEventHandler(OnNewScene);
             _ImGuiManager.OpenFileModal.open_file_handler = new ImGuiOpenFileTriggerEventHandler(EngineRef.OpenScene);
-            
+                
             //Load Settings
             if (!File.Exists("settings.json"))
                 _ImGuiManager.ShowSettingsWindow();
@@ -68,14 +67,15 @@ namespace NibbleEditor
         }
 
         
-        public void OnResize(NbCore.Platform.Windowing.NbResizeArgs e)
+        public void OnResize(NbResizeArgs e)
         {
             // Tell ImGui of the new size
             _ImGuiManager.Resize(e.Width, e.Height);
             WindowSize = new(e.Width, e.Height);
+            EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().Resize(e.Width, e.Height);
         }
 
-        public void OnTextInput(NbCore.Platform.Windowing.NbTextInputArgs e)
+        public void OnTextInput(NbTextInputArgs e)
         {
             _ImGuiManager.SendChar((char)e.Unicode);
         }
@@ -85,17 +85,9 @@ namespace NibbleEditor
             _ImGuiManager.Log(msg);
         }
         
-        public override void OnFrameUpdate(ref Queue<object> data, double dt)
+        public override void OnFrameUpdate(NbWindow win, double dt)
         {
-            //Fetch state from data
-            mouseState = (NbMouseState) data.Dequeue();
-            keyboardState = (NbKeyboardState) data.Dequeue();
             
-            //Send Input
-            _ImGuiManager.SetMouseState(mouseState);
-            _ImGuiManager.SetKeyboardState(keyboardState);
-            
-            RenderState.activeCam.updateViewMatrix();
         }
 
         private void FetchAppPerformanceStats(object sender, System.Timers.ElapsedEventArgs args)
@@ -111,7 +103,7 @@ namespace NibbleEditor
             lastProcTotalTime = curTotalProcessorTime;
         }
 
-        public override void OnRenderFrameUpdate(ref Queue<object> data, double dt)
+        public override void OnRenderFrameUpdate(NbWindow win, double dt)
         {
             //Bind Default Framebuffer
             NbCore.Systems.RenderingSystem rs = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>();
@@ -119,10 +111,10 @@ namespace NibbleEditor
             rs.Renderer.SetViewPort(0, 0, WindowSize.X, WindowSize.Y);
             
             _ImGuiManager.Update(dt);
+            ImGui.DockSpaceOverViewport();
 
             //UI
             DrawUI();
-
 
             rs.Renderer.ClearDrawBuffer(NbCore.Platform.Graphics.NbBufferMask.Color | NbCore.Platform.Graphics.NbBufferMask.Depth);
             //ImGui.ShowDemoWindow();
@@ -132,7 +124,7 @@ namespace NibbleEditor
             if (ImGui.GetIO().ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable))
             {
                 ImGui.UpdatePlatformWindows();
-                ImGui.RenderPlatformWindowsDefault();
+                //ImGui.RenderPlatformWindowsDefault();
             }
 
             //ImGuiUtil.CheckGLError("End of frame");
@@ -329,20 +321,27 @@ namespace NibbleEditor
                 csize.X = Math.Max(csize.X, 100);
                 csize.Y = Math.Max(csize.Y, 100);
                 NbVector2i csizetk = new((int)csize.X, (int)csize.Y);
-                ImGui.Image(new IntPtr(EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().getRenderFBO().GetTexture(NbFBOAttachment.Attachment0).texID),
+
+                FBO render_fbo = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().getRenderFBO();
+
+                //Calculate SceneViewport UVs
+
+                NbVector2 fbo_center = new(render_fbo.Size.X / 2.0f, render_fbo.Size.Y / 2.0f);
+                NbVector2 A = fbo_center - new NbVector2(csize.X / 2.0f, csize.Y / 2.0f);
+                NbVector2 D = fbo_center + new NbVector2(csize.X / 2.0f, csize.Y / 2.0f);
+                NbVector2 uv0 = new NbVector2(A.X / render_fbo.Size.X, A.Y / render_fbo.Size.Y);
+                NbVector2 uv1 = new NbVector2(D.X / render_fbo.Size.X, D.Y / render_fbo.Size.Y);
+
+                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment0).texID),
                                 csize,
-                                new System.Numerics.Vector2(0.0f, 1.0f),
-                                new System.Numerics.Vector2(1.0f, 0.0f));
+                                new System.Numerics.Vector2(uv0.X, 1.0f - uv0.Y),
+                                new System.Numerics.Vector2(uv1.X, 1.0f - uv1.Y),
+                                new System.Numerics.Vector4(1.0f),
+                                new System.Numerics.Vector4(1.0f, 1.0f, 1.0f, 0.2f));
 
                 bool active_status = ImGui.IsItemHovered();
                 CaptureInput?.Invoke(active_status);
-
-                if (csizetk != EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().GetViewportSize())
-                {
-                    SceneViewSize = csizetk;
-                    EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().Resize(csizetk.X, csizetk.Y);
-                }
-
+                SceneViewSize = csizetk;
                 ImGui.End();
             }
 
@@ -436,7 +435,7 @@ namespace NibbleEditor
                 ImGui.BeginGroup();
                 ImGui.TextColored(ImGuiManager.DarkBlue, "Camera Settings");
                 ImGui.SliderInt("FOV", ref RenderState.settings.CamSettings.FOV, 15, 100);
-                ImGui.SliderFloat("Sensitivity", ref RenderState.settings.CamSettings.Sensitivity, 0.01f, 2.0f);
+                ImGui.SliderFloat("Sensitivity", ref RenderState.settings.CamSettings.Sensitivity, 1f, 10.0f);
                 ImGui.InputFloat("MovementSpeed", ref RenderState.settings.CamSettings.Speed, 1.0f, 500000.0f);
                 ImGui.SliderFloat("zNear", ref RenderState.settings.CamSettings.zNear, 0.01f, 1.0f);
                 ImGui.SliderFloat("zFar", ref RenderState.settings.CamSettings.zFar, 101.0f, 100000.0f);
@@ -444,10 +443,8 @@ namespace NibbleEditor
                 if (ImGui.Button("Reset Camera"))
                 {
                     RenderState.activeCam.Position = new NbVector3(0.0f);
-                    TransformController t_controller = RenderState.engineRef.GetSystem<NbCore.Systems.TransformationSystem>().GetEntityTransformController(RenderState.activeCam);
-                    t_controller.AddFutureState(new NbVector3(0.0f),
-                                                NbQuaternion.FromEulerAngles(0.0f, MathUtils.radians(90.0f), 0.0f, "XYZ"),
-                                                t_controller.Scale);
+                    RenderState.activeCam.pitch = -90.0f;
+                    RenderState.activeCam.yaw = 0.0f;
                 }
 
                 ImGui.SameLine();
@@ -567,7 +564,7 @@ namespace NibbleEditor
         public void AddTextureMixerScene()
         {
             //Create Shader Configuration
-            GLSLShaderConfig conf;
+            NbShaderConfig conf;
             conf = EngineRef.CreateShaderConfig(EngineRef.GetShaderSourceByFilePath("Shaders/Simple_VSEmpty.glsl"),
                                       EngineRef.GetShaderSourceByFilePath("Shaders/texture_mixer_FS.glsl"),
                                       null, null, null,
@@ -577,60 +574,27 @@ namespace NibbleEditor
             //Create Material
             NbMaterial mat = new();
             mat.Name = "mixMaterial";
-            NbUniform uf = new()
-            {
-                Name = "UseAlphaTextures",
-                State = new()
-                {
-                    Type = NbUniformType.Float,
-                    ShaderBinding = "use_alpha_textures",
-                },
-                Values = new(1.0f, 1.0f, 1.0f, 1.0f)
-            };
+            NbVector4 vec = new(1.0f, 1.0f, 1.0f, 1.0f);
+            NbUniform uf = new(NbUniformType.Float, "UseAlphaTextures", 1.0f);
+            uf.ShaderBinding = "use_alpha_textures";
             mat.Uniforms.Add(uf);
-            uf = new()
-            {
-                Name = "UseLayer0",
-                State = new()
-                {
-                    Type = NbUniformType.Float,
-                    ShaderBinding = "lbaseLayersUsed[0]",
-                },
-                Values = new(1.0f, 0.0f, 0.0f, 0.0f)
-            };
+            
+            uf = new(NbUniformType.Float, "UseLayer0", 1.0f);
+            uf.ShaderBinding = "lbaseLayersUsed[0]";
+            
             mat.Uniforms.Add(uf);
-            uf = new()
-            {
-                Name = "UseLayer1",
-                State = new()
-                {
-                    Type = NbUniformType.Float,
-                    ShaderBinding = "lbaseLayersUsed[1]",
-                },
-                Values = new(1.0f, 0.0f, 0.0f, 0.0f)
-            };
+            uf = new(NbUniformType.Float, "UseLayer1", 1.0f);
+            uf.ShaderBinding = "lbaseLayersUsed[1]";
+            
             mat.Uniforms.Add(uf);
-            uf = new()
-            {
-                Name = "Recolor0",
-                State = new()
-                {
-                    Type = NbUniformType.Vector4,
-                    ShaderBinding = "lRecolours[0]",
-                },
-                Values = new(1.0f, 0.0f, 0.0f, 0.5f)
-            };
+            uf = new(NbUniformType.Vector4, "Recolor0", 1.0f, 0.0f, 0.0f, 0.5f);
+            uf.ShaderBinding = "lRecolours[0]";
+            
             mat.Uniforms.Add(uf);
-            uf = new()
-            {
-                Name = "Recolor1",
-                State = new()
-                {
-                    Type = NbUniformType.Vector4,
-                    ShaderBinding = "lRecolours[1]",
-                },
-                Values = new(1.0f, 1.0f, 0.0f, 0.5f)
-            };
+            vec = new(1.0f, 1.0f, 0.0f, 0.5f);
+            uf = new(NbUniformType.Vector4, "Recolor1", 1.0f, 1.0f, 0.0f, 0.5f);
+            uf.ShaderBinding = "lRecolours[1]";
+            
             mat.Uniforms.Add(uf);
 
             NbShader shader = EngineRef.CreateShader(conf);

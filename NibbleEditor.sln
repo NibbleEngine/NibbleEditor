@@ -5,21 +5,53 @@ VisualStudioVersion = 17.3.32728.150
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleEditor", "NibbleEditor.csproj", "{9935F909-D50A-4AD5-94FA-3ED69633C5E0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleDLL", "..\Nibble\NibbleDLL\NibbleDLL.csproj", "{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "NibbleCore", "..\Nibble\NibbleCore\NibbleCore.shproj", "{53C00CB6-A20B-47AE-93DB-82A187F0D3CD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleAssimpPlugin", "..\NibbleAssimpPlugin\NibbleAssimpPlugin.csproj", "{A110FA12-38A8-49F3-9284-789A8C4E6A93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
 		OpenGL_DEBUG|Any CPU = OpenGL_DEBUG|Any CPU
 		OpenGL_RELEASE|Any CPU = OpenGL_RELEASE|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.Debug|Any CPU.ActiveCfg = OpenGL_RELEASE|Any CPU
+		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.Debug|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
 		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.OpenGL_DEBUG|Any CPU.ActiveCfg = OpenGL_DEBUG|Any CPU
 		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.OpenGL_DEBUG|Any CPU.Build.0 = OpenGL_DEBUG|Any CPU
 		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.OpenGL_RELEASE|Any CPU.ActiveCfg = OpenGL_RELEASE|Any CPU
 		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.OpenGL_RELEASE|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
+		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.Release|Any CPU.ActiveCfg = OpenGL_RELEASE|Any CPU
+		{9935F909-D50A-4AD5-94FA-3ED69633C5E0}.Release|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
+		{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}.Debug|Any CPU.ActiveCfg = OpenGL_RELEASE|Any CPU
+		{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}.Debug|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
+		{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}.OpenGL_DEBUG|Any CPU.ActiveCfg = OpenGL_DEBUG|Any CPU
+		{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}.OpenGL_DEBUG|Any CPU.Build.0 = OpenGL_DEBUG|Any CPU
+		{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}.OpenGL_RELEASE|Any CPU.ActiveCfg = OpenGL_RELEASE|Any CPU
+		{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}.OpenGL_RELEASE|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
+		{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}.Release|Any CPU.ActiveCfg = OpenGL_RELEASE|Any CPU
+		{77F9AB84-4C8B-4F94-B51B-44349CC3A33A}.Release|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
+		{A110FA12-38A8-49F3-9284-789A8C4E6A93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A110FA12-38A8-49F3-9284-789A8C4E6A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A110FA12-38A8-49F3-9284-789A8C4E6A93}.OpenGL_DEBUG|Any CPU.ActiveCfg = Debug|Any CPU
+		{A110FA12-38A8-49F3-9284-789A8C4E6A93}.OpenGL_DEBUG|Any CPU.Build.0 = Debug|Any CPU
+		{A110FA12-38A8-49F3-9284-789A8C4E6A93}.OpenGL_RELEASE|Any CPU.ActiveCfg = Debug|Any CPU
+		{A110FA12-38A8-49F3-9284-789A8C4E6A93}.OpenGL_RELEASE|Any CPU.Build.0 = Debug|Any CPU
+		{A110FA12-38A8-49F3-9284-789A8C4E6A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A110FA12-38A8-49F3-9284-789A8C4E6A93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C7441CBC-D51B-4A11-A124-6564AA3548CF}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\Nibble\NibbleCore\NibbleCore.projitems*{53c00cb6-a20b-47ae-93db-82a187f0d3cd}*SharedItemsImports = 13
+		..\Nibble\NibbleCore\NibbleCore.projitems*{77f9ab84-4c8b-4f94-b51b-44349cc3a33a}*SharedItemsImports = 5
 	EndGlobalSection
 EndGlobal

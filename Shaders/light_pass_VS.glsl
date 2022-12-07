@@ -71,6 +71,6 @@ void main()
     lightParameters.z = instanceData[gl_InstanceID].uniforms[1].x; //type
     
     vec4 wPos = lWorldMat * vPosition; //Calculate world Position
-    screenPos = mpCommonPerFrame.mvp * mpCommonPerFrame.rotMat * wPos;
+    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * mpCommonPerFrame.rotMat * wPos;
     gl_Position = screenPos;
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NbCore;
 using NbCore.Common;
 using NbCore.Math;
+using NbCore.Platform.Windowing;
 using NbCore.Systems;
 
 namespace NibbleEditor
@@ -15,7 +16,7 @@ namespace NibbleEditor
         }
 
 
-        public override void OnFrameUpdate(ref Queue<object> data, double dt)
+        public override void OnFrameUpdate(NbWindow win, double dt)
         {
             //Enable Animation System
             //if (RenderState.settings.renderSettings.ToggleAnimations)
@@ -44,7 +45,7 @@ namespace NibbleEditor
             //RenderState.rotMat = Matrix4.Identity;
         }
 
-        public override void OnRenderFrameUpdate(ref Queue<object> data, double dt)
+        public override void OnRenderFrameUpdate(NbWindow win, double dt)
         {
             //Per Frame System Updates
             EngineRef.GetSystem<TransformationSystem>().OnRenderUpdate(dt);

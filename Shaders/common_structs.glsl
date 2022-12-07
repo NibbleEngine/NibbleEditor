@@ -41,12 +41,14 @@ struct CommonPerFrameUniforms
     //Rendering Options
     mat4 rotMat;
     mat4 rotMatInv;
-    mat4 mvp;
-    mat4 lookMatInv;
+    mat4 projMat;
     mat4 projMatInv;
+    mat4 viewMat;
+    mat4 viewMatInv;
+    mat4 cameraRotMat;
     vec4 cameraPosition; //w component is the HDR exposure
-    int light_count;
     vec3 cameraDirection;
+    int light_count;
 };
 
 struct CommonPerFrameSamplers

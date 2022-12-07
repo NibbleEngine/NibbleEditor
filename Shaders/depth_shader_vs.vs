@@ -48,7 +48,7 @@ void main()
 
     vec4 wPos = lWorldMat * vPosition; //Calculate world Position
     fragPos = wPos; //Export world position to the fragment shader
-    gl_Position = mpCommonPerFrame.mvp * wPos;
+    gl_Position = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * wPos;
     
 }
 
