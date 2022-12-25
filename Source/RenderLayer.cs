@@ -10,13 +10,13 @@ namespace NibbleEditor
 {
     public class RenderLayer :ApplicationLayer
     {
-        public RenderLayer(Engine e) : base(e)
+        public RenderLayer(NbWindow win, Engine e) : base(win, e)
         {
 
         }
 
 
-        public override void OnFrameUpdate(NbWindow win, double dt)
+        public override void OnFrameUpdate(double dt)
         {
             //Enable Animation System
             //if (RenderState.settings.renderSettings.ToggleAnimations)
@@ -45,7 +45,7 @@ namespace NibbleEditor
             //RenderState.rotMat = Matrix4.Identity;
         }
 
-        public override void OnRenderFrameUpdate(NbWindow win, double dt)
+        public override void OnRenderFrameUpdate(double dt)
         {
             //Per Frame System Updates
             EngineRef.GetSystem<TransformationSystem>().OnRenderUpdate(dt);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ImGuiNET;
 using NbCore.Common;
 using ImGuiCore = ImGuiNET.ImGui;
 
@@ -54,7 +55,7 @@ namespace NbCore.UI.ImGui
 
             var io = ImGuiCore.GetIO();
             bool save_changes = false;
-            if (io.WantCaptureKeyboard && ImGuiCore.IsKeyDown((int)NbKey.LeftCtrl) && ImGuiCore.IsKeyPressed((int) NbKey.S))
+            if (io.WantCaptureKeyboard && ImGuiCore.IsKeyDown(ImGuiKey.LeftCtrl) && ImGuiCore.IsKeyPressed(ImGuiKey.S))
             {
                 save_changes = true;    
             }

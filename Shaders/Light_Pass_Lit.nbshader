@@ -1,0 +1,7 @@
+{
+  "ObjectType": "NbCore.NbShader",
+  "IsGeneric" : true,
+  "Config" : "LightPass_Lit_Forward",
+  "Type" : 18,
+  "directives" : []
+}

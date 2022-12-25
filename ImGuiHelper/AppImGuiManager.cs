@@ -203,7 +203,7 @@ namespace NibbleEditor
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(290, 400), ImGuiCond.Always);
             if (ImGui.BeginPopupModal("show-about", ref isOpen, ImGuiWindowFlags.NoResize))
             {
-                if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.Escape)))
+                if (ImGui.IsKeyPressed(ImGuiKey.Escape))
                 {
                     ImGui.CloseCurrentPopup();
                 }
@@ -216,7 +216,7 @@ namespace NibbleEditor
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(600, 400), ImGuiCond.Once);
             if (ImGui.BeginPopupModal("show-settings", ref isOpen))
             {
-                if (ImGui.IsKeyPressed(ImGui.GetKeyIndex(ImGuiKey.Escape)))
+                if (ImGui.IsKeyPressed(ImGuiKey.Escape) && ImGui.IsWindowHovered())
                 {
                     ImGui.CloseCurrentPopup();
                 }

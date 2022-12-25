@@ -1,0 +1,27 @@
+{
+  "ObjectType": "NbCore.NbMaterial",
+  "Name": "crossMat",
+  "Class": 0,
+  "ShaderConfig": "UberShader_Deferred",
+  "Flags": [
+    "_NB_UNLIT",
+    "_NB_VERTEX_COLOUR"
+  ],
+  "Uniforms": [
+    {
+      "ObjectType": "NbCore.NbUniform",
+      "Name": "gMaterialColourVec4",
+      "Type": 7,
+      "ShaderBinding": "mpCustomPerMaterial.uniforms[0]",
+      "ShaderLocation": -1,
+      "Values": {
+        "ObjectType": "NbCore.Math.NbVector4",
+        "X": 1.0,
+        "Y": 1.0,
+        "Z": 1.0,
+        "W": 1.0
+      }
+    }
+  ],
+  "Samplers": []
+}

@@ -1,0 +1,7 @@
+{
+  "ObjectType": "NbCore.NbShader",
+  "IsGeneric" : true,
+  "Type" : 24,
+  "Config" : "FXAA",
+  "directives" : []
+}

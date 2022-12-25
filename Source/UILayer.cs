@@ -40,7 +40,7 @@ namespace NibbleEditor
         TimeSpan lastProcTotalTime = new TimeSpan();
         DateTime lastTime = DateTime.Now;
 
-        public UILayer(Window win, Engine e) : base(e)
+        public UILayer(Window win, Engine e) : base(win, e)
         {
             Name = "UI Layer";
             SceneViewSize = win.ClientSize;
@@ -85,7 +85,7 @@ namespace NibbleEditor
             _ImGuiManager.Log(msg);
         }
         
-        public override void OnFrameUpdate(NbWindow win, double dt)
+        public override void OnFrameUpdate(double dt)
         {
             
         }
@@ -103,7 +103,7 @@ namespace NibbleEditor
             lastProcTotalTime = curTotalProcessorTime;
         }
 
-        public override void OnRenderFrameUpdate(NbWindow win, double dt)
+        public override void OnRenderFrameUpdate(double dt)
         {
             //Bind Default Framebuffer
             NbCore.Systems.RenderingSystem rs = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>();
@@ -165,52 +165,55 @@ namespace NibbleEditor
             ImGui.DockSpace(dockSpaceID, dockSpaceSize, dockspace_flags);
 
             
-            unsafe
-            {
-                if (firstDockSetup)
-                {
-                    firstDockSetup = false;
-                    dockSpaceID = ImGui.GetID("MainDockSpace");
-                    ImGuiNative.igDockBuilderRemoveNode(dockSpaceID);
-                    ImGuiNative.igDockBuilderAddNode(dockSpaceID, dockspace_flags);
-                    ImGuiNative.igDockBuilderSetNodeSize(dockSpaceID, dockSpaceSize);
+            //unsafe
+            //{
+            //    if (firstDockSetup)
+            //    {
+            //        firstDockSetup = false;
+            //        dockSpaceID = ImGui.GetID("MainDockSpace");
+                    
+            //        ImGuiNative.vi
+            //        ImGuiNative.igDockBuilderRemoveNode(dockSpaceID);
+            //        ImGuiNative.igDockBuilderAddNode(dockSpaceID, dockspace_flags);
+            //        ImGuiNative.igDockBuilderSetNodeSize(dockSpaceID, dockSpaceSize);
 
-                    //Add Right dock
-                    uint temp;
-                    //uint dockSpaceLeft;
-                    uint dockSpaceRight = ImGuiNative.igDockBuilderSplitNode(dockSpaceID, ImGuiDir.Right, 0.3f,
-                        null, &temp);
-                    dockSpaceID = temp; //Temp holds the main view
+            //        //Add Right dock
+            //        uint temp;
+            //        //uint dockSpaceLeft;
+            //        uint dockSpaceRight = ImGuiNative.igDockBuilderSplitNode(dockSpaceID, ImGuiDir.Right, 0.3f,
+            //            null, &temp);
+            //        dockSpaceID = temp; //Temp holds the main view
 
-                    uint dockSpaceRightDown =
-                        ImGuiNative.igDockBuilderSplitNode(dockSpaceRight, ImGuiDir.Down,
-                            0.5f, null, &dockSpaceRight);
-                    uint dockSpaceRightUp = dockSpaceRight;
+            //        uint dockSpaceRightDown =
+            //            ImGuiNative.igDockBuilderSplitNode(dockSpaceRight, ImGuiDir.Down,
+            //                0.5f, null, &dockSpaceRight);
+            //        uint dockSpaceRightUp = dockSpaceRight;
 
-                    uint dockSpaceLeftDown = ImGuiNative.igDockBuilderSplitNode(dockSpaceID, ImGuiDir.Down, 0.1f,
-                        null, &temp);
-                    dockSpaceID = temp; //Temp holds the main view
+            //        uint dockSpaceLeftDown = ImGuiNative.igDockBuilderSplitNode(dockSpaceID, ImGuiDir.Down, 0.1f,
+            //            null, &temp);
+            //        dockSpaceID = temp; //Temp holds the main view
 
 
-                    //Set Window Docks
-                    //Left 
-                    ImGui.DockBuilderDockWindow("Scene", dockSpaceID);
-                    ImGui.DockBuilderDockWindow("Statistics", dockSpaceLeftDown);
-                    ImGui.DockBuilderDockWindow("Log", dockSpaceLeftDown);
-                    //Right
-                    ImGui.DockBuilderDockWindow("SceneGraph", dockSpaceRightUp);
-                    ImGui.DockBuilderDockWindow("Camera", dockSpaceRightUp);
-                    ImGui.DockBuilderDockWindow("Options", dockSpaceRightUp);
-                    ImGui.DockBuilderDockWindow("Test Options", dockSpaceRightUp);
-                    ImGui.DockBuilderDockWindow("Tools", dockSpaceRightUp);
-                    ImGui.DockBuilderDockWindow("Node Editor", dockSpaceRightDown);
-                    ImGui.DockBuilderDockWindow("Shader Editor", dockSpaceRightDown);
-                    ImGui.DockBuilderDockWindow("Material Editor", dockSpaceRightDown);
-                    ImGui.DockBuilderDockWindow("Texture Editor", dockSpaceRightDown);
+            //        //Set Window Docks
+            //        //Left 
+            //        ImGui.DockBu
+            //        ImGui.DockBuilderDockWindow("Scene", dockSpaceID);
+            //        ImGui.DockBuilderDockWindow("Statistics", dockSpaceLeftDown);
+            //        ImGui.DockBuilderDockWindow("Log", dockSpaceLeftDown);
+            //        //Right
+            //        ImGui.DockBuilderDockWindow("SceneGraph", dockSpaceRightUp);
+            //        ImGui.DockBuilderDockWindow("Camera", dockSpaceRightUp);
+            //        ImGui.DockBuilderDockWindow("Options", dockSpaceRightUp);
+            //        ImGui.DockBuilderDockWindow("Test Options", dockSpaceRightUp);
+            //        ImGui.DockBuilderDockWindow("Tools", dockSpaceRightUp);
+            //        ImGui.DockBuilderDockWindow("Node Editor", dockSpaceRightDown);
+            //        ImGui.DockBuilderDockWindow("Shader Editor", dockSpaceRightDown);
+            //        ImGui.DockBuilderDockWindow("Material Editor", dockSpaceRightDown);
+            //        ImGui.DockBuilderDockWindow("Texture Editor", dockSpaceRightDown);
 
-                    ImGuiNative.igDockBuilderFinish(dockSpaceID);
-                }
-            }
+            //        ImGuiNative.igDockBuilderFinish(dockSpaceID);
+            //    }
+            //}
 
 
             //Main Menu
@@ -259,12 +262,8 @@ namespace NibbleEditor
 
                     if (ImGui.MenuItem("Close", "Ctrl + Q"))
                     {
-                        //Stop the renderer
-                        ThreadRequest req = new();
-                        req.Type = THREAD_REQUEST_TYPE.ENGINE_TERMINATE_RENDER;
-                        EngineRef.SendRequest(ref req);
-                        
                         CloseWindowEvent?.Invoke();
+                        return;
                     }
 
                     ImGui.EndMenu();

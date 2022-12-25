@@ -1,0 +1,7 @@
+{
+  "ObjectType": "NbCore.NbShader",
+  "IsGeneric" : true,
+  "Config" : "Brightness_Extract",
+  "Type" : 20,
+  "directives" : []
+}

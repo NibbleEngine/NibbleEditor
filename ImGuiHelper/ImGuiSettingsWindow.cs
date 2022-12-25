@@ -60,12 +60,9 @@ namespace NbCore.UI.ImGui
                 show_save_confirm_dialog = true;
             }
 
-            ImGuiCore.EndChild();
-
-            
             if (show_save_confirm_dialog)
             {
-                ImGuiCore.OpenPopup("Info");
+                ImGuiCore.OpenPopup("settings-saved_success");
                 show_save_confirm_dialog = false;
             }
             
@@ -75,11 +72,17 @@ namespace NbCore.UI.ImGui
                 plugin.Settings?.DrawModals();
             }
             
-            if (ImGuiCore.BeginPopupModal("Info"))
+            if (ImGuiCore.BeginPopupModal("settings-saved_success"))
             {
+                if (ImGuiCore.IsKeyPressed(ImGuiNET.ImGuiKey.Escape))
+                {
+                    ImGuiCore.CloseCurrentPopup();
+                }
                 ImGuiCore.Text("Settings Saved Successfully!");
                 ImGuiCore.EndPopup();
             }
+
+            ImGuiCore.EndChild();
 
         }
 

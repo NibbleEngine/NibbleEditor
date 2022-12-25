@@ -1,0 +1,7 @@
+{
+  "ObjectType": "NbCore.NbShader",
+  "IsGeneric" : true,
+  "Config" : "Additive_Blend",
+  "Type" : 23,
+  "directives" : []
+}

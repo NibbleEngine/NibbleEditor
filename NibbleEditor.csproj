@@ -3,7 +3,7 @@
   
   <PropertyGroup>
       <OutputType>Exe</OutputType>
-      <TargetFramework>net5.0</TargetFramework>
+      <TargetFramework>net6.0</TargetFramework>
 	  <RuntimeIdentifier Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' ">win-x64</RuntimeIdentifier>
 	  <RuntimeIdentifier Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">linux-x64</RuntimeIdentifier>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -41,6 +41,7 @@
 
   <ItemGroup>
 	<ShaderFiles Include="Shaders\**\*.glsl" />
+	<ShaderFiles Include="Shaders\**\*.nb*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -88,7 +89,6 @@
 	<!-->Reference Include="Nibble">
 	  <HintPath>lib\Nibble.dll</HintPath>
 	</Reference-->
-	  
   </ItemGroup>
 	
 

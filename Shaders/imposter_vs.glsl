@@ -57,7 +57,8 @@ void main()
     
     //Calculate UVs
     float image_id = instanceData[gl_InstanceID].uniforms[0].z;
-    uv = uvPosition0.xy + image_id * vec2(1.0, 0.0);
+    uv = uvPosition0.yx + image_id * vec2(1.0, 0.0);
+    uv.y *= -1.0;
     
     //Pass Color
     color = instanceData[gl_InstanceID].color;

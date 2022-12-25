@@ -1,0 +1,7 @@
+{
+  "ObjectType": "NbCore.NbShader",
+  "IsGeneric" : true,
+  "Type" : 22,
+  "Config" : "Vertical_Gaussian_Blur",
+  "directives" : []
+}

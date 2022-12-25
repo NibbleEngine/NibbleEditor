@@ -69,7 +69,61 @@ namespace NibbleEditor
                 ImGui.Text("Class");
                 ImGui.TableSetColumnIndex(1);
                 ImGui.SetNextItemWidth(-1);
-                ImGui.Text(_ActiveMaterial.Class);
+                ImGui.Text(_ActiveMaterial.Class.ToString());
+
+                //DiffuseColor
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Diffuse Color");
+                ImGui.TableSetColumnIndex(1);
+                ImGui.SetNextItemWidth(-1);
+                Vector4 c = new(_ActiveMaterial.DiffuseColor.Values.X,
+                                _ActiveMaterial.DiffuseColor.Values.Y,
+                                _ActiveMaterial.DiffuseColor.Values.Z,
+                                _ActiveMaterial.DiffuseColor.Values.W);
+                if (ImGui.InputFloat4("##DiffuseColor", ref c))
+                {
+                    _ActiveMaterial.DiffuseColor.Values.X = c.X;
+                    _ActiveMaterial.DiffuseColor.Values.Y = c.Y;
+                    _ActiveMaterial.DiffuseColor.Values.Z = c.Z;
+                    _ActiveMaterial.DiffuseColor.Values.W = c.W;
+                }
+
+                //AmbientColor
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Ambient Color");
+                ImGui.TableSetColumnIndex(1);
+                ImGui.SetNextItemWidth(-1);
+                c = new(_ActiveMaterial.AmbientColor.Values.X,
+                        _ActiveMaterial.AmbientColor.Values.Y,
+                        _ActiveMaterial.AmbientColor.Values.Z,
+                        _ActiveMaterial.AmbientColor.Values.W);
+                if (ImGui.InputFloat4("##AmbientColor", ref c))
+                {
+                    _ActiveMaterial.AmbientColor.Values.X = c.X;
+                    _ActiveMaterial.AmbientColor.Values.Y = c.Y;
+                    _ActiveMaterial.AmbientColor.Values.Z = c.Z;
+                    _ActiveMaterial.AmbientColor.Values.W = c.W;
+                }
+
+                //AmbientColor
+                ImGui.TableNextRow();
+                ImGui.TableSetColumnIndex(0);
+                ImGui.Text("Specular Color");
+                ImGui.TableSetColumnIndex(1);
+                ImGui.SetNextItemWidth(-1);
+                c = new(_ActiveMaterial.SpecularColor.Values.X,
+                        _ActiveMaterial.SpecularColor.Values.Y,
+                        _ActiveMaterial.SpecularColor.Values.Z,
+                        _ActiveMaterial.SpecularColor.Values.W);
+                if (ImGui.InputFloat4("##SpecularColor", ref c))
+                {
+                    _ActiveMaterial.SpecularColor.Values.X = c.X;
+                    _ActiveMaterial.SpecularColor.Values.Y = c.Y;
+                    _ActiveMaterial.SpecularColor.Values.Z = c.Z;
+                    _ActiveMaterial.SpecularColor.Values.W = c.W;
+                }
 
                 ImGui.TableNextRow();
                 ImGui.TableSetColumnIndex(0);
@@ -135,11 +189,11 @@ namespace NibbleEditor
                 {
                     foreach (string flag in flags)
                     {
-                        ImGuiNET.ImGui.Selectable(flag);
+                        ImGui.Selectable(flag);
 
-                        if (ImGuiNET.ImGui.BeginPopupContextItem(flag, ImGuiPopupFlags.MouseButtonRight))
+                        if (ImGui.BeginPopupContextItem(flag, ImGuiPopupFlags.MouseButtonRight))
                         {
-                            if (ImGuiNET.ImGui.MenuItem("Remove ##flag"))
+                            if (ImGui.MenuItem("Remove ##flag"))
                             {
                                 _ActiveMaterial.RemoveFlag((NbMaterialFlagEnum)Enum.Parse(typeof(NbMaterialFlagEnum), flag));
 
@@ -147,26 +201,25 @@ namespace NibbleEditor
                                 if (_ActiveMaterial.Shader != null)
                                     RenderState.engineRef.SetMaterialShader(_ActiveMaterial, _ActiveMaterial.Shader.GetShaderConfig());
                             }
-                            ImGuiNET.ImGui.EndPopup();
+                            ImGui.EndPopup();
                         }
                     }
 
-                    ImGuiNET.ImGui.EndListBox();
+                    ImGui.EndListBox();
                 }
                     
                 ImGui.EndTable();
             }
 
-            ImGui.TreePop();
-
             //Samplers
             ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap;
             
             if (_ActiveMaterial.Samplers.Count == 0)
-                base_flags |= ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.Leaf;
+                base_flags |= ImGuiTreeNodeFlags.Leaf;
             
             Vector2 node_rect_pos = ImGui.GetCursorPos();
-            bool samplers_node_open = ImGui.TreeNodeEx("MatSamplers", base_flags, "Samplers");
+
+            bool samplers_node_open = ImGui.TreeNodeEx("##MatSamplers" + _ActiveMaterial.ID, base_flags, "Samplers");
             Vector2 node_rect_size = ImGui.GetItemRectSize();
             float button_width = node_rect_size.Y;
             float button_height = button_width;
@@ -191,56 +244,56 @@ namespace NibbleEditor
                 {
                     NbSampler current_sampler = _ActiveMaterial.Samplers[i];
 
-                    node_rect_pos = ImGuiNET.ImGui.GetCursorPos();
-                    bool node_open = ImGuiNET.ImGui.TreeNodeEx(current_sampler.Name + "###Sampler" + i, ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap);
-                    node_rect_size = ImGuiNET.ImGui.GetItemRectSize();
+                    node_rect_pos = ImGui.GetCursorPos();
+                    bool node_open = ImGui.TreeNodeEx(current_sampler.Name + "###Sampler" + i, ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap);
+                    node_rect_size = ImGui.GetItemRectSize();
                     button_width = node_rect_size.Y;
                     button_height = button_width;
-                    ImGuiNET.ImGui.SameLine();
-                    ImGuiNET.ImGui.SetCursorPosX(node_rect_pos.X + node_rect_size.X - button_width);
-                    ImGuiNET.ImGui.PushFont(io.Fonts.Fonts[1]);
-                    if (ImGuiNET.ImGui.Button($"-##Sampler{i}", new Vector2(button_width, button_height)))
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosX(node_rect_pos.X + node_rect_size.X - button_width);
+                    ImGui.PushFont(io.Fonts.Fonts[1]);
+                    if (ImGui.Button($"-##Sampler{i}", new Vector2(button_width, button_height)))
                     {
                         Callbacks.Log(this, "Removing Sampler " + current_sampler.Name, LogVerbosityLevel.INFO);
                         _ActiveMaterial.RemoveSampler(current_sampler);
                     }
-                    ImGuiNET.ImGui.PopFont();
+                    ImGui.PopFont();
 
 
                     if (node_open)
                     {
-                        if (ImGuiNET.ImGui.BeginTable("##SamplerTable"+i, 2))
+                        if (ImGui.BeginTable("##SamplerTable"+i, 2))
                         {
-                            ImGuiNET.ImGui.TableSetupColumn("Info", ImGuiTableColumnFlags.WidthFixed, 120.0f);
-                            ImGuiNET.ImGui.TableSetupColumn("Data");
+                            ImGui.TableSetupColumn("Info", ImGuiTableColumnFlags.WidthFixed, 120.0f);
+                            ImGui.TableSetupColumn("Data");
                             //ImGuiNET.ImGui.TableSetColumnWidth(1, -1);
 
                             //Sampler Name
-                            ImGuiNET.ImGui.TableNextRow();
-                            ImGuiNET.ImGui.TableSetColumnIndex(0);
-                            ImGuiNET.ImGui.Text("Name");
-                            ImGuiNET.ImGui.TableSetColumnIndex(1);
-                            ImGuiNET.ImGui.SetNextItemWidth(-1);
-                            ImGuiNET.ImGui.InputText("##SamplerName" + i, ref current_sampler.Name, 30);
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            ImGui.Text("Name");
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.SetNextItemWidth(-1);
+                            ImGui.InputText("##SamplerName" + i, ref current_sampler.Name, 30);
 
                             //Image Preview
-                            ImGuiNET.ImGui.TableNextRow();
-                            ImGuiNET.ImGui.TableSetColumnIndex(0);
-                            ImGuiNET.ImGui.Text("Preview");
-                            ImGuiNET.ImGui.TableSetColumnIndex(1);
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            ImGui.Text("Preview");
+                            ImGui.TableSetColumnIndex(1);
                             NbTexture samplerTex = current_sampler.Texture;
                             if (samplerTex is not null && samplerTex.Data.target != NbTextureTarget.Texture2DArray)
                             {
-                                ImGuiNET.ImGui.Image((IntPtr) samplerTex.texID, new Vector2(64, 64));
+                                ImGui.Image((IntPtr) samplerTex.texID, new Vector2(64, 64));
 
-                                if (ImGuiNET.ImGui.IsItemHovered())
+                                if (ImGui.IsItemHovered())
                                 {
-                                    ImGuiNET.ImGui.BeginTooltip();
+                                    ImGui.BeginTooltip();
                                     if (samplerTex.Data.target != NbTextureTarget.Texture2DArray)
-                                        ImGuiNET.ImGui.Image((IntPtr)samplerTex.texID, new Vector2(512, 512));
-                                    ImGuiNET.ImGui.Text(current_sampler.Name);
-                                    ImGuiNET.ImGui.Text(current_sampler.Texture.Path);
-                                    ImGuiNET.ImGui.EndTooltip();
+                                        ImGui.Image((IntPtr)samplerTex.texID, new Vector2(512, 512));
+                                    ImGui.Text(current_sampler.Name);
+                                    ImGui.Text(current_sampler.Texture.Path);
+                                    ImGui.EndTooltip();
                                 }
                             }
 
@@ -256,12 +309,12 @@ namespace NibbleEditor
                             
 
                             int currentTexImageID = textureList.IndexOf(samplerTex);
-                            ImGuiNET.ImGui.TableNextRow();
-                            ImGuiNET.ImGui.TableSetColumnIndex(0);
-                            ImGuiNET.ImGui.Text("Texture");
-                            ImGuiNET.ImGui.TableSetColumnIndex(1);
-                            ImGuiNET.ImGui.SetNextItemWidth(-1);
-                            if (ImGuiNET.ImGui.Combo("##SamplerTexture" + i, ref currentTexImageID, textureItems, textureItems.Length))
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            ImGui.Text("Texture");
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.SetNextItemWidth(-1);
+                            if (ImGui.Combo("##SamplerTexture" + i, ref currentTexImageID, textureItems, textureItems.Length))
                             {
                                 current_sampler.Texture = (NbTexture) textureList[currentTexImageID];
                             }
@@ -269,12 +322,12 @@ namespace NibbleEditor
                             if (samplerTex != null)
                             {
                                 //Sampler ID
-                                ImGuiNET.ImGui.TableNextRow();
-                                ImGuiNET.ImGui.TableSetColumnIndex(0);
-                                ImGuiNET.ImGui.Text("Sampler ID");
-                                ImGuiNET.ImGui.TableSetColumnIndex(1);
-                                ImGuiNET.ImGui.SetNextItemWidth(-1);
-                                ImGuiNET.ImGui.Combo("##SamplerID" + i, ref current_sampler.SamplerID,
+                                ImGui.TableNextRow();
+                                ImGui.TableSetColumnIndex(0);
+                                ImGui.Text("Sampler ID");
+                                ImGui.TableSetColumnIndex(1);
+                                ImGui.SetNextItemWidth(-1);
+                                ImGui.Combo("##SamplerID" + i, ref current_sampler.SamplerID,
                                     new string[] { "0", "1", "2", "3", "4", "5", "6", "7" }, 8);
                             }
                                 
@@ -289,12 +342,12 @@ namespace NibbleEditor
                                 }
 
                                 int currentShaderBinding = compatibleShaderBindings.IndexOf(current_sampler.ShaderBinding);
-                                ImGuiNET.ImGui.TableNextRow();
-                                ImGuiNET.ImGui.TableSetColumnIndex(0);
-                                ImGuiNET.ImGui.Text("Shader Binding");
-                                ImGuiNET.ImGui.TableSetColumnIndex(1);
-                                ImGuiNET.ImGui.SetNextItemWidth(-1);
-                                if (ImGuiNET.ImGui.Combo("##SamplerBinding", ref currentShaderBinding, compatibleShaderBindings.ToArray(),
+                                ImGui.TableNextRow();
+                                ImGui.TableSetColumnIndex(0);
+                                ImGui.Text("Shader Binding");
+                                ImGui.TableSetColumnIndex(1);
+                                ImGui.SetNextItemWidth(-1);
+                                if (ImGui.Combo("##SamplerBinding", ref currentShaderBinding, compatibleShaderBindings.ToArray(),
                                     compatibleShaderBindings.Count))
                                 {
 
@@ -305,22 +358,21 @@ namespace NibbleEditor
                             }
 
 
-                            ImGuiNET.ImGui.EndTable();
+                            ImGui.EndTable();
                         }
-                        
-                        ImGuiNET.ImGui.TreePop();
+                        ImGui.TreePop();
                     }
-                    
                 }
                 ImGui.TreePop();
             }
             
+
             base_flags = ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap;
             if (_ActiveMaterial.Uniforms.Count == 0)
-                base_flags |= ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiTreeNodeFlags.Leaf;
+                base_flags |= ImGuiTreeNodeFlags.Leaf;
 
             node_rect_pos = ImGui.GetCursorPos();
-            bool mat_uniform_tree_open = ImGui.TreeNodeEx("MatUniforms", base_flags, "Uniforms");
+            bool mat_uniform_tree_open = ImGui.TreeNodeEx("##MatUniforms" + _ActiveMaterial.ID, base_flags, "Uniforms");
             node_rect_size = ImGui.GetItemRectSize();
             button_width = node_rect_size.Y;
             button_height = button_width;
@@ -365,30 +417,30 @@ namespace NibbleEditor
 
                     if (node_open)
                     {
-                        if (ImGuiNET.ImGui.BeginTable("##UniformTable" + i, 2))
+                        if (ImGui.BeginTable("##UniformTable" + i, 2))
                         {
-                            ImGuiNET.ImGui.TableSetupColumn("Info", ImGuiTableColumnFlags.WidthFixed, 120.0f);
-                            ImGuiNET.ImGui.TableSetupColumn("Data");
-                            //ImGuiNET.ImGui.TableSetColumnWidth(1, -1);
+                            ImGui.TableSetupColumn("Info", ImGuiTableColumnFlags.WidthFixed, 120.0f);
+                            ImGui.TableSetupColumn("Data");
+                            //ImGui.TableSetColumnWidth(1, -1);
 
                             //Name
-                            ImGuiNET.ImGui.TableNextRow();
-                            ImGuiNET.ImGui.TableSetColumnIndex(0);
-                            ImGuiNET.ImGui.Text("Name");
-                            ImGuiNET.ImGui.TableSetColumnIndex(1);
-                            ImGuiNET.ImGui.SetNextItemWidth(-1);
-                            ImGuiNET.ImGui.InputText("Name##Uniform" + i, ref current_uf.Name, 30);
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            ImGui.Text("Name");
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.SetNextItemWidth(-1);
+                            ImGui.InputText("Name##Uniform" + i, ref current_uf.Name, 30);
                             
                             //Format
-                            ImGuiNET.ImGui.TableNextRow();
-                            ImGuiNET.ImGui.TableSetColumnIndex(0);
-                            ImGuiNET.ImGui.Text("Format");
-                            ImGuiNET.ImGui.TableSetColumnIndex(1);
-                            ImGuiNET.ImGui.SetNextItemWidth(-1);
+                            ImGui.TableNextRow();
+                            ImGui.TableSetColumnIndex(0);
+                            ImGui.Text("Format");
+                            ImGui.TableSetColumnIndex(1);
+                            ImGui.SetNextItemWidth(-1);
 
                             List<string> formats = Enum.GetNames(typeof(NbUniformType)).ToList();
                             int currentFormat = formats.IndexOf(current_uf.Type.ToString());
-                            if (ImGuiNET.ImGui.Combo("##UniformFormat" + i, ref currentFormat, formats.ToArray(), formats.Count))
+                            if (ImGui.Combo("##UniformFormat" + i, ref currentFormat, formats.ToArray(), formats.Count))
                             {
                                 current_uf.Type = (NbUniformType)currentFormat;
                                 current_uf.ShaderBinding = "";
@@ -481,12 +533,13 @@ namespace NibbleEditor
 
                             ImGui.EndTable();
                         }
-                        
                         ImGui.TreePop();
                     }
+                    
                 }
                 ImGui.TreePop();
             }
+            
         }
 
         public void SetMaterial(NbMaterial mat)

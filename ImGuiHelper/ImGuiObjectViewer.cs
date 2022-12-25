@@ -461,9 +461,9 @@ namespace NibbleEditor
                                 ImGuiCore.Checkbox("##Override" + anim.animData.MetaData.Name, ref anim.Override);
                                 ImGuiCore.SameLine();
 
-                                if (!anim.Override)
-                                    ImGuiCore.PushItemFlag(ImGuiItemFlags.Disabled, true);
 
+                                ImGuiCore.BeginDisabled(!anim.Override);
+                                
                                 int temp_frame = anim.ActiveFrameIndex;
                                 if (ImGuiCore.SliderInt("##AnimFrame" + anim.animData.MetaData.Name, ref temp_frame, 
                                     0, anim.animData.FrameCount - 1))
@@ -471,16 +471,16 @@ namespace NibbleEditor
                                     anim.SetFrame(temp_frame); //Kinda stupid but whatever
                                 }
 
-                                if (!anim.Override)
-                                    ImGuiCore.PopItemFlag();
+                                ImGuiCore.EndDisabled();
+                                
                             }
 
                             ImGuiCore.EndTable();
                         }
+
                         ImGuiCore.TreePop();
                     }
                     
-
                 }
             }
             

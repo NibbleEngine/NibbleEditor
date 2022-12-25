@@ -140,7 +140,6 @@ namespace NbCore.UI.ImGui
         {
             entity_added = false;
             DrawNode(_root);
-            //DrawChildren(_root);
             DrawModals();
         }
 
@@ -282,9 +281,6 @@ namespace NbCore.UI.ImGui
                 if (DrawChildren(n) > 0)
                     ImGuiCore.TreePop();
             }
-
-
-
 
         }
         

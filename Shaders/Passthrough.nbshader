@@ -1,0 +1,7 @@
+{
+  "ObjectType": "NbCore.NbShader",
+  "IsGeneric" : true,
+  "Config" : "Passthrough",
+  "Type" : 12,
+  "directives" : []
+}

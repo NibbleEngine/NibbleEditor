@@ -1,0 +1,9 @@
+{
+  "ObjectType": "NbCore.NbShader",
+  "IsGeneric" : true,
+  "Config" : "Text",
+  "Type" : 15,
+  "directives" : [
+    "_NB_DIFFUSE_MAP"
+  ]
+}

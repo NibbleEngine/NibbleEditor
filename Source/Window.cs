@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using NbCore.Primitives;
 using NbCore.Systems;
+using ImGuiNET;
 
 namespace NibbleEditor
 {
@@ -91,7 +92,7 @@ namespace NibbleEditor
             LoadPlugins();
             
             //Initialize Application Layers
-            _renderLayer = new(Engine);
+            _renderLayer = new(this, Engine);
             _uiLayer = new(this, Engine);
 
             //Attach Layers to events
@@ -145,13 +146,18 @@ namespace NibbleEditor
 
         private void CloseWindow()
         {
+            //Detach Scene Update and Rendering
+            OnFrameUpdate -= UpdateFrame;
+            OnRenderUpdate -= RenderFrame;
+            
+            //Cleanup and Close
             Engine.CleanUp();
             Close();
         }
         
         public void UpdateFrame(double dt)
         {
-            _renderLayer.OnFrameUpdate(this, dt);
+            _renderLayer.OnFrameUpdate(dt);
             
             //Pass Global rendering settings
             SetVSync(RenderState.settings.RenderSettings.UseVSync);
@@ -168,8 +174,8 @@ namespace NibbleEditor
             RenderState.activeCam.updateViewMatrix();
             
             //Render data
-            _renderLayer.OnRenderFrameUpdate(this, dt);
-            _uiLayer.OnRenderFrameUpdate(this, dt);
+            _renderLayer.OnRenderFrameUpdate(dt);
+            _uiLayer.OnRenderFrameUpdate(dt);
         }
 
         private void SetupResources()
@@ -184,7 +190,6 @@ namespace NibbleEditor
             tex.Data.Data = null; //Release cpu data
             Engine.RegisterEntity(tex);
 
-            
             //Create Imposter Shader Config 
             NbShaderConfig conf = Engine.CreateShaderConfig(Engine.GetShaderSourceByFilePath("Shaders/imposter_vs.glsl"),
                                   Engine.GetShaderSourceByFilePath("Shaders/imposter_fs.glsl"),
@@ -234,6 +239,73 @@ namespace NibbleEditor
 
             Engine.RegisterEntity(mesh);
             q.Dispose();
+
+            //Create Gizmo
+            CreateGizmo();
+
+
+
+        }
+
+
+        private void CreateGizmo()
+        {
+            //Create Gizmo Material
+            NbMaterial gizmo_mat = new NbMaterial();
+            gizmo_mat.Class = NbMaterialClass.Transluscent;
+            gizmo_mat.AddFlag(NbMaterialFlagEnum._NB_VERTEX_COLOUR);
+            gizmo_mat.AddFlag(NbMaterialFlagEnum._NB_UNLIT);
+            gizmo_mat.Shader = Engine.GetShaderByHash(Engine.CalculateShaderHash(Engine.GetShaderConfigByName("UberShader_Deferred"), 
+                                                                                 Engine.GetMaterialShaderDirectives(gizmo_mat)));
+            
+            //Translation Gizmo
+            TranslationGizmo trans = new();
+            
+            //Create Meshes
+            LineSegment x_line = new LineSegment(new NbVector3(0.0f, 0.0f, 0.0f),
+                                                 new NbVector3(1.0f, 0.0f, 0.0f),
+                                                 new NbVector3(1.0f, 0.0f, 0.0f));
+            LineSegment y_line = new LineSegment(new NbVector3(0.0f, 0.0f, 0.0f),
+                                                 new NbVector3(0.0f, 1.0f, 0.0f),
+                                                 new NbVector3(0.0f, 1.0f, 0.0f));
+            LineSegment z_line = new LineSegment(new NbVector3(0.0f, 0.0f, 0.0f),
+                                                 new NbVector3(0.0f, 0.0f, 1.0f),
+                                                 new NbVector3(0.0f, 0.0f, 1.0f));
+
+            trans.XAxisMesh = new()
+            {
+                Hash = NbHasher.Hash("translation_gizmo_x"),
+                Data = x_line.geom.GetMeshData(),
+                MetaData = x_line.geom.GetMetaData(),
+                Material = gizmo_mat
+            };
+
+            trans.YAxisMesh = new()
+            {
+                Hash = NbHasher.Hash("translation_gizmo_y"),
+                Data = y_line.geom.GetMeshData(),
+                MetaData = y_line.geom.GetMetaData(),
+                Material = gizmo_mat
+            };
+
+            trans.ZAxisMesh = new()
+            {
+                Hash = NbHasher.Hash("translation_gizmo_z"),
+                Data = z_line.geom.GetMeshData(),
+                MetaData = z_line.geom.GetMetaData(),
+                Material = gizmo_mat
+            };
+
+            //Create Nodes for the gizmo
+            trans.XAxis = Engine.CreateMeshNode("XAxis", trans.XAxisMesh);
+            trans.YAxis = Engine.CreateMeshNode("YAxis", trans.YAxisMesh);
+            trans.ZAxis = Engine.CreateMeshNode("ZAxis", trans.ZAxisMesh);
+
+            //Register Nodes 
+            Engine.RegisterEntity(trans.XAxis);
+            Engine.RegisterEntity(trans.YAxis);
+            Engine.RegisterEntity(trans.ZAxis);
+
 
         }
 
