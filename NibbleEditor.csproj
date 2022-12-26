@@ -40,8 +40,8 @@
   </ItemGroup>
 
   <ItemGroup>
-	<ShaderFiles Include="Shaders\**\*.glsl" />
-	<ShaderFiles Include="Shaders\**\*.nb*" />
+	<Assets Include="Assets\**\*.glsl" />
+	<Assets Include="Assets\**\*.nb*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,17 +58,17 @@
 	<Cimgui Include="lib\cimgui\win-x64\cimgui.dll" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' " />
   </ItemGroup>
 
-	<!-- Copy Shaders to the Build Directory-->
+	<!-- Copy Assets to the Build Directory-->
 	<Target Name="CopyCustomContentBuild" AfterTargets="AfterBuild">
-		<Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(TargetDir)Shaders" />
+		<Copy SourceFiles="@(Assets)" DestinationFolder="$(TargetDir)Assets\%(RecursiveDir)" />
 		<Copy SourceFiles="@(Cimgui)" DestinationFolder="$(TargetDir)" />
 		<Copy SourceFiles="@(NibbleDeps)" DestinationFolder="$(TargetDir)lib" />
 		<Message Text="Dependencies copied successfully." Importance="high" />
 	</Target>
 	
-	<!-- Copy Shaders to the Publish Directory-->
+	<!-- Copy Assets to the Publish Directory-->
 	<Target Name="CopyCustomContentPublish" AfterTargets="Publish">
-		<Copy SourceFiles="@(ShaderFiles)" DestinationFolder="$(PublishDir)Shaders" />
+		<Copy SourceFiles="@(Assets)" DestinationFolder="$(PublishDir)Assets" />
 		<Copy SourceFiles="@(Cimgui)" DestinationFolder="$(PublishDir)" />
 		<Message Text="Shader files copied successfully to publish dir." Importance="high" />
 	</Target>

@@ -1,0 +1,30 @@
+{
+  "ObjectType": "NbCore.NbMeshData",
+  "Hash": "885282",
+  "VertexBufferStride": 12,
+  "IndicesLength": 1,
+  "buffers": [
+    {
+      "ObjectType": "NbCore.NbMeshBufferInfo",
+      "semantic": 0,
+      "type": 4,
+      "count": 3,
+      "stride": 0,
+      "offset": 0,
+      "sem_text": "vPosition",
+      "normalize": false
+    },
+    {
+      "ObjectType": "NbCore.NbMeshBufferInfo",
+      "semantic": 2,
+      "type": 4,
+      "count": 3,
+      "stride": 0,
+      "offset": 0,
+      "sem_text": "nPosition",
+      "normalize": false
+    }
+  ],
+  "VertexBuffer": "xZQ/T5NRFIcbTRxwEwolhrC46UTwfYMxJO1gTEhIQKCAAx9A/AoMrkzoBOgAA4PFyABlM+lZLAluUHYGFmPUyYgC/p7znhs+gk1IH25/5+8955ZKfNo1//pP/DH7Va1kn+K87Xw+vlKdOKg45wNfq88OKi04E98otVtJI1vnjbGHzaurz84X4yutJ6GXbWsm/Mi2JY3zH2lS3I2xvSwbeFHb/rLhOVSyUeepoS6PAdfXF9wGnhH3Z6OWNLJ1Li9uN/vifGaoy76Hfm59wS7Dj2ytL/xPS5Pilhcf5HzzPzl0zl45kws5w/OnqzVqh+fE0rh9+HN+N/GteRznd5XLT/UEfn66arfU27C14/Cf6ihsX+b044P6Qg7Eg6mdvsOds93aiPoIH4vxC9MT2Tr3LN3eJwY8r3rvhf7kbNcehx/ZGjXA9CfF7VlazpmLw8brJjmQG0x+/A6j3dG9J6Z2eNh713Y+bNzZb8T5iO7nbej7lePetR9rhP9cmhRXf3mKQQ7kCVPjsPKHqZ3ZSqxeGTwVfYC71YfZOJ+LPsCd6EPY2mz4r0cfCtvl/L1ye+R5lUrcF9yru77UPMDYKedWYu4dLksjW+c1zcNRnGuW7IfmAeZ+bmoewtaOwj+aFHdN80BP6S85pDlj5n8X82z05LyYcytq93mySWlk69ytvVDeztPXe2HUexF+ZOu1hX9Lcbu1FzvFnho5aP6dtYvVyWKvTfNYnSr23XgrVJczu0sv4U29D/QK5n14GnpmuR5+uM94f+yvNCnupt4H5onZIgd2DGbfeXdgZl4xMph7l6ZgaWTLTJsN1u+vx3nf4nb2JvSyzbfCj2xzaZx7pUlxbfCk8Q8=",
+  "IndexBuffer": "Hc1jQxgAGADhN9u1jGUsY9muZSxjGbN+/u725Z6PlxURCZEdWf+bEImRgzYxkiIXbVIkRx7a5EiJfLQpkRoFaFMjLQrRpkV6FKFNj4woRpsRmVGCmfGGY3aUos3mU4Y2h0852lw+FWjz+FSizedThbaATzXaQj41aIv41KIt5lqHJfGWY2nUoy3l04C2jE8j2nI+TWgr+DSjreTTgraKTyvaaj5taGv4tKOt5dqBdfGOY310oq3n04W2gU832kY+PWib+PSibebTh7aFTz/aVj4DaNv4DKJt5zqEHfGeY2cMo+3kM4K2i88o2m4+Y2h7+Iyj7eUzgbaPzyTafj5TaAf4TKMd5DqDQzHLcTjm0A7zmUc7wmcB7SifRbRjfJbQjvNZRjvBZwXtJJ9VtFN81tBOc13HmfjAcS420M7x2UQ7z2cL7QKfbbSLfHbQLvHZRbvMZw/tCp99tKt8DtCucT3E9fjIcSOO0G7wOUa7yecE7RafU7TbfM7Q7vA5R7vL5wLtHp9LtPt8rtAecL3Gw/jE8Shu0B7xuUV7zOcO7Qmfe7SnfB7QnvF5RHvO5wntBZ9ntJd8XtBecX3F6/jM8Sa+oL3h8xXtLZ9vaO/4fEd7z+cH2gc+P9E+8vmF9onPb7TPfP6gfeH6F1/jHw=="
+}

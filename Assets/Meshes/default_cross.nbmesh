@@ -1,0 +1,34 @@
+{
+  "ObjectType": "NbCore.NbMesh",
+  "Hash": "5026537170903666910",
+  "MeshType": 1,
+  "MetaData": {
+    "ObjectType": "NbCore.NbMeshMetaData",
+    "AABBMIN": {
+      "ObjectType": "NbCore.Math.NbVector3",
+      "X": -0.120000005,
+      "Y": -0.120000005,
+      "Z": -0.120000005
+    },
+    "AABBMAX": {
+      "ObjectType": "NbCore.Math.NbVector3",
+      "X": 0.14,
+      "Y": 0.14,
+      "Z": 0.14
+    },
+    "VertrStartPhysics": 0,
+    "VertrEndPhysics": 342,
+    "VertrStartGraphics": 0,
+    "VertrEndGraphics": 341,
+    "BatchStartPhysics": 0,
+    "BatchStartGraphics": 0,
+    "BatchCount": 540,
+    "FirstSkinMat": 0,
+    "LastSkinMat": 0,
+    "LODLevel": 0,
+    "BoundHullStart": 0,
+    "BoundHullEnd": 0
+  },
+  "MeshDataHash": "46579388",
+  "Material": "crossMat"
+}
