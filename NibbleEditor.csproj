@@ -41,6 +41,8 @@
 
   <ItemGroup>
 	<Assets Include="Assets\**\*.glsl" />
+	<Assets Include="Assets\**\*.fnt" />
+	<Assets Include="Assets\**\*.png" />
 	<Assets Include="Assets\**\*.nb*" />
   </ItemGroup>
 

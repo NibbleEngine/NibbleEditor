@@ -5,10 +5,10 @@
   "ShaderMode": 8,
   "Sources": [
     {
-      "VertexShader": "D:\\Projects\\NibbleEngine\\NibbleEditor\\Build\\OpenGL_DEBUG\\net6.0\\win-x64\\Assets\\Shaders\\Source\\Gbuffer_VS.glsl"
+      "VertexShader": ".\\Assets\\Shaders\\Source\\Gbuffer_VS.glsl"
     },
     {
-      "FragmentShader": "D:\\Projects\\NibbleEngine\\NibbleEditor\\Build\\OpenGL_DEBUG\\net6.0\\win-x64\\Assets\\Shaders\\Source\\bwoit_shader_fs.glsl"
+      "FragmentShader": ".\\Assets\\Shaders\\Source\\bwoit_shader_fs.glsl"
     }
   ]
 }

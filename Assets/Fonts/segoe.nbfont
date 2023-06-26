@@ -1,0 +1,5 @@
+{
+  "ObjectType": "NbCore.NbFont",
+  "FontPath" : ".//Assets//Fonts//segoe.fnt",
+  "AtlasPath" : ".//Assets//Fonts//segoe.png"
+  }

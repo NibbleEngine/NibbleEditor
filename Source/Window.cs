@@ -191,10 +191,15 @@ namespace NibbleEditor
             Engine.RegisterEntity(tex);
 
             //Create Imposter Shader Config 
-            NbShaderConfig conf = Engine.CreateShaderConfig(Engine.GetShaderSourceByFilePath("Assets/Shaders/Source/imposter_vs.glsl"),
-                                  Engine.GetShaderSourceByFilePath("Assets/Shaders/Source/imposter_fs.glsl"),
-                                  null, null, null,
-                                  NbShaderMode.DEFFERED, "Imposter", true);
+            NbShaderSource vs = Engine.GetShaderSourceByFilePath(".//Assets//Shaders//Source//imposter_vs.glsl");
+            if (vs == null)
+                vs = new NbShaderSource(".//Assets//Shaders//Source//imposter_vs.glsl", true);
+
+            NbShaderSource fs = Engine.GetShaderSourceByFilePath(".//Assets//Shaders//Source//imposter_fs.glsl");
+            if (fs == null)
+                fs = new NbShaderSource(".//Assets//Shaders//Source//imposter_fs.glsl", true);
+
+            NbShaderConfig conf = Engine.CreateShaderConfig(vs, fs, null, null, null, NbShaderMode.DEFFERED, "Imposter", true);
             
             Engine.RegisterEntity(conf);
 

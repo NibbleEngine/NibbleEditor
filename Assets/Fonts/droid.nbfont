@@ -1,0 +1,5 @@
+{
+  "ObjectType": "NbCore.NbFont",
+  "FontPath" : ".//Assets//Fonts//droid.fnt",
+  "AtlasPath" : ".//Assets//Fonts//droid.png"
+  }
