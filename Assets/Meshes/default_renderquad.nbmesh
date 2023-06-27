@@ -30,5 +30,5 @@
     "BoundHullEnd": 0
   },
   "MeshDataHash": "27483934",
-  "Material": ""
+  "Material": "defaultMat"
 }

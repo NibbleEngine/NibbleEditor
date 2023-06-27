@@ -109,8 +109,8 @@ namespace NibbleEditor
             SetVSync(RenderState.settings.RenderSettings.UseVSync);
             
             //Create Default SceneGraph
-            Engine.GetSystem<NbCore.Systems.SceneManagementSystem>().CreateSceneGraph();
-            Engine.GetSystem<NbCore.Systems.SceneManagementSystem>().SetActiveScene(Engine.GetSystem<NbCore.Systems.SceneManagementSystem>().SceneGraphs[0]);
+            Engine.GetSystem<SceneManagementSystem>().CreateSceneGraph();
+            Engine.GetSystem<SceneManagementSystem>().SetActiveScene(Engine.GetSystem<SceneManagementSystem>().SceneGraphs[0]);
             SceneGraph graph = Engine.GetActiveSceneGraph();
 
 #if (TRUE)
@@ -124,15 +124,9 @@ namespace NibbleEditor
             SceneGraphNode light = Engine.CreateLightNode("Default Light", 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
             TransformationSystem.SetEntityLocation(light, new NbVector3(0.0f, 0.0f, 0.0f));
             test1.AddChild(light);
-            test1.SetParent(graph.Root);
-
-            //Request tranform update for the added nodes
-            Engine.RegisterSceneGraphTree(test1, true);
-            Engine.RequestEntityTransformUpdate(test1);
-#endif
-            //Populate SceneGraphView
-            Engine.NewSceneEvent?.Invoke(graph);
             
+            Engine.ImportScene(test1);            
+#endif
             //Check if Temp folder exists
             if (!Directory.Exists("Temp")) Directory.CreateDirectory("Temp");
 
@@ -246,7 +240,7 @@ namespace NibbleEditor
             q.Dispose();
 
             //Create Gizmo
-            CreateGizmo();
+            //CreateGizmo();
 
 
 
