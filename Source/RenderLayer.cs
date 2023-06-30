@@ -5,6 +5,7 @@ using NbCore.Common;
 using NbCore.Math;
 using NbCore.Platform.Windowing;
 using NbCore.Systems;
+using NbCore.UI.ImGui;
 
 namespace NibbleEditor
 {
@@ -15,6 +16,11 @@ namespace NibbleEditor
 
         }
 
+        public void OnResize(NbResizeArgs e)
+        {
+            // Tell ImGui of the new size
+            EngineRef.GetSystem<RenderingSystem>().Resize(e.Width, e.Height);
+        }
 
         public override void OnFrameUpdate(double dt)
         {

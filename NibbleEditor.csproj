@@ -55,15 +55,10 @@
     <None Remove="Resources\Roboto-Medium.ttf" />
   </ItemGroup>
 
-  <ItemGroup>
-	<Cimgui Include="lib\cimgui\linux-x64\cimgui.so" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' " />
-	<Cimgui Include="lib\cimgui\win-x64\cimgui.dll" Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' " />
-  </ItemGroup>
-
 	<!-- Copy Assets to the Build Directory-->
 	<Target Name="CopyCustomContentBuild" AfterTargets="AfterBuild">
 		<Copy SourceFiles="@(Assets)" DestinationFolder="$(TargetDir)Assets\%(RecursiveDir)" />
-		<Copy SourceFiles="@(Cimgui)" DestinationFolder="$(TargetDir)" />
+		<!--Copy SourceFiles="@(Cimgui)" DestinationFolder="$(TargetDir)" /-->
 		<Copy SourceFiles="@(NibbleDeps)" DestinationFolder="$(TargetDir)lib" />
 		<Message Text="Dependencies copied successfully." Importance="high" />
 	</Target>
@@ -71,13 +66,15 @@
 	<!-- Copy Assets to the Publish Directory-->
 	<Target Name="CopyCustomContentPublish" AfterTargets="Publish">
 		<Copy SourceFiles="@(Assets)" DestinationFolder="$(PublishDir)Assets" />
-		<Copy SourceFiles="@(Cimgui)" DestinationFolder="$(PublishDir)" />
+		<!--Copy SourceFiles="@(Cimgui)" DestinationFolder="$(PublishDir)" /-->
 		<Message Text="Shader files copied successfully to publish dir." Importance="high" />
 	</Target>
 	
 	
 	<ItemGroup>
-	  <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	  <PackageReference Include="ImGui.NET" Version="1.89.6" />
+      <PackageReference Condition="$(DefineConstants.Contains('OPENGL'))" Include="OpenTK" Version="4.7.7" />
 	</ItemGroup>
 	
 	<ItemGroup>
@@ -85,9 +82,9 @@
 	</ItemGroup>
 	
   <ItemGroup>
-	<Reference Include="ImGui.NET">
+	  <!--Reference Include="ImGui.NET">
       <HintPath>lib\ImGui.NET.dll</HintPath>
-    </Reference>
+    </Reference-->
 	<!-->Reference Include="Nibble">
 	  <HintPath>lib\Nibble.dll</HintPath>
 	</Reference-->

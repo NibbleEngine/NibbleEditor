@@ -68,6 +68,11 @@ namespace NibbleEditor
             }
         }
 
+        public void SetRenderFreq(int fps)
+        {
+            SetRenderFrameFrequency(fps);
+        }
+
         private void WindowLoad()
         {
             //OVERRIDE SETTINGS
@@ -101,11 +106,12 @@ namespace NibbleEditor
 
             OnTextInput += _uiLayer.OnTextInput;
             OnResize += _uiLayer.OnResize;
+            OnResize += _renderLayer.OnResize;
             _logger.LogEvent += _uiLayer.OnLog;
             
             //Pass rendering settings to the Window
-            SetRenderFrameFrequency(0);
-            SetFrameUpdateFrequency(15);
+            SetRenderFrameFrequency(60);
+            SetUpdateFrameFrequency(60);
             SetVSync(RenderState.settings.RenderSettings.UseVSync);
             
             //Create Default SceneGraph
@@ -151,12 +157,10 @@ namespace NibbleEditor
         
         public void UpdateFrame(double dt)
         {
-            _renderLayer.OnFrameUpdate(dt);
+            Camera.CalculateNextCameraState(RenderState.activeCam, targetCameraPos);
+            targetCameraPos.Reset();
             
-            //Pass Global rendering settings
-            SetVSync(RenderState.settings.RenderSettings.UseVSync);
-            SetRenderFrameFrequency(RenderState.settings.RenderSettings.FPS);
-            SetFrameUpdateFrequency(RenderState.settings.TickRate);
+            _renderLayer.OnFrameUpdate(dt);
         }
 
         public void RenderFrame(double dt)
@@ -346,9 +350,7 @@ namespace NibbleEditor
             mouseController();
             //gpController(); //TODO: Re-add controller support
 
-            Camera.CalculateNextCameraState(RenderState.activeCam, targetCameraPos);
-
-            targetCameraPos.Reset();
+            
         }
 
         #endregion

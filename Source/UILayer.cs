@@ -19,16 +19,13 @@ namespace NibbleEditor
 
     public class UILayer : ApplicationLayer
     {
-        private NbVector2i SceneViewSize = new();
         private AppImGuiManager _ImGuiManager;
 
         //ImGui stuff
-        private NbVector2i WindowSize = new();
-        private bool firstDockSetup = true;
-        
         static private bool IsOpenFileDialogOpen = false;
         private string current_file_path = Environment.CurrentDirectory;
-        
+        private string[] fps_settings = new string[] { "0", "15", "30", "60", "120", "300", "500" };
+
         //Events
         public event CloseWindowEventHandler CloseWindowEvent;
         public event CaptureInputHandler CaptureInput;
@@ -43,7 +40,6 @@ namespace NibbleEditor
         public UILayer(Window win, Engine e) : base(win, e)
         {
             Name = "UI Layer";
-            SceneViewSize = win.ClientSize;
             //Initialize ImGuiManager
             _ImGuiManager = new(win, e);
             EngineRef.NewSceneEvent += new Engine.NewSceneEventHandler(OnNewScene);
@@ -71,8 +67,6 @@ namespace NibbleEditor
         {
             // Tell ImGui of the new size
             _ImGuiManager.Resize(e.Width, e.Height);
-            WindowSize = new(e.Width, e.Height);
-            EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().Resize(e.Width, e.Height);
         }
 
         public void OnTextInput(NbTextInputArgs e)
@@ -108,7 +102,7 @@ namespace NibbleEditor
             //Bind Default Framebuffer
             NbCore.Systems.RenderingSystem rs = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>();
             rs.Renderer.BindFrameBuffer(0);
-            rs.Renderer.SetViewPort(0, 0, WindowSize.X, WindowSize.Y);
+            rs.Renderer.SetViewPort(0, 0, WindowRef.Size.X, WindowRef.Size.Y);
             
             _ImGuiManager.Update(dt);
             ImGui.DockSpaceOverViewport();
@@ -215,7 +209,6 @@ namespace NibbleEditor
             //    }
             //}
 
-
             //Main Menu
             if (ImGui.BeginMainMenuBar())
             {
@@ -280,8 +273,8 @@ namespace NibbleEditor
             //Generate StatusBar
             //StatusBar
 
-            ImGui.SetNextWindowPos(new System.Numerics.Vector2(0, WindowSize.Y - statusBarHeight));
-            ImGui.SetNextWindowSize(new System.Numerics.Vector2(WindowSize.X, statusBarHeight));
+            ImGui.SetNextWindowPos(new System.Numerics.Vector2(0, WindowRef.Size.Y - statusBarHeight));
+            ImGui.SetNextWindowSize(new System.Numerics.Vector2(WindowRef.Size.X, statusBarHeight));
 
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
 
@@ -340,7 +333,6 @@ namespace NibbleEditor
 
                 bool active_status = ImGui.IsItemHovered();
                 CaptureInput?.Invoke(active_status);
-                SceneViewSize = csizetk;
                 ImGui.End();
             }
 
@@ -493,20 +485,30 @@ namespace NibbleEditor
 
                 ImGui.Checkbox("Use Textures", ref RenderState.settings.RenderSettings.UseTextures);
                 ImGui.Checkbox("Use Lighting", ref RenderState.settings.RenderSettings.UseLighting);
-                ImGui.Checkbox("Use VSYNC", ref RenderState.settings.RenderSettings.UseVSync);
+
+                bool vsync = RenderState.settings.RenderSettings.UseVSync;
+                if (ImGui.Checkbox("Use VSYNC", ref vsync))
+                {
+                    WindowRef.SetVSync(vsync);
+                }
+                
                 ImGui.Checkbox("Show Animations", ref RenderState.settings.RenderSettings.ToggleAnimations);
                 ImGui.Checkbox("Wireframe", ref RenderState.settings.RenderSettings.RenderWireFrame);
                 ImGui.Checkbox("FXAA", ref RenderState.settings.RenderSettings.UseFXAA);
                 ImGui.Checkbox("Bloom", ref RenderState.settings.RenderSettings.UseBLOOM);
                 ImGui.Checkbox("LOD Filtering", ref RenderState.settings.RenderSettings.LODFiltering);
 
-                int val = RenderState.settings.RenderSettings.FPS;
-                if (ImGui.InputInt("FPS", ref val, 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
-                    RenderState.settings.RenderSettings.FPS = val;
+                int fps_selection = Array.IndexOf(fps_settings, RenderState.settings.RenderSettings.FPS.ToString());
+                if (ImGui.Combo("FPS", ref fps_selection, fps_settings, fps_settings.Length))
+                {
+                    WindowRef.SetRenderFrameFrequency(int.Parse(fps_settings[fps_selection]));
+                }
 
-                val = RenderState.settings.TickRate;
-                if (ImGui.InputInt("Engine Tick Rate", ref val , 1, 1, ImGuiInputTextFlags.EnterReturnsTrue))
-                    RenderState.settings.TickRate = val;
+                int tick_selection = Array.IndexOf(fps_settings, RenderState.settings.TickRate.ToString());
+                if (ImGui.Combo("Engine Tick Rate", ref tick_selection, fps_settings, fps_settings.Length))
+                {
+                    WindowRef.SetUpdateFrameFrequency(int.Parse(fps_settings[tick_selection]));
+                }
 
                 ImGui.InputFloat("HDR Exposure", ref RenderState.settings.RenderSettings.HDRExposure);
                 ImGui.End();
