@@ -10,6 +10,7 @@ using NbCore.UI.ImGui;
 using System.Diagnostics;
 using System.Linq;
 using NbCore.Platform.Windowing;
+using NbCore.Platform.Graphics;
 
 namespace NibbleEditor
 {
@@ -100,9 +101,8 @@ namespace NibbleEditor
         public override void OnRenderFrameUpdate(double dt)
         {
             //Bind Default Framebuffer
-            NbCore.Systems.RenderingSystem rs = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>();
-            rs.Renderer.BindFrameBuffer(0);
-            rs.Renderer.SetViewPort(0, 0, WindowRef.Size.X, WindowRef.Size.Y);
+            GraphicsAPI.BindFrameBuffer(0);
+            GraphicsAPI.SetViewPort(0, 0, WindowRef.Size.X, WindowRef.Size.Y);
             
             _ImGuiManager.Update(dt);
             ImGui.DockSpaceOverViewport();
@@ -110,7 +110,7 @@ namespace NibbleEditor
             //UI
             DrawUI();
 
-            rs.Renderer.ClearDrawBuffer(NbCore.Platform.Graphics.NbBufferMask.Color | NbCore.Platform.Graphics.NbBufferMask.Depth);
+            GraphicsAPI.ClearDrawBuffer(NbCore.Platform.Graphics.NbBufferMask.Color | NbCore.Platform.Graphics.NbBufferMask.Depth);
             //ImGui.ShowDemoWindow();
             _ImGuiManager.Render();
 
@@ -317,7 +317,6 @@ namespace NibbleEditor
                 FBO render_fbo = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().getRenderFBO();
 
                 //Calculate SceneViewport UVs
-
                 NbVector2 fbo_center = new(render_fbo.Size.X / 2.0f, render_fbo.Size.Y / 2.0f);
                 NbVector2 A = fbo_center - new NbVector2(csize.X / 2.0f, csize.Y / 2.0f);
                 NbVector2 D = fbo_center + new NbVector2(csize.X / 2.0f, csize.Y / 2.0f);
@@ -420,7 +419,8 @@ namespace NibbleEditor
             }
 #endif
             bool isopen = false;
-            if (ImGui.Begin("Camera", ref isopen, ImGuiWindowFlags.NoCollapse))
+            if (ImGui.Begin("Camera", ref isopen, ImGuiWindowFlags.NoCollapse |
+                                               ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 //Camera Settings
                 ImGui.BeginGroup();
@@ -433,9 +433,7 @@ namespace NibbleEditor
 
                 if (ImGui.Button("Reset Camera"))
                 {
-                    RenderState.activeCam.Position = new NbVector3(0.0f);
-                    RenderState.activeCam.pitch = -90.0f;
-                    RenderState.activeCam.yaw = 0.0f;
+                    RenderState.activeCam.Reset();
                 }
 
                 ImGui.SameLine();

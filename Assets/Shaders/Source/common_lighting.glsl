@@ -88,3 +88,43 @@ vec3 calcLighting(Light light, vec4 fragPos, vec3 N, vec3 cameraPos, vec3 camera
     return f_diffuse + f_specular + lfEmissive;
 }
 
+vec3 calcLightingPhong(Light light, vec4 fragPos, vec3 N, vec3 cameraPos, vec3 cameraDir,
+            vec3 albedoColor, float lfMetallic, float lfRoughness, float lfAo, float lfAoStrength, vec3 lfEmissive) {
+    
+    vec3 V = normalize(cameraPos - fragPos.xyz); //Calculate viewer vector based on camera position
+    vec3 L = normalize(light.position.xyz - fragPos.xyz);    
+    vec3 H = normalize(V + L);
+    
+    //KHRONOS WAY
+    float VdotH = max(min(dot(V, H), 1.0), 0.0);
+    float NdotL = max(min(dot(N, L), 1.0), 0.0);
+    float NdotV = max(min(dot(N, V), 1.0), 0.0);
+    float NdotH = max(min(dot(N, H), 1.0), 0.0);
+
+
+    vec3 specColor = vec3(1.0, 1.0, 1.0);
+    //Blinn Phong
+    float specAngle = max(dot(H, N), 0.0);
+    float specular = pow(specAngle, 16.0);
+
+
+    //Phong
+    //vec3 reflectDir = reflect(-L, N);
+    //float specAngle = max(dot(reflectDir, V), 0.0);
+    //float specular = pow(specAngle, 4.0);
+    
+    float attenuation = calcLightAttenuation(light, fragPos);
+
+    float dist = max(length(light.position.xyz - fragPos.xyz), 0.001);
+    vec3 radiance = light.color.xyz * light.color.w / (dist * dist);
+    
+    
+    vec3 f_diffuse = vec3(0.0);
+    vec3 f_specular = vec3(0.0);
+    
+    //TODO: Apply AO information only when IBL is considered
+
+    f_diffuse = NdotL * radiance * albedoColor;
+    f_specular = specular * specColor;
+    return f_diffuse + f_specular;
+}

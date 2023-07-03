@@ -301,7 +301,7 @@ namespace NibbleEditor
             //LightComponent
             if (_model.HasComponent<LightComponent>())
             {
-                LightComponent lc = _model.GetComponent<LightComponent>() as LightComponent;
+                LightComponent lc = _model.GetComponent<LightComponent>();
 
                 if (ImGuiCore.CollapsingHeader("Light Component", ImGuiTreeNodeFlags.DefaultOpen))
                 {
@@ -309,12 +309,12 @@ namespace NibbleEditor
                     ImGuiCore.Columns(2);
                     ImGuiCore.Text("Intensity");
                     ImGuiCore.NextColumn();
-                    if (ImGuiCore.InputFloat("##Intensity", ref lc.Data.Intensity))
+                    if (ImGuiCore.DragFloat("##Intensity", ref lc.Data.Intensity, 2.5f))
                         light_updated = true;
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("FOV");
                     ImGuiCore.NextColumn();
-                    if (ImGuiCore.InputFloat("##fov", ref lc.Data.FOV))
+                    if (ImGuiCore.DragFloat("##fov", ref lc.Data.FOV, 0.5f))
                         light_updated = true;
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("IsRenderable");
@@ -346,7 +346,7 @@ namespace NibbleEditor
             //ImposterComponent
             if (_model.HasComponent<ImposterComponent>())
             {
-                ImposterComponent cc = _model.GetComponent<ImposterComponent>() as ImposterComponent;
+                ImposterComponent cc = _model.GetComponent<ImposterComponent>();
 
                 if (ImGuiCore.CollapsingHeader("Imposter Component", ImGuiTreeNodeFlags.DefaultOpen))
                 {
@@ -382,7 +382,7 @@ namespace NibbleEditor
             //CollisionComponent
             if (_model.HasComponent<CollisionComponent>())
             {
-                CollisionComponent cc = _model.GetComponent<CollisionComponent>() as CollisionComponent;
+                CollisionComponent cc = _model.GetComponent<CollisionComponent>();
 
                 if (ImGuiCore.CollapsingHeader("Collision Component", ImGuiTreeNodeFlags.DefaultOpen))
                 {
@@ -397,7 +397,7 @@ namespace NibbleEditor
             //ReferenceComponent
             if (_model.HasComponent<ReferenceComponent>())
             {
-                ReferenceComponent rc = _model.GetComponent<ReferenceComponent>() as ReferenceComponent;
+                ReferenceComponent rc = _model.GetComponent<ReferenceComponent>();
 
                 if (ImGuiCore.CollapsingHeader("Reference Component", ImGuiTreeNodeFlags.DefaultOpen))
                 {
@@ -412,7 +412,7 @@ namespace NibbleEditor
             //JointCOmponent
             if (_model.HasComponent<JointComponent>())
             {
-                JointComponent jc = _model.GetComponent<JointComponent>() as JointComponent;
+                JointComponent jc = _model.GetComponent<JointComponent>();
 
                 if (ImGuiCore.CollapsingHeader("Joint Component", ImGuiTreeNodeFlags.DefaultOpen))
                 {
@@ -427,7 +427,7 @@ namespace NibbleEditor
             //AnimationComponent
             if (_model.HasComponent<AnimComponent>())
             {
-                AnimComponent ac = _model.GetComponent<AnimComponent>() as AnimComponent;
+                AnimComponent ac = _model.GetComponent<AnimComponent>();
 
                 float lineheight = ImGuiNET.ImGui.GetTextLineHeight();
                 if (ImGuiCore.CollapsingHeader("Animation Component", ImGuiTreeNodeFlags.DefaultOpen))
@@ -487,7 +487,7 @@ namespace NibbleEditor
             //ScriptComponent
             if (_model.HasComponent<ScriptComponent>())
             {
-                ScriptComponent sc = _model.GetComponent<ScriptComponent>() as ScriptComponent;
+                ScriptComponent sc = _model.GetComponent<ScriptComponent>();
 
                 float lineheight = ImGuiCore.GetTextLineHeight();
                 

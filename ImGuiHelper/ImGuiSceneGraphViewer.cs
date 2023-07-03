@@ -108,7 +108,7 @@ namespace NbCore.UI.ImGui
             {
                 //Register new locator node to engine
                 _manager.EngineRef.RegisterEntity(new_node);
-                _manager.EngineRef.GetSystem<Systems.SceneManagementSystem>().AddNode(new_node);
+                _manager.EngineRef.GetSystem<Systems.SceneManagementSystem>().ActiveSceneGraph.AddNode(new_node);
 
                 //Set parent
                 new_node.SetParent(_clicked);

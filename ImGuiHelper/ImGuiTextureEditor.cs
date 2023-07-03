@@ -3,7 +3,7 @@ using NbCore;
 using NbCore.Common;
 using ImGuiCore = ImGuiNET.ImGui;
 using System.Collections.Generic;
-
+using NbCore.Platform.Graphics;
 
 namespace NbCore.UI.ImGui
 {
@@ -32,7 +32,11 @@ namespace NbCore.UI.ImGui
             }
                 
             if (ImGuiCore.Combo("##1", ref _SelectedId, items, items.Length))
+            {
                 _ActiveTexture = textureList[_SelectedId] as NbTexture;
+                GraphicsAPI.queryTextureParameters(_ActiveTexture);
+            }
+                
 
             ImGuiCore.SameLine();
 
@@ -107,8 +111,37 @@ namespace NbCore.UI.ImGui
                 ImGuiCore.SetNextItemWidth(-1);
                 ImGuiCore.Text(_ActiveTexture.Data.Height.ToString());
 
-                ImGuiCore.EndTable();
+                ImGuiCore.TableNextRow();
+                ImGuiCore.TableSetColumnIndex(0);
+                ImGuiCore.Text("MinFilter");
+                ImGuiCore.TableSetColumnIndex(1);
+                ImGuiCore.SetNextItemWidth(-1);
+                ImGuiCore.Text(_ActiveTexture.Data.MinFilter.ToString());
 
+                ImGuiCore.TableNextRow();
+                ImGuiCore.TableSetColumnIndex(0);
+                ImGuiCore.Text("MagFilter");
+                ImGuiCore.TableSetColumnIndex(1);
+                ImGuiCore.SetNextItemWidth(-1);
+                ImGuiCore.Text(_ActiveTexture.Data.MagFilter.ToString());
+
+                ImGuiCore.TableNextRow();
+                ImGuiCore.TableSetColumnIndex(0);
+                ImGuiCore.Text("WrapMode");
+                ImGuiCore.TableSetColumnIndex(1);
+                ImGuiCore.SetNextItemWidth(-1);
+                ImGuiCore.Text(_ActiveTexture.Data.WrapMode.ToString());
+
+                ImGuiCore.TableNextRow();
+                ImGuiCore.SetNextItemWidth(-1);
+                ImGuiCore.TableSetColumnIndex(1);
+                if (ImGuiCore.Button("DumpToDisk"))
+                {
+                    GraphicsAPI.DumpTexture(_ActiveTexture, "dump_tex");
+                }
+                
+                //TODO: In the future allow for changing on the fly the filters, and the wrap mode
+                ImGuiCore.EndTable();
             }
 
         }

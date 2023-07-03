@@ -1,0 +1,14 @@
+{
+  "ObjectType": "NbCore.NbShaderConfig",
+  "Path": "",
+  "Name": "UberShader_Forward_Lit",
+  "ShaderMode": 12,
+  "Sources": [
+    {
+      "VertexShader": ".\\Assets\\Shaders\\Source\\Simple_VS.glsl"
+    },
+    {
+      "FragmentShader": ".\\Assets\\Shaders\\Source\\ubershader_fs.glsl"
+    }
+  ]
+}

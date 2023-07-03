@@ -44,9 +44,9 @@ vec4 worldfromDepth(in vec2 screen, in float depth)
 	world.w = 1.0f;
 
 	world = mpCommonPerFrame.projMatInv * world;
-	world /= world.w;
-	world = mpCommonPerFrame.viewMatInv * world;
 	//world /= world.w;
+	world = mpCommonPerFrame.viewMatInv * world;
+	world /= world.w;
 
 	return world;
 }
@@ -96,11 +96,19 @@ void main()
 	light.color = lightColor;
 	light.parameters = lightParameters;
 	
-	finalColor.rgb = calcLighting(light, fragPos, fragNormal.xyz, 
+	//Use PBR Lighting
+	//finalColor.rgb = calcLighting(light, fragPos, fragNormal.xyz, 
+	//		mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, 
+	//		albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
+	//finalColor.a = albedoColor.a;
+
+	//Use Phong
+	finalColor.rgb = calcLightingPhong(light, fragPos, fragNormal.xyz, 
 			mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, 
 			albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
 	finalColor.a = albedoColor.a;
 
-	fragColor = mix(albedoColor, finalColor, fragNormal.w);
+	//fragColor = mix(albedoColor, finalColor, fragNormal.w);
+	fragColor = 0.5 * (1.0 + fragNormal);
 	
 }

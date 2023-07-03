@@ -9,6 +9,8 @@ using System.Reflection;
 using NbCore.Primitives;
 using NbCore.Systems;
 using ImGuiNET;
+using System;
+using System.Threading;
 
 namespace NibbleEditor
 {
@@ -35,7 +37,7 @@ namespace NibbleEditor
             //Initialize Logger
             _logger = new NbLogger()
             {
-                LogVerbosity = LogVerbosityLevel.INFO
+                LogVerbosity = LogVerbosityLevel.DEBUG
             };
             
             //Initialize Engine backend
@@ -113,14 +115,18 @@ namespace NibbleEditor
             SetRenderFrameFrequency(60);
             SetUpdateFrameFrequency(60);
             SetVSync(RenderState.settings.RenderSettings.UseVSync);
-            
-            //Create Default SceneGraph
-            Engine.GetSystem<SceneManagementSystem>().CreateSceneGraph();
-            Engine.GetSystem<SceneManagementSystem>().SetActiveScene(Engine.GetSystem<SceneManagementSystem>().SceneGraphs[0]);
-            SceneGraph graph = Engine.GetActiveSceneGraph();
+
+
 
 #if (TRUE)
-            //Create Test Scene
+            //Create Default SceneGraph
+            SceneGraph graph = Engine.GetSystem<SceneManagementSystem>().CreateSceneGraph();
+            
+            //Create Test SceneGraph
+            SceneGraphNode root = Engine.CreateSceneNode("SceneRoot");
+            root.AddComponent<SceneComponent>(new SceneComponent());
+            graph.Root = root;
+            
             SceneGraphNode test1 = Engine.CreateLocatorNode("Test Locator 1");
             SceneGraphNode test2 = Engine.CreateLocatorNode("Test Locator 2");
             test1.AddChild(test2);
@@ -128,10 +134,13 @@ namespace NibbleEditor
             test2.AddChild(test3);
 
             SceneGraphNode light = Engine.CreateLightNode("Default Light", 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
-            TransformationSystem.SetEntityLocation(light, new NbVector3(0.0f, 0.0f, 0.0f));
+            TransformationSystem.SetEntityLocation(light, new NbVector3(5.0f, 0.0f, 5.0f));
+            TransformationSystem.SetEntityScale(light, new NbVector3(100.0f));
             test1.AddChild(light);
-            
-            Engine.ImportScene(test1);            
+            root.AddChild(test1);
+
+            Engine.ImportSceneGraph(graph);
+            Engine.GetSystem<SceneManagementSystem>().SetActiveScene(graph);
 #endif
             //Check if Temp folder exists
             if (!Directory.Exists("Temp")) Directory.CreateDirectory("Temp");
@@ -362,8 +371,8 @@ namespace NibbleEditor
             float x, y, z;
 
             x = keyDownStateToInt(NbKey.D) - keyDownStateToInt(NbKey.A);
-            y = keyDownStateToInt(NbKey.W) - keyDownStateToInt(NbKey.S);
-            z = keyDownStateToInt(NbKey.R) - keyDownStateToInt(NbKey.F);
+            z = keyDownStateToInt(NbKey.W) - keyDownStateToInt(NbKey.S);
+            y = keyDownStateToInt(NbKey.R) - keyDownStateToInt(NbKey.F);
 
             //Camera rotation is done exclusively using the mouse
 
@@ -377,7 +386,7 @@ namespace NibbleEditor
             targetCameraPos.PosImpulse.X = x;
             targetCameraPos.PosImpulse.Y = y;
             targetCameraPos.PosImpulse.Z = z;
-        }
+        } 
 
         //Mouse Methods
 
@@ -386,7 +395,17 @@ namespace NibbleEditor
             if (IsMouseButtonDown(NbMouseButton.RIGHT) | IsKeyDown(NbKey.LeftAlt))
             {
                 targetCameraPos.Rotation = MouseDelta;
-            } 
+            }
+            
+            if (IsMouseButtonDown(NbMouseButton.MIDDLE))
+            {
+                NbVector2 delta = MouseDelta.Normalized();
+                if (!float.IsNaN(delta.X))
+                    targetCameraPos.PosImpulse.X = -2.0f * delta.X;
+                if (!float.IsNaN(delta.Y))
+                    targetCameraPos.PosImpulse.Y = 2.0f * delta.Y;
+                //Log($"{targetCameraPos.PosImpulse.X} {targetCameraPos.PosImpulse.Y}", LogVerbosityLevel.INFO);
+            }
         }
 
         #region ResourceManager

@@ -104,7 +104,7 @@ void main()
     //OLD
     vec3 lWorldTangentVec4 = normalize(vec3(nMat * vec4(lLocalTangentVec4.xyz, 0.0)));
     vec3 lWorldNormalVec4 = normalize(vec3(nMat * vec4(lLocalNormalVec4.xyz, 0.0)));
-    vec3 lWorldBitangentVec4 = cross(lWorldNormalVec4, lWorldTangentVec4);
+    vec3 lWorldBitangentVec4 = cross(lWorldNormalVec4, lWorldTangentVec4) * lLocalTangentVec4.w;
     
     //Re-orthogonalize tangent
     //lWorldTangentVec4.xyz = normalize(lWorldTangentVec4.xyz - dot(lWorldTangentVec4.xyz, lWorldNormalVec4.xyz) * lWorldNormalVec4.xyz);
