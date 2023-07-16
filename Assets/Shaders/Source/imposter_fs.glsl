@@ -10,16 +10,42 @@
 in vec4 screenPos;
 in vec2 uv;
 in vec3 color;
-out vec4 Out_Color;
+
+//Deferred Shading outputs
+out vec4 outcolors[4];
 
 uniform CustomPerMaterialUniforms mpCustomPerMaterial;
 
 void main()
 {
-  //Fetch Texture
+  //Fetch imposter texture color
   vec4 lColourVec4 = texture(mpCustomPerMaterial.gDiffuseMap, uv);
+  
   if (lColourVec4.a < 0.001)
     discard;
-  Out_Color = vec4(color.xyz * (vec3(1.0, 1.0, 1.0) - lColourVec4.xyz) , lColourVec4.a);
-  //Out_Color = vec4(1.0, 0.0, 0.0, 1.0);
+  
+  //Imposter textures are supposed to have only alpha channels (for now)
+  //In any other case make sure to use the other channels to color the texture
+  
+
+  lColourVec4.rgb = color * lColourVec4.a;
+
+  float isLit = 1.0;
+  #ifdef _NB_UNLIT
+    isLit = 0.0;
+  #endif
+
+  //WRITE OUTPUT
+  #if defined(_D_DEFERRED_RENDERING)
+		//Save Info to GBuffer
+	  //Albedo
+		outcolors[0] = lColourVec4;
+		//Normals
+		outcolors[1].a = isLit;
+  
+  #elif defined (_D_FORWARD_RENDERING)
+    outcolors[0] = lColourVec4;
+  #endif
+  
+  
 }

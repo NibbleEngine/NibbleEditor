@@ -49,11 +49,11 @@ namespace NibbleEditor
             //Load Settings
             if (!File.Exists("settings.json"))
                 _ImGuiManager.ShowSettingsWindow();
-
+            
             //CPU stats timer
             System.Timers.Timer sysPerfTimer = new();
             sysPerfTimer.Elapsed += FetchAppPerformanceStats;
-            sysPerfTimer.Interval = 10000;
+            sysPerfTimer.Interval = 1000;
             sysPerfTimer.Start();
         }
 
@@ -101,8 +101,8 @@ namespace NibbleEditor
         public override void OnRenderFrameUpdate(double dt)
         {
             //Bind Default Framebuffer
-            GraphicsAPI.BindFrameBuffer(0);
-            GraphicsAPI.SetViewPort(0, 0, WindowRef.Size.X, WindowRef.Size.Y);
+            GraphicsAPI.BindDefaultFrameBuffer();
+            GraphicsAPI.SetViewPortSize(0, 0, WindowRef.Size.X, WindowRef.Size.Y);
             
             _ImGuiManager.Update(dt);
             ImGui.DockSpaceOverViewport();
@@ -418,8 +418,7 @@ namespace NibbleEditor
                 ImGui.End();
             }
 #endif
-            bool isopen = false;
-            if (ImGui.Begin("Camera", ref isopen, ImGuiWindowFlags.NoCollapse |
+            if (ImGui.Begin("Camera", ImGuiWindowFlags.NoCollapse |
                                                ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 //Camera Settings

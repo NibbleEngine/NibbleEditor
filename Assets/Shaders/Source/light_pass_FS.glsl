@@ -97,18 +97,18 @@ void main()
 	light.parameters = lightParameters;
 	
 	//Use PBR Lighting
-	//finalColor.rgb = calcLighting(light, fragPos, fragNormal.xyz, 
-	//		mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, 
-	//		albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
-	//finalColor.a = albedoColor.a;
-
-	//Use Phong
-	finalColor.rgb = calcLightingPhong(light, fragPos, fragNormal.xyz, 
+	finalColor.rgb = calcLighting(light, fragPos, fragNormal.xyz, 
 			mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, 
 			albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
 	finalColor.a = albedoColor.a;
 
-	//fragColor = mix(albedoColor, finalColor, fragNormal.w);
-	fragColor = 0.5 * (1.0 + fragNormal);
+	//Use Phong
+	// finalColor.rgb = calcLightingPhong(light, fragPos, fragNormal.xyz, 
+	// 		mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, 
+	// 		albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
+	// finalColor.a = albedoColor.a;
+
+	fragColor = mix(albedoColor, finalColor, fragNormal.a); //mix with unlit
+	//fragColor = 0.5 * (1.0 + fragNormal);
 	
 }

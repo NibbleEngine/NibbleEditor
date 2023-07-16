@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ImGuiNET;
+using MathNet.Numerics.Interpolation;
 using NbCore;
 using NbCore.Math;
 using NbCore.Systems;
@@ -19,7 +20,10 @@ namespace NibbleEditor
 
         //Imgui variables to reference 
         private int _selectedComponentId = -1;
-        
+        private string[] lightTypes = new string[] {ATTENUATION_TYPE.LINEAR.ToString(),
+                                                    ATTENUATION_TYPE.QUADRATIC.ToString(),
+                                                    ATTENUATION_TYPE.CONSTANT.ToString()};
+
         public ImGuiObjectViewer(ImGuiManager mgr)
         {
             _manager = mgr;
@@ -309,28 +313,40 @@ namespace NibbleEditor
                     ImGuiCore.Columns(2);
                     ImGuiCore.Text("Intensity");
                     ImGuiCore.NextColumn();
-                    if (ImGuiCore.DragFloat("##Intensity", ref lc.Data.Intensity, 2.5f))
+                    ImGuiCore.SetNextItemWidth(-1.0f);
+                    if (ImGuiCore.DragFloat("##Intensity", ref lc.Data.Intensity, 2.5f, 0.0f, 1000000.0f))
                         light_updated = true;
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("FOV");
                     ImGuiCore.NextColumn();
-                    if (ImGuiCore.DragFloat("##fov", ref lc.Data.FOV, 0.5f))
+                    ImGuiCore.SetNextItemWidth(-1.0f);
+                    if (ImGuiCore.DragFloat("##fov", ref lc.Data.FOV, 0.5f, 0.0f, 360.0f))
                         light_updated = true;
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("IsRenderable");
                     ImGuiCore.NextColumn();
+                    ImGuiCore.SetNextItemWidth(-1.0f);
                     if (ImGuiCore.Checkbox("##renderable", ref lc.Data.IsRenderable))
                         light_updated = true;
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("FallOff");
                     ImGuiCore.NextColumn();
-                    ImGuiCore.Text(lc.Data.Falloff.ToString());
+
+                    int ref_FalloffId = Array.IndexOf(lightTypes, lc.Data.Falloff.ToString());
+                    ImGuiCore.SetNextItemWidth(-1.0f);
+                    if (ImGuiCore.Combo("##FallOffCombo", ref ref_FalloffId, lightTypes, lightTypes.Length))
+                    {
+                        lc.Data.Falloff = (ATTENUATION_TYPE)Enum.Parse(typeof(ATTENUATION_TYPE), lightTypes[ref_FalloffId]);
+                        light_updated = true;
+                    }
+                    
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("Color");
                     ImGuiCore.NextColumn();
                     
                     System.Numerics.Vector3 v = new(lc.Data.Color.X, lc.Data.Color.Y, lc.Data.Color.Z);
-                    if (ImGuiCore.ColorPicker3("##Color", ref v))
+                    ImGuiCore.SetNextItemWidth(-1.0f);
+                    if (ImGuiCore.ColorPicker3("##Color", ref v, ImGuiColorEditFlags.NoSidePreview))
                     {
                         lc.Data.Color = new(v.X, v.Y, v.Z);
                         light_updated = true;

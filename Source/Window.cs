@@ -124,7 +124,6 @@ namespace NibbleEditor
             
             //Create Test SceneGraph
             SceneGraphNode root = Engine.CreateSceneNode("SceneRoot");
-            root.AddComponent<SceneComponent>(new SceneComponent());
             graph.Root = root;
             
             SceneGraphNode test1 = Engine.CreateLocatorNode("Test Locator 1");
@@ -133,7 +132,7 @@ namespace NibbleEditor
             SceneGraphNode test3 = Engine.CreateLocatorNode("Test Locator 3");
             test2.AddChild(test3);
 
-            SceneGraphNode light = Engine.CreateLightNode("Default Light", 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
+            SceneGraphNode light = Engine.CreateLightNode("Default Light", new NbVector3(1.0f), 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
             TransformationSystem.SetEntityLocation(light, new NbVector3(5.0f, 0.0f, 5.0f));
             TransformationSystem.SetEntityScale(light, new NbVector3(100.0f));
             test1.AddChild(light);
@@ -187,6 +186,8 @@ namespace NibbleEditor
 
         private void SetupResources()
         {
+            //TODO: Create assets for the imposter material/texture/meshes
+            
             //Initialize Logo Atlas Texture
             byte[] imgData = Callbacks.getResourceFromAssembly(Assembly.GetExecutingAssembly(),
             "lamp.png");
@@ -394,12 +395,14 @@ namespace NibbleEditor
         {
             if (IsMouseButtonDown(NbMouseButton.RIGHT) | IsKeyDown(NbKey.LeftAlt))
             {
-                targetCameraPos.Rotation = MouseDelta;
+                targetCameraPos.Rotation.X = MouseDelta.X;
+                targetCameraPos.Rotation.Y = MouseDelta.Y;
             }
             
             if (IsMouseButtonDown(NbMouseButton.MIDDLE))
             {
-                NbVector2 delta = MouseDelta.Normalized();
+                NbVector2 delta = new NbVector2(MouseDelta.X, MouseDelta.Y);
+                delta.Normalize();
                 if (!float.IsNaN(delta.X))
                     targetCameraPos.PosImpulse.X = -2.0f * delta.X;
                 if (!float.IsNaN(delta.Y))

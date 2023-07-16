@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleAssimpPlugin", "..\Ni
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleTextureViewer", "..\NibbleTextureViewer\NibbleTextureViewer.csproj", "{F0003A4E-7C5B-4034-8078-56B8647CE1D5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleNMSPlugin", "..\NibbleNMSPlugin\NibbleNMSPlugin.csproj", "{C0051D48-9B71-4EF0-8185-F8C096BBF613}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,6 +55,14 @@ Global
 		{F0003A4E-7C5B-4034-8078-56B8647CE1D5}.OpenGL_RELEASE|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
 		{F0003A4E-7C5B-4034-8078-56B8647CE1D5}.Release|Any CPU.ActiveCfg = OpenGL_RELEASE|Any CPU
 		{F0003A4E-7C5B-4034-8078-56B8647CE1D5}.Release|Any CPU.Build.0 = OpenGL_RELEASE|Any CPU
+		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.OpenGL_DEBUG|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.OpenGL_DEBUG|Any CPU.Build.0 = Debug|Any CPU
+		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.OpenGL_RELEASE|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.OpenGL_RELEASE|Any CPU.Build.0 = Debug|Any CPU
+		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

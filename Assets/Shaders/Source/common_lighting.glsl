@@ -16,7 +16,6 @@ float calcLightAttenuation(Light light, vec4 _fragPos){
     float l_distance = distance(lightPos, _fragPos.xyz); //Calculate distance of 
     float lfDistanceSquared = l_distance * l_distance; //Distance to light squared
     
-
     float lfFalloffType = light.parameters.x;
     float lfCutOff = 0.05;
 
@@ -24,31 +23,18 @@ float calcLightAttenuation(Light light, vec4 _fragPos){
     //TODO add light range in the direction.w component
 
     //Calculate distance attenuation
-    if (lfFalloffType < 1.0)
+    if (lfFalloffType < 1e-4)
     {
         // Quadratic Distance attenuation
-        lfAttenuation = 1.0 / max(1.0, lfDistanceSquared);
-        //attenuation = 1.0 / max(1e-6, lfDistanceSquared);
-        //lfAttenuation = lfLightIntensity / max(1.0, lfDistanceSquared);
-        if (lfAttenuation <= (lfCutOff / (1.0 - lfCutOff))){
-            //discard;//Discard in light pass 
-            lfAttenuation = 0.0;
-        }
-            
-    } else if (lfFalloffType < 2.0) {
+        lfAttenuation = 1.0 / lfDistanceSquared;
+    } else if (lfFalloffType - 1.0 < 1e-4) {
         //Constant
         lfAttenuation = 1.0;
     }
-    else if (lfFalloffType < 3.0)
+    else if (lfFalloffType - 2.0 < 1e-4)
     {
         // Linear Distance attenuation
-        lfAttenuation = lfCutOff / l_distance;
-        lfAttenuation = min( lfAttenuation, 1.0 );
-        
-        if (lfAttenuation <= (lfCutOff / (1.0 - lfCutOff))){
-            //discard;//Discard in light pass 
-            lfAttenuation = 0.0;
-        }
+        lfAttenuation = 1.0 / l_distance;
     }
 
     return lfAttenuation;

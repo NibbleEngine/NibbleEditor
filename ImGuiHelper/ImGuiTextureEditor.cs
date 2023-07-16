@@ -4,6 +4,7 @@ using NbCore.Common;
 using ImGuiCore = ImGuiNET.ImGui;
 using System.Collections.Generic;
 using NbCore.Platform.Graphics;
+using System.Linq;
 
 namespace NbCore.UI.ImGui
 {
@@ -14,6 +15,15 @@ namespace NbCore.UI.ImGui
         private string texture_path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         private OpenFileDialog openFileDialog;
 
+        private string[] _magFilters = { NbTextureFilter.Nearest.ToString(),
+                                         NbTextureFilter.Linear.ToString()};
+
+        private string[] _minFilters = { NbTextureFilter.Nearest.ToString(),
+                                         NbTextureFilter.Linear.ToString(),
+                                         NbTextureFilter.LinearMipmapLinear.ToString(),
+                                         NbTextureFilter.LinearMipmapNearest.ToString(),
+                                         NbTextureFilter.NearestMipmapLinear.ToString()};
+        
         public ImGuiTextureEditor()
         {
             openFileDialog = new("texture-open-file", ".dds|.png|.jpg|.jpeg", false); //Initialize OpenFileDialog
@@ -116,20 +126,33 @@ namespace NbCore.UI.ImGui
                 ImGuiCore.Text("MinFilter");
                 ImGuiCore.TableSetColumnIndex(1);
                 ImGuiCore.SetNextItemWidth(-1);
-                ImGuiCore.Text(_ActiveTexture.Data.MinFilter.ToString());
+
+                //Min Filters
+                int _minFilter = Array.IndexOf(_minFilters, _ActiveTexture.Data.MinFilter.ToString());
+                if (ImGuiCore.Combo("#MinFilterCombo", ref _minFilter, _minFilters, _minFilters.Length))
+                {
+                    GraphicsAPI.setupTextureMinFilter(_ActiveTexture, (NbTextureFilter)Enum.Parse(typeof(NbTextureFilter), _minFilters[_minFilter]));
+                }
 
                 ImGuiCore.TableNextRow();
                 ImGuiCore.TableSetColumnIndex(0);
                 ImGuiCore.Text("MagFilter");
                 ImGuiCore.TableSetColumnIndex(1);
                 ImGuiCore.SetNextItemWidth(-1);
-                ImGuiCore.Text(_ActiveTexture.Data.MagFilter.ToString());
 
+                //Mag Filters
+                int _magFilter = Array.IndexOf(_magFilters, _ActiveTexture.Data.MagFilter.ToString());
+                if (ImGuiCore.Combo("#MagFilterCombo", ref _magFilter, _magFilters, _magFilters.Length))
+                {
+                    GraphicsAPI.setupTextureMagFilter(_ActiveTexture, (NbTextureFilter) Enum.Parse(typeof(NbTextureFilter), _magFilters[_magFilter]));
+                }
+                
                 ImGuiCore.TableNextRow();
                 ImGuiCore.TableSetColumnIndex(0);
                 ImGuiCore.Text("WrapMode");
                 ImGuiCore.TableSetColumnIndex(1);
                 ImGuiCore.SetNextItemWidth(-1);
+                
                 ImGuiCore.Text(_ActiveTexture.Data.WrapMode.ToString());
 
                 ImGuiCore.TableNextRow();

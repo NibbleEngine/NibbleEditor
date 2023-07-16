@@ -77,11 +77,14 @@ float mip_map_level(in vec2 texture_coordinate)
     return 0.5 * log2(delta_max_sqr); // == log2(sqrt(delta_max_sqr));
 }
 
-vec4 texture2D_bilinear(in sampler2D t, in vec2 uv, in float lod)
+vec4 texture2D_bilinearBACKUP(in sampler2D t, in vec2 uv)
 {
-	vec2 textureSize = vec2(2048, 2048);
-	vec2 texelSize = 1.0 / textureSize;
-    vec2 f = fract( uv * textureSize );
+	//Calculate correct mipmaplevel
+	float lod = textureQueryLod(t, uv).x; //Get correct sampler lod level
+	ivec2 texSize = ivec2(2048, 2048); //Fetch texture size
+	vec2 texelSize = 1.0 / texSize; //Calculate texel size
+	
+	vec2 f = fract( uv * texSize );
     uv += ( .5 - f ) * texelSize;    // move uv to texel centre
     vec4 tl = textureLod(t, uv, lod);
     vec4 tr = textureLod(t, uv + vec2(texelSize.x, 0.0), lod);
@@ -90,6 +93,12 @@ vec4 texture2D_bilinear(in sampler2D t, in vec2 uv, in float lod)
     vec4 tA = mix( tl, tr, f.x );
     vec4 tB = mix( bl, br, f.x );
     return mix( tA, tB, f.y );
+}
+
+vec4 texture2D_bilinear(in sampler2D t, in vec2 uv)
+{
+	//float lod = textureQueryLod(t, uv).x; //Get correct sampler lod level
+	return texture(t, uv);
 }
 
 void clip(float test) { if (test < 0.0) discard; }
@@ -143,21 +152,24 @@ void pbr_lighting(){
     lTexCoordsVec4 = uv;
     
     //Manually calculate mipmap level
-	float mipmaplevel = textureQueryLod(mpCustomPerMaterial.gNormalMap, uv.xy).x;
+	//float mipmaplevel = textureQueryLod(mpCustomPerMaterial.gNormalMap, uv.xy).x;
     //float mipmaplevel = mip_map_level(uv.xy);
     
     //Load Base albedo color
     #if defined(_NB_DIFFUSE_MAP)
-        lColourVec4 = textureLod(mpCustomPerMaterial.gDiffuseMap, lTexCoordsVec4.xy, mipmaplevel);
+		lColourVec4 = texture2D_bilinear(mpCustomPerMaterial.gDiffuseMap, lTexCoordsVec4.xy);
     #elif defined(_NB_VERTEX_COLOUR)
 		lColourVec4 = vec4(vertColor.rgb, 1.0);
 	#else
         lColourVec4 = vec4(mpCustomPerMaterial.uDiffuseFactor, 1.0);
     #endif
-    
+
+	//Alpha CutOut
+	if (lColourVec4.a < 1e-4) discard;
+	
 	//Load Metallic and Roughness values
     #if defined(_NB_AO_METALLIC_ROUGHNESS_MAP) || defined(_NB_METALLIC_ROUGHNESS_MAP)
-        vec4 lMasks = textureLod(mpCustomPerMaterial.gMasksMap, lTexCoordsVec4.xy, mipmaplevel);
+		vec4 lMasks = texture2D_bilinear(mpCustomPerMaterial.gMasksMap, lTexCoordsVec4.xy);
         lfRoughness = lMasks.g;
         lfMetallic = lMasks.b;
 		//Apply material factors
@@ -169,15 +181,14 @@ void pbr_lighting(){
 	#endif
 	
 	#if defined(_NB_AO_MAP)
-        lfAo = textureLod(mpCustomPerMaterial.gAoMap, lTexCoordsVec4.xy, mipmaplevel).r;
-    #elif defined(_NB_AO_METALLIC_ROUGHNESS_MAP)
+		lfAo = texture2D_bilinear(mpCustomPerMaterial.gAoMap, lTexCoordsVec4.xy).r;
+	#elif defined(_NB_AO_METALLIC_ROUGHNESS_MAP)
 		lfAo = lMasks.r;
 	#endif
 	
 	//NORMALS
     #ifdef _NB_NORMAL_MAP
-        //TODO: Try to use lods in the normal maps
-        vec4 lTexColour = textureLod(mpCustomPerMaterial.gNormalMap, lTexCoordsVec4.xy, mipmaplevel);
+        vec4 lTexColour = texture2D_bilinear(mpCustomPerMaterial.gNormalMap, lTexCoordsVec4.xy);
 		//Custom filtering works great, but it needs the textureSizes passed as uniforms
 		//vec4 lTexColour = texture2D_bilinear(mpCustomPerMaterial.gNormalMap, lTexCoordsVec4.xy, mipmaplevel);
 		#ifdef _NB_TWO_CHANNEL_NORMAL_MAP
@@ -195,7 +206,8 @@ void pbr_lighting(){
 	vec3 lfEmissive = mpCustomPerMaterial.uEmissiveFactor;
 	lfEmissive *= mpCustomPerMaterial.uEmissiveStrength;
 	#ifdef _NB_EMISSIVE_MAP
-		lfEmissive *= textureLod(mpCustomPerMaterial.gEmissiveMap, lTexCoordsVec4.xy, mipmaplevel).rgb;
+		float emmissivemipmaplevel = textureQueryLod(mpCustomPerMaterial.gEmissiveMap, lTexCoordsVec4.xy).x;
+		lfEmissive *= texture2D_bilinear(mpCustomPerMaterial.gEmissiveMap, lTexCoordsVec4.xy).rgb;
 	#endif
 	
 	lColourVec4 = mix(vec4(instanceColor, 1.0), lColourVec4, mpCommonPerFrame.diffuseFlag);
