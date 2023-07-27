@@ -2,6 +2,6 @@
   "ObjectType": "NbCore.NbShader",
   "IsGeneric" : true,
   "Config" : "InverseToneMapping",
-  "Type" : 26,
+  "Type" : 27,
   "directives" : []
 }

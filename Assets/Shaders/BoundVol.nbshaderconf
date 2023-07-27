@@ -1,0 +1,14 @@
+{
+  "ObjectType": "NbCore.NbShaderConfig",
+  "Path": "",
+  "Name": "BoundVol_Forward_Skinned",
+  "ShaderMode": 40,
+  "Sources": [
+    {
+      "VertexShader": ".\\Assets\\Shaders\\Source\\Bound_VS.glsl"
+    },
+    {
+      "FragmentShader": ".\\Assets\\Shaders\\Source\\Bound_FS.glsl"
+    }
+  ]
+}

@@ -63,7 +63,7 @@ void main()
     vec4 wPos = vPosition;
     
     //Check F02_SKINNED
-    #ifdef _D_SKINNED_FALSE
+    #ifdef _D_SKINNED
         ivec4 index;
         
         index.x = int(blendIndices.x);

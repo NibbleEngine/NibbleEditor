@@ -24,9 +24,13 @@ out vec4 fragColour;
 
 void main()
 {
-	vec4 color = texelFetch(inTex, ivec2(gl_FragCoord.xy), 0);
+    vec2 uv = gl_FragCoord.xy / (1.0 * mpCommonPerFrame.frameDim);
+    vec4 color = texture(inTex, uv);
+    
+    //Revert Gamma Correction
+    color.rgb = GammaCorrectInput(color.rgb);
 
-	//Exposure tone mapping
+    //Exposure tone mapping
 	color.rgb = vec3(1.0) - exp(-color.rgb * mpCommonPerFrame.cameraPosition.w);
     
     //NMS Kodak Tone Mapping
@@ -34,6 +38,5 @@ void main()
     
     //Gamma correction
     color.rgb = GammaCorrectOutput(color.rgb);
-	
     fragColour = vec4(color.rgb, color.a);
 }

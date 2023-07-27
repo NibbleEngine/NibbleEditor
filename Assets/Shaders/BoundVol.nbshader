@@ -1,7 +1,7 @@
 {
   "ObjectType": "NbCore.NbShader",
   "IsGeneric" : true,
-  "Config" : "BWOIT",
-  "Type" : 28,
+  "Type" : 7,
+  "Config" : "BoundVol_Forward_Skinned",
   "directives" : []
 }

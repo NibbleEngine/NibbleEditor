@@ -323,7 +323,7 @@ namespace NibbleEditor
                 NbVector2 uv0 = new NbVector2(A.X / render_fbo.Size.X, A.Y / render_fbo.Size.Y);
                 NbVector2 uv1 = new NbVector2(D.X / render_fbo.Size.X, D.Y / render_fbo.Size.Y);
 
-                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment0).texID),
+                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment2).texID),
                                 csize,
                                 new System.Numerics.Vector2(uv0.X, 1.0f - uv0.Y),
                                 new System.Numerics.Vector2(uv1.X, 1.0f - uv1.Y),
@@ -427,7 +427,7 @@ namespace NibbleEditor
                 ImGui.SliderInt("FOV", ref RenderState.settings.CamSettings.FOV, 15, 100);
                 ImGui.SliderFloat("Sensitivity", ref RenderState.settings.CamSettings.Sensitivity, 1f, 10.0f);
                 ImGui.InputFloat("MovementSpeed", ref RenderState.settings.CamSettings.Speed, 1.0f, 500000.0f);
-                ImGui.SliderFloat("zNear", ref RenderState.settings.CamSettings.zNear, 0.01f, 1.0f);
+                ImGui.SliderFloat("zNear", ref RenderState.settings.CamSettings.zNear, 0.5f, 1000.0f);
                 ImGui.SliderFloat("zFar", ref RenderState.settings.CamSettings.zFar, 101.0f, 100000.0f);
 
                 if (ImGui.Button("Reset Camera"))
@@ -507,7 +507,7 @@ namespace NibbleEditor
                     WindowRef.SetUpdateFrameFrequency(int.Parse(fps_settings[tick_selection]));
                 }
 
-                ImGui.InputFloat("HDR Exposure", ref RenderState.settings.RenderSettings.HDRExposure);
+                ImGui.DragFloat("HDR Exposure", ref RenderState.settings.RenderSettings.HDRExposure, 0.001f, 0.0f, 10.0f);
                 ImGui.End();
             }
 

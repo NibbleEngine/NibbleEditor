@@ -1,7 +1,7 @@
 {
   "ObjectType": "NbCore.NbMesh",
   "Hash": "8825074177696221279",
-  "MeshType": 0,
+  "MeshType": 6,
   "MetaData": {
     "ObjectType": "NbCore.NbMeshMetaData",
     "AABBMIN": {

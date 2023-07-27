@@ -39,16 +39,16 @@ struct CommonPerFrameUniforms
     float cameraNearPlane;
     float cameraFarPlane;
     //Rendering Options
-    mat4 rotMat;
-    mat4 rotMatInv;
-    mat4 projMat;
-    mat4 projMatInv;
-    mat4 viewMat;
-    mat4 viewMatInv;
-    mat4 cameraRotMat;
-    vec4 cameraPosition; //w component is the HDR exposure
-    vec3 cameraDirection;
-    int light_count;
+    mat4 rotMat; //32
+    mat4 rotMatInv; //96
+    mat4 projMat; //160
+    mat4 projMatInv; //224
+    mat4 viewMat; //288
+    mat4 viewMatInv; //352
+    mat4 cameraRotMat; //416
+    vec4 cameraPosition; //480, w component is the HDR exposure
+    vec3 cameraDirection; //496
+    int light_count; //508
 };
 
 struct CommonPerFrameSamplers

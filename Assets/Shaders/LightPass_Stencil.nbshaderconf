@@ -1,14 +1,14 @@
 {
   "ObjectType": "NbCore.NbShaderConfig",
   "Path": "",
-  "Name": "LightPass_Unlit_Forward",
-  "ShaderMode": 8,
+  "Name": "LightPass_Stencil",
+  "ShaderMode": 12,
   "Sources": [
     {
       "VertexShader": ".\\Assets\\Shaders\\Source\\light_pass_VS.glsl"
     },
     {
-      "FragmentShader": ".\\Assets\\Shaders\\Source\\light_pass_FS.glsl"
+      "FragmentShader": ".\\Assets\\Shaders\\Source\\light_pass_stencil_FS.glsl"
     }
   ]
 }

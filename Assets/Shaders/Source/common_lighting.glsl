@@ -17,6 +17,7 @@ float calcLightAttenuation(Light light, vec4 _fragPos){
     float lfDistanceSquared = l_distance * l_distance; //Distance to light squared
     
     float lfFalloffType = light.parameters.x;
+    float lfFOV = light.parameters.y;
     float lfCutOff = 0.05;
 
     vec3 lspotDir = normalize(light.direction.xyz);
@@ -26,15 +27,15 @@ float calcLightAttenuation(Light light, vec4 _fragPos){
     if (lfFalloffType < 1e-4)
     {
         // Quadratic Distance attenuation
-        lfAttenuation = 1.0 / lfDistanceSquared;
+        lfAttenuation *= 1.0 / lfDistanceSquared;
     } else if (lfFalloffType - 1.0 < 1e-4) {
         //Constant
-        lfAttenuation = 1.0;
+        lfAttenuation *= 1.0;
     }
     else if (lfFalloffType - 2.0 < 1e-4)
     {
         // Linear Distance attenuation
-        lfAttenuation = 1.0 / l_distance;
+        lfAttenuation *= 1.0 / l_distance;
     }
 
     return lfAttenuation;
@@ -56,7 +57,7 @@ vec3 calcLighting(Light light, vec4 fragPos, vec3 N, vec3 cameraPos, vec3 camera
     
     float attenuation = calcLightAttenuation(light, fragPos);
     
-    vec3 radiance = light.color.xyz * attenuation * light.color.w;
+    vec3 radiance = light.color.xyz * pow(attenuation, 1.0/2.2) * light.color.w;
     
     //KHRONOS WAY
     float VdotH = max(min(dot(V, H), 1.0), 0.0);

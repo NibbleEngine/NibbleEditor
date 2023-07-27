@@ -200,108 +200,115 @@ namespace NibbleEditor
             //MeshComponent
             if (_model.HasComponent<MeshComponent>())
             {
-                MeshComponent mc = _model.GetComponent<MeshComponent>() as MeshComponent;
-                if (ImGuiCore.CollapsingHeader("Mesh Component", ImGuiTreeNodeFlags.DefaultOpen))
+                foreach (MeshComponent mc in _model.GetComponents<MeshComponent>())
                 {
-                    if (ImGuiCore.BeginTable("##MeshInfo", 2))
+                    if (ImGuiCore.CollapsingHeader("Mesh Component", ImGuiTreeNodeFlags.DefaultOpen))
                     {
-                        ImGuiCore.TableNextRow();
-                        ImGuiCore.TableSetColumnIndex(0);
-                        ImGuiCore.Text("Instance ID");
-                        ImGuiCore.TableSetColumnIndex(1);
-                        ImGuiCore.Text(mc.InstanceID.ToString());
-                        ImGuiCore.TableNextRow();
-                        ImGuiCore.TableSetColumnIndex(0);
-                        ImGuiCore.Text("MeshGroup ID");
-                        ImGuiCore.TableSetColumnIndex(1);
-                        ImGuiCore.Text(mc.Mesh.Group != null ? mc.Mesh.Group.ID.ToString() : "-1");
-                        ImGuiCore.TableNextRow();
-                        ImGuiCore.TableSetColumnIndex(0);
-                        ImGuiCore.Text("Material");
-                        ImGuiCore.TableSetColumnIndex(1);
-
-                        //Items
-                        List<Entity> materialList = _manager.EngineRef.GetEntityTypeList(EntityType.Material);
-                        materialList = materialList.FindAll(x => ((NbMaterial)x).Shader != null);
-                        materialList = materialList.FindAll(x => ((NbMaterial)x).Shader.ProgramID != 0);
-
-                        string[] items = new string[materialList.Count];
-                        for (int i = 0; i < items.Length; i++)
-                        {
-                            NbMaterial mm = (NbMaterial) materialList[i];
-                            items[i] = mm.Name == "" ? "Material_" + i : mm.Name;
-                        }
-                        
-                        int material_id = materialList.IndexOf(mc.Mesh.Material);
-
-                        if (ImGuiCore.Combo("##MaterialCombo", ref material_id, items, items.Length))
-                            mc.Mesh.Material = (NbMaterial) materialList[material_id];
-
-                        ImGuiCore.EndTable();
-                    }
-
-                    ImGuiCore.Text("Mesh Uniforms");
-                    ImGuiCore.NewLine();
-
-                    if (ImGuiCore.BeginTable("##MeshUniforms", 2))
-                    {
-                        for (int i = 0; i < 4; i++)
+                        if (ImGuiCore.BeginTable("##MeshInfo", 2))
                         {
                             ImGuiCore.TableNextRow();
                             ImGuiCore.TableSetColumnIndex(0);
-                            ImGuiCore.Text("Uniform " + i);
+                            ImGuiCore.Text("Instance ID");
                             ImGuiCore.TableSetColumnIndex(1);
-                            ImGuiCore.PushItemWidth(-1.0f);
-                            NbVector4 uf = mc.InstanceUniforms[i].Values;
-                            var val = new System.Numerics.Vector4();
-                            val.X = uf.X;
-                            val.Y = uf.Y;
-                            val.Z = uf.Z;
-                            val.W = uf.W;
-                            
-                            if (ImGuiCore.InputFloat4($"##uf{i}", ref val))
-                            {
-                                mc.InstanceUniforms[i].Values.X = val.X;
-                                mc.InstanceUniforms[i].Values.Y = val.Y;
-                                mc.InstanceUniforms[i].Values.Z = val.Z;
-                                mc.InstanceUniforms[i].Values.W = val.W;
-                                mc.IsUpdated = true;
-                            }
-                            
-                            ImGuiCore.PopItemWidth();
-                        }
-                        ImGuiCore.EndTable();
-                    }
+                            ImGuiCore.Text(mc.InstanceID.ToString());
+                            ImGuiCore.TableNextRow();
+                            ImGuiCore.TableSetColumnIndex(0);
+                            ImGuiCore.Text("MeshGroup ID");
+                            ImGuiCore.TableSetColumnIndex(1);
+                            ImGuiCore.Text(mc.Mesh.Group != null ? mc.Mesh.Group.ID.ToString() : "-1");
+                            ImGuiCore.TableNextRow();
+                            ImGuiCore.TableSetColumnIndex(0);
+                            ImGuiCore.Text("Material");
+                            ImGuiCore.TableSetColumnIndex(1);
 
-                    if (ImGuiCore.TreeNode("Mesh"))
-                    {
-                        NbMesh mesh = mc.Mesh;
-                        ImGuiCore.Columns(2);
-                        ImGuiCore.Text("Instance Count");
-                        ImGuiCore.NextColumn();
-                        ImGuiCore.Text(mesh.InstanceCount.ToString());
-                        ImGuiCore.Columns(1);
-                        if (ImGuiCore.TreeNode("MetaData"))
+                            //Items
+                            List<Entity> materialList = _manager.EngineRef.GetEntityTypeList(EntityType.Material);
+                            materialList = materialList.FindAll(x => ((NbMaterial)x).Shader != null);
+                            materialList = materialList.FindAll(x => ((NbMaterial)x).Shader.ProgramID != 0);
+
+                            string[] items = new string[materialList.Count];
+                            for (int i = 0; i < items.Length; i++)
+                            {
+                                NbMaterial mm = (NbMaterial)materialList[i];
+                                items[i] = mm.Name == "" ? "Material_" + i : mm.Name;
+                            }
+
+                            int material_id = materialList.IndexOf(mc.Mesh.Material);
+
+                            if (ImGuiCore.Combo("##MaterialCombo", ref material_id, items, items.Length))
+                                mc.Mesh.Material = (NbMaterial)materialList[material_id];
+
+                            ImGuiCore.EndTable();
+                        }
+
+                        ImGuiCore.Text("Mesh Uniforms");
+                        ImGuiCore.NewLine();
+
+                        if (ImGuiCore.BeginTable("##MeshUniforms", 2))
                         {
+                            for (int i = 0; i < 4; i++)
+                            {
+                                ImGuiCore.TableNextRow();
+                                ImGuiCore.TableSetColumnIndex(0);
+                                ImGuiCore.Text("Uniform " + i);
+                                ImGuiCore.TableSetColumnIndex(1);
+                                ImGuiCore.PushItemWidth(-1.0f);
+                                NbVector4 uf = mc.InstanceUniforms[i].Values;
+                                var val = new System.Numerics.Vector4();
+                                val.X = uf.X;
+                                val.Y = uf.Y;
+                                val.Z = uf.Z;
+                                val.W = uf.W;
+
+                                if (ImGuiCore.InputFloat4($"##uf{i}", ref val))
+                                {
+                                    mc.InstanceUniforms[i].Values.X = val.X;
+                                    mc.InstanceUniforms[i].Values.Y = val.Y;
+                                    mc.InstanceUniforms[i].Values.Z = val.Z;
+                                    mc.InstanceUniforms[i].Values.W = val.W;
+                                    mc.IsUpdated = true;
+                                }
+
+                                ImGuiCore.PopItemWidth();
+                            }
+                            ImGuiCore.EndTable();
+                        }
+
+                        if (ImGuiCore.TreeNode("Mesh"))
+                        {
+                            NbMesh mesh = mc.Mesh;
                             ImGuiCore.Columns(2);
-                            ImGuiCore.Text("BatchCount");
-                            ImGuiCore.Text("Vertex Start Graphics");
-                            ImGuiCore.Text("Vertex End Graphics");
+                            ImGuiCore.Text("Hash");
                             ImGuiCore.NextColumn();
-                            ImGuiCore.Text(mesh.MetaData.BatchCount.ToString());
-                            ImGuiCore.Text(mesh.MetaData.VertrStartGraphics.ToString());
-                            ImGuiCore.Text(mesh.MetaData.VertrEndGraphics.ToString());
+                            ImGuiCore.Text(mesh.Hash.ToString());
+                            ImGuiCore.NextColumn();
+                            ImGuiCore.Text("Instance Count");
+                            ImGuiCore.NextColumn();
+                            ImGuiCore.Text(mesh.InstanceCount.ToString());
+                            ImGuiCore.Columns(1);
+                            if (ImGuiCore.TreeNode("MetaData"))
+                            {
+                                ImGuiCore.Columns(2);
+                                ImGuiCore.Text("BatchCount");
+                                ImGuiCore.Text("Vertex Start Graphics");
+                                ImGuiCore.Text("Vertex End Graphics");
+                                ImGuiCore.NextColumn();
+                                
+                                ImGuiCore.Text(mesh.MetaData.BatchCount.ToString());
+                                ImGuiCore.Text(mesh.MetaData.VertrStartGraphics.ToString());
+                                ImGuiCore.Text(mesh.MetaData.VertrEndGraphics.ToString());
+                                ImGuiCore.TreePop();
+                            }
+                            ImGuiCore.Columns(1);
                             ImGuiCore.TreePop();
                         }
-                        ImGuiCore.Columns(1);
-                        ImGuiCore.TreePop();
+
+
+
                     }
-                    
-                    
-                
                 }
             }
-
+                
             //LightComponent
             if (_model.HasComponent<LightComponent>())
             {

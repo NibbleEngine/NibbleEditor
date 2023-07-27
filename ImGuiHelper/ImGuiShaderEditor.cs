@@ -130,7 +130,7 @@ namespace NbCore.UI.ImGui
                 ImGuiCore.TableSetColumnIndex(2);
                 if (ImGuiCore.Button("Edit##2"))
                 {
-                    sourceEditor.SetShader(ActiveShader.Sources[NbShaderSourceType.VertexShader]);
+                    sourceEditor.SetShader(ActiveShader.Sources[NbShaderSourceType.FragmentShader]);
                     showSourceEditor = true;
                 }
 
@@ -145,17 +145,13 @@ namespace NbCore.UI.ImGui
                     Console.WriteLine("Shader recompilation not supported yet");
                 }
             }
-            
-            if (showSourceEditor)
+
+            if (ImGuiCore.Begin("Source Editor", ref showSourceEditor, ImGuiNET.ImGuiWindowFlags.NoScrollbar))
             {
-                bool open = true;
-                if (ImGuiCore.Begin("Source Editor", ref open, ImGuiNET.ImGuiWindowFlags.NoScrollbar))
-                {
-                    sourceEditor.Draw();
-                    ImGuiCore.End();
-                }
+                sourceEditor.Draw();
+                ImGuiCore.End();
             }
-            
+
         }
 
         public void SetShader(NbShaderConfig conf)

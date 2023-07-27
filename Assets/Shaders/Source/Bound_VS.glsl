@@ -16,30 +16,23 @@ layout(location=4) in vec4 bPosition; //bitangents
 layout(location=5) in vec4 blendIndices;
 layout(location=6) in vec4 blendWeights;
 
-
 //Uniform Blocks
 layout (std140, binding=0) uniform _COMMON_PER_FRAME
 {
     CommonPerFrameUniforms mpCommonPerFrame;
 };
 
+//Not Used
 layout (std430, binding=1) buffer _COMMON_PER_MESH
 {
-    vec3 color; //Mesh Default Color
-    float skinned;
-    MeshInstance instanceData[]; //Instance world matrices, normal matrices, occlusion and selection status
+    MeshInstance instanceData[512];
 };
-
-//Outputs
-out vec4 fragPos;
-out vec3 N;
 
 void main()
 {
+    mat4 lWorldMat = instanceData[gl_InstanceID].worldMat;
     vec4 wPos = vPosition; //Calculate world Position
-	fragPos = wPos; //Export world position to the fragment shader
-    N = nPosition.xyz;
-    gl_Position = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * wPos;
+	gl_Position = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * mpCommonPerFrame.rotMat * lWorldMat * wPos;
 }
 
 

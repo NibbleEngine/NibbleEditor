@@ -1,7 +1,7 @@
 {
   "ObjectType": "NbCore.NbShader",
   "IsGeneric" : true,
-  "Config" : "BWOIT",
-  "Type" : 28,
+  "Config" : "LightPass_Stencil",
+  "Type" : 19,
   "directives" : []
 }
