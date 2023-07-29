@@ -1,0 +1,14 @@
+{
+  "ObjectType": "NbCore.NbShaderConfig",
+  "Path": "",
+  "Name": "LightPass_Lit_Deferred",
+  "ShaderMode": 6,
+  "Sources": [
+    {
+      "VertexShader": ".\\Assets\\Shaders\\Source\\light_pass_VS.glsl"
+    },
+    {
+      "FragmentShader": ".\\Assets\\Shaders\\Source\\light_pass_FS.glsl"
+    }
+  ]
+}

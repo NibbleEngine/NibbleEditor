@@ -106,22 +106,14 @@ namespace NbCore.UI.ImGui
 
             if (entity_added)
             {
-                //Register new locator node to engine
-                _manager.EngineRef.RegisterEntity(new_node);
-                _manager.EngineRef.GetSystem<Systems.SceneManagementSystem>().ActiveSceneGraph.AddNode(new_node);
-
-                //Set parent
-                new_node.SetParent(_clicked);
-                
-                _manager.EngineRef.GetSystem<Systems.TransformationSystem>().RequestEntityUpdate(new_node);
-
+                //Register new node to engine
+                _manager.EngineRef.AddSceneGraphNode(new_node, null, _clicked);
                 _clicked.IsOpen = true; //Make sure to open the node so that the new node is visible
 
                 //Set Reference to the new node
                 _clicked = new_node;
                 _manager.SetObjectReference(new_node);
                 _manager.SetActiveMaterial(new_node);
-
             }
         }
 
@@ -256,11 +248,20 @@ namespace NbCore.UI.ImGui
                             Material = _manager.EngineRef.GetMaterialByName("defaultMat")
                         };
 
-                        //Create and register locator node
+                        //Create and register locator mesh node
                         new_node = _manager.EngineRef.CreateMeshNode("Quad#1", nm);
                         entity_added = true;
                         Callbacks.Log(this, "Creating Quad Mesh Node", LogVerbosityLevel.INFO);
                     }
+
+                    if (_clicked != null)
+                    {
+                        if (ImGuiCore.MenuItem("Duplicate"))
+                        {
+                            Callbacks.Log(this, "TODO: Duplicate the node", LogVerbosityLevel.INFO);
+                        }
+                    }
+
 
                     ImGuiCore.EndMenu();
                 }

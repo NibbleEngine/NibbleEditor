@@ -1,6 +1,6 @@
 
 float calcLightAttenuation(Light light, vec4 _fragPos){
-    float lfAttenuation = 0.0f;
+    float lfAttenuation = 1.0f;
 
     //General Configuration
     
@@ -57,7 +57,7 @@ vec3 calcLighting(Light light, vec4 fragPos, vec3 N, vec3 cameraPos, vec3 camera
     
     float attenuation = calcLightAttenuation(light, fragPos);
     
-    vec3 radiance = light.color.xyz * pow(attenuation, 1.0/2.2) * light.color.w;
+    vec3 radiance = light.color.xyz * attenuation * light.color.w;
     
     //KHRONOS WAY
     float VdotH = max(min(dot(V, H), 1.0), 0.0);
