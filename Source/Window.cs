@@ -132,7 +132,7 @@ namespace NibbleEditor
             SceneGraphNode test3 = Engine.CreateLocatorNode("Test Locator 3");
             test2.AddChild(test3);
 
-            SceneGraphNode light = Engine.CreateLightNode("Default Light", new NbVector3(1.0f), 200.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
+            SceneGraphNode light = Engine.CreateLightNode("Default Light", new NbVector3(1.0f), 200.0f, 1.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
             TransformationSystem.SetEntityLocation(light, new NbVector3(5.0f, 0.0f, 5.0f));
             TransformationSystem.SetEntityScale(light, new NbVector3(100.0f));
             test1.AddChild(light);

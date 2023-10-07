@@ -16,8 +16,8 @@ layout(location=4) in vec4 bPosition; //bitangents/ vertex color
 layout(location=5) in vec4 blendIndices;
 layout(location=6) in vec4 blendWeights;
 
-//Uniform Blocks
 
+//Uniform Blocks
 layout (std140, binding=0) uniform _COMMON_PER_FRAME
 {
     CommonPerFrameUniforms mpCommonPerFrame;
@@ -58,19 +58,24 @@ void main()
     //Light Position
     lightPos = lWorldMat[3].xyzw;
     //Light Direction
-    //TODO Calculate direction of light based on the transform
-    //lightDirection = get_vec4(instanceDataOffset + 4);
-    lightDirection = vec4(1.0, 0.0, 0.0, 0.0);
+    lightDirection.xyz = instanceData[gl_InstanceID].uniforms[2].xyz; // direction
+    lightDirection.w = instanceData[gl_InstanceID].uniforms[2].w; //type
     //Light Color
-    lightColor.xyz = instanceData[gl_InstanceID].color;
-    lightColor.w = instanceData[gl_InstanceID].uniforms[0].y; //intensity
+    lightColor.xyz = instanceData[gl_InstanceID].color; // use the instance color
+    lightColor.w = instanceData[gl_InstanceID].uniforms[0].z; // intensity
     //Light Params
-    vec4 parameters; //x: falloff, y: fov, z: type, w: empty
     lightParameters.x = instanceData[gl_InstanceID].uniforms[0].w; //falloff
-    lightParameters.y = instanceData[gl_InstanceID].uniforms[0].x; //fov
-    lightParameters.z = instanceData[gl_InstanceID].uniforms[1].x; //type
+    lightParameters.y = instanceData[gl_InstanceID].uniforms[0].x; //inner fov
+    lightParameters.z = instanceData[gl_InstanceID].uniforms[0].y; //outter fov
+    lightParameters.w = instanceData[gl_InstanceID].uniforms[1].y; //falloff radius
     
-    vec4 wPos = lWorldMat * vPosition; //Calculate world Position
+    //Create ScaleMat
+    mat4 scaleMat = mat4(vec4(lightParameters.w, 0, 0, 0),
+                         vec4(0, lightParameters.w, 0, 0),
+                         vec4(0, 0, lightParameters.w, 0),
+                         vec4(0, 0, 0, 1));
+
+    vec4 wPos = lWorldMat * scaleMat * vPosition; //Calculate light world position
     screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * mpCommonPerFrame.rotMat * wPos;
     gl_Position = screenPos;
 }

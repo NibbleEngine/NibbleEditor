@@ -2,7 +2,8 @@
   "ObjectType": "NbCore.NbMeshData",
   "Hash": "59577777",
   "VertexBufferStride": 12,
-  "IndicesLength": 1,
+  "IndexFormat": 1,
+  "IndicesType": 2,
   "buffers": [
     {
       "ObjectType": "NbCore.NbMeshBufferInfo",

@@ -1,10 +1,10 @@
 //Light struct
 struct Light //locations:6
 {
-    vec4 position; //w is empty
+    vec4 position; //w falloff
     vec4 color; //w is intensity
-    vec4 direction; //w is empty
-    vec4 parameters; //x: falloff, y: fov, z: type, w: empty
+    vec4 direction; //xyz: direction, w: type
+    vec4 parameters; //x: falloff, y: inner cutoff, z: outter cutoff, w: falloff radius
 };
 
 struct MeshInstance
@@ -100,7 +100,6 @@ struct CustomPerMaterialUniforms  //locations:73
     vec3 uEmissiveFactor;
     float uEmissiveStrength;
     float testValue;
-
 };
 
 struct CommonPerSceneUniforms

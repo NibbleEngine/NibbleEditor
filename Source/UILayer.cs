@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Linq;
 using NbCore.Platform.Windowing;
 using NbCore.Platform.Graphics;
+using System.Numerics;
 
 namespace NibbleEditor
 {
@@ -507,7 +508,17 @@ namespace NibbleEditor
                     WindowRef.SetUpdateFrameFrequency(int.Parse(fps_settings[tick_selection]));
                 }
 
-                ImGui.DragFloat("HDR Exposure", ref RenderState.settings.RenderSettings.HDRExposure, 0.001f, 0.0f, 10.0f);
+                Vector3 col = new Vector3(RenderState.settings.RenderSettings.BackgroundColor.X,
+                                          RenderState.settings.RenderSettings.BackgroundColor.Y,
+                                          RenderState.settings.RenderSettings.BackgroundColor.Z);
+                
+                if (ImGui.ColorPicker3("Background Color", ref col))
+                {
+                    RenderState.settings.RenderSettings.BackgroundColor = new(col.X, col.Y, col.Z, 1.0f);
+                }
+
+                ImGui.DragFloat("HDR Exposure", 
+                    ref RenderState.settings.RenderSettings.HDRExposure, 0.001f, 0.001f, 100.0f);
                 ImGui.End();
             }
 

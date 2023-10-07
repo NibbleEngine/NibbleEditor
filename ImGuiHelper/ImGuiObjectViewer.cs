@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using ImGuiNET;
 using MathNet.Numerics.Interpolation;
 using NbCore;
@@ -15,14 +16,17 @@ namespace NibbleEditor
     {
         private SceneGraphNode _model;
         private ImGuiManager _manager;
-        private string script_path = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+        private string script_path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         private OpenFileDialog openScriptDialog;
 
         //Imgui variables to reference 
         private int _selectedComponentId = -1;
-        private string[] lightTypes = new string[] {ATTENUATION_TYPE.LINEAR.ToString(),
+        private string[] AttenuationTypes = new string[] {ATTENUATION_TYPE.LINEAR.ToString(),
+                                                    ATTENUATION_TYPE.LINEAR_SQRT.ToString(),
                                                     ATTENUATION_TYPE.QUADRATIC.ToString(),
                                                     ATTENUATION_TYPE.CONSTANT.ToString()};
+        private string[] LightTypes = new string[] {LIGHT_TYPE.POINT.ToString(),
+                                                    LIGHT_TYPE.SPOT.ToString()};
 
         public ImGuiObjectViewer(ImGuiManager mgr)
         {
@@ -241,38 +245,44 @@ namespace NibbleEditor
                             ImGuiCore.EndTable();
                         }
 
-                        ImGuiCore.Text("Mesh Uniforms");
-                        ImGuiCore.NewLine();
-
-                        if (ImGuiCore.BeginTable("##MeshUniforms", 2))
+                        if (ImGuiCore.TreeNode("Mesh Uniforms"))
                         {
-                            for (int i = 0; i < 4; i++)
+                            
+                            if (ImGuiCore.BeginTable("##MeshUniforms", 2))
                             {
-                                ImGuiCore.TableNextRow();
-                                ImGuiCore.TableSetColumnIndex(0);
-                                ImGuiCore.Text("Uniform " + i);
-                                ImGuiCore.TableSetColumnIndex(1);
-                                ImGuiCore.PushItemWidth(-1.0f);
-                                NbVector4 uf = mc.InstanceUniforms[i].Values;
-                                var val = new System.Numerics.Vector4();
-                                val.X = uf.X;
-                                val.Y = uf.Y;
-                                val.Z = uf.Z;
-                                val.W = uf.W;
-
-                                if (ImGuiCore.InputFloat4($"##uf{i}", ref val))
+                                for (int i = 0; i < 4; i++)
                                 {
-                                    mc.InstanceUniforms[i].Values.X = val.X;
-                                    mc.InstanceUniforms[i].Values.Y = val.Y;
-                                    mc.InstanceUniforms[i].Values.Z = val.Z;
-                                    mc.InstanceUniforms[i].Values.W = val.W;
-                                    mc.IsUpdated = true;
-                                }
+                                    ImGuiCore.TableNextRow();
+                                    ImGuiCore.TableSetColumnIndex(0);
+                                    ImGuiCore.Text("Uniform " + i);
+                                    ImGuiCore.TableSetColumnIndex(1);
+                                    ImGuiCore.PushItemWidth(-1.0f);
+                                    NbVector4 uf = mc.InstanceUniforms[i].Values;
+                                    var val = new System.Numerics.Vector4();
+                                    val.X = uf.X;
+                                    val.Y = uf.Y;
+                                    val.Z = uf.Z;
+                                    val.W = uf.W;
 
-                                ImGuiCore.PopItemWidth();
+                                    if (ImGuiCore.InputFloat4($"##uf{i}", ref val))
+                                    {
+                                        mc.InstanceUniforms[i].Values.X = val.X;
+                                        mc.InstanceUniforms[i].Values.Y = val.Y;
+                                        mc.InstanceUniforms[i].Values.Z = val.Z;
+                                        mc.InstanceUniforms[i].Values.W = val.W;
+                                        mc.IsUpdated = true;
+                                    }
+
+                                    ImGuiCore.PopItemWidth();
+                                }
+                                ImGuiCore.EndTable();
                             }
-                            ImGuiCore.EndTable();
+
+
+                            ImGuiCore.TreePop();
                         }
+
+                        
 
                         if (ImGuiCore.TreeNode("Mesh"))
                         {
@@ -304,6 +314,22 @@ namespace NibbleEditor
                         }
 
 
+#if DEBUG
+                        if (ImGuiCore.Button("Export Mesh"))
+                        {
+                            StreamWriter sw = new("test_mesh.nbmesh");
+                            Newtonsoft.Json.JsonTextWriter writer = new Newtonsoft.Json.JsonTextWriter(sw);
+                            writer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                            mc.Mesh.Serialize(writer);
+                            sw.Close();
+
+                            sw = new("test_mesh_data.nbmeshdata");
+                            writer = new Newtonsoft.Json.JsonTextWriter(sw);
+                            writer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                            mc.Mesh.Data.Serialize(writer);
+                            sw.Close();
+                        }
+#endif
 
                     }
                 }
@@ -318,17 +344,34 @@ namespace NibbleEditor
                 {
                     bool light_updated = false;
                     ImGuiCore.Columns(2);
+                    ImGuiCore.Text("Light Type");
+                    ImGuiCore.NextColumn();
+                    int ref_LightTypeId = Array.IndexOf(LightTypes, lc.Data.LightType.ToString());
+                    ImGuiCore.SetNextItemWidth(-1.0f);
+                    if (ImGuiCore.Combo("##LightTypeCombo", ref ref_LightTypeId, LightTypes, LightTypes.Length))
+                    {
+                        lc.Data.LightType = (LIGHT_TYPE) Enum.Parse(typeof(LIGHT_TYPE), LightTypes[ref_LightTypeId]);
+                        light_updated = true;
+                    }
+                    ImGuiCore.NextColumn();
                     ImGuiCore.Text("Intensity");
                     ImGuiCore.NextColumn();
                     ImGuiCore.SetNextItemWidth(-1.0f);
                     if (ImGuiCore.DragFloat("##Intensity", ref lc.Data.Intensity, 2.5f, 0.0f, 1000000.0f))
                         light_updated = true;
                     ImGuiCore.NextColumn();
-                    ImGuiCore.Text("FOV");
+                    ImGuiCore.Text("InnerCutoff");
                     ImGuiCore.NextColumn();
                     ImGuiCore.SetNextItemWidth(-1.0f);
-                    if (ImGuiCore.DragFloat("##fov", ref lc.Data.FOV, 0.5f, 0.0f, 360.0f))
+                    if (ImGuiCore.DragFloat("##innerCutOff", ref lc.Data.InnerCutOff, 0.01f, 0.0f, Math.Min(180.0f, lc.Data.OutterCutOff)))
                         light_updated = true;
+                    ImGuiCore.NextColumn();
+                    ImGuiCore.Text("OutterCutoff");
+                    ImGuiCore.NextColumn();
+                    ImGuiCore.SetNextItemWidth(-1.0f);
+                    if (ImGuiCore.DragFloat("##outterCutOff", ref lc.Data.OutterCutOff, 0.01f, Math.Max(0.0f, lc.Data.InnerCutOff), 180.0f))
+                        light_updated = true;
+                    
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("IsRenderable");
                     ImGuiCore.NextColumn();
@@ -339,13 +382,19 @@ namespace NibbleEditor
                     ImGuiCore.Text("FallOff");
                     ImGuiCore.NextColumn();
 
-                    int ref_FalloffId = Array.IndexOf(lightTypes, lc.Data.Falloff.ToString());
+                    int ref_FalloffId = Array.IndexOf(AttenuationTypes, lc.Data.Falloff.ToString());
                     ImGuiCore.SetNextItemWidth(-1.0f);
-                    if (ImGuiCore.Combo("##FallOffCombo", ref ref_FalloffId, lightTypes, lightTypes.Length))
+                    if (ImGuiCore.Combo("##FallOffCombo", ref ref_FalloffId, AttenuationTypes, AttenuationTypes.Length))
                     {
-                        lc.Data.Falloff = (ATTENUATION_TYPE)Enum.Parse(typeof(ATTENUATION_TYPE), lightTypes[ref_FalloffId]);
+                        lc.Data.Falloff = (ATTENUATION_TYPE)Enum.Parse(typeof(ATTENUATION_TYPE), AttenuationTypes[ref_FalloffId]);
                         light_updated = true;
                     }
+                    ImGuiCore.NextColumn();
+                    ImGuiCore.Text("FallOff Radius");
+                    ImGuiCore.NextColumn();
+                    ImGuiCore.SetNextItemWidth(-1.0f);
+                    if (ImGuiCore.DragFloat("##FallOffRadius", ref lc.Data.Falloff_radius, 0.005f, 0.01f))
+                        light_updated = true;
                     
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("Color");
@@ -358,6 +407,19 @@ namespace NibbleEditor
                         lc.Data.Color = new(v.X, v.Y, v.Z);
                         light_updated = true;
                     }
+
+                    ImGuiCore.NextColumn();
+                    ImGuiCore.Text("Direction");
+                    ImGuiCore.NextColumn();
+
+                    v = new(lc.Data.Direction.X, lc.Data.Direction.Y, lc.Data.Direction.Z);
+                    ImGuiCore.SetNextItemWidth(-1.0f);
+                    if (ImGuiCore.DragFloat3("##Direction", ref v, 0.5f))
+                    {
+                        lc.Data.Direction = new(v.X, v.Y, v.Z);
+                        light_updated = true;
+                    }
+
                     ImGuiCore.Columns(1);
 
                     if (light_updated)

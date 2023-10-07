@@ -190,7 +190,7 @@ namespace NbCore.UI.ImGui
                     if (ImGuiCore.MenuItem("Add Light"))
                     {
                         //Create and register locator node
-                        new_node = _manager.EngineRef.CreateLightNode("Light#1", new Math.NbVector3(1.0f), 100.0f);
+                        new_node = _manager.EngineRef.CreateLightNode("Light#1", new Math.NbVector3(1.0f), 100.0f, 1.0f);
 
                         Callbacks.Log(this, "Creating Light node", 
                             LogVerbosityLevel.INFO);

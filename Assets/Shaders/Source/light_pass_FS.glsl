@@ -86,8 +86,6 @@ void main()
 	float lfMetallic = fragParams01.z;
 	float lfRoughness = fragParams01.w;
 	vec3 lfEmissive = fragParams02.rgb;
-	
-
 	vec4 finalColor = vec4(0.0);
 	
 	Light light;
@@ -101,14 +99,13 @@ void main()
 			mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, 
 			albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
 	finalColor.a = albedoColor.a;
-
+	
 	//Use Phong
 	// finalColor.rgb = calcLightingPhong(light, fragPos, fragNormal.xyz, 
 	// 		mpCommonPerFrame.cameraPosition.xyz, mpCommonPerFrame.cameraDirection.xyz, 
 	// 		albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
 	// finalColor.a = albedoColor.a;
-
-	fragColor = mix(albedoColor, finalColor, fragNormal.a); //mix with unlit
-	//fragColor = 0.5 * (1.0 + fragNormal);
 	
+	fragColor = mix(albedoColor, finalColor, fragNormal.a);  //mix with unlit
+	//fragColor = 0.5 * (1.0 + fragNormal);
 }

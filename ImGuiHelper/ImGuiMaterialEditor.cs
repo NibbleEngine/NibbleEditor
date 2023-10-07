@@ -7,7 +7,7 @@ using ImGuiNET;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-
+using System.IO;
 
 namespace NibbleEditor
 {
@@ -539,7 +539,19 @@ namespace NibbleEditor
                 }
                 ImGui.TreePop();
             }
-            
+
+#if DEBUG
+            if (ImGui.Button("Export Material"))
+            {
+                StreamWriter sw = new("test_material.nbmaterial");
+                Newtonsoft.Json.JsonTextWriter writer = new Newtonsoft.Json.JsonTextWriter(sw);
+                writer.Formatting = Newtonsoft.Json.Formatting.Indented;
+                _ActiveMaterial.Serialize(writer);
+                sw.Close();
+            }
+#endif
+
+
         }
 
         public void SetMaterial(NbMaterial mat)

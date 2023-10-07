@@ -60,7 +60,7 @@ void main()
     isSelected = instanceData[gl_InstanceID].isSelected;
     
     mat4 lWorldMat = instanceData[gl_InstanceID].worldMat;
-    vec4 wPos = vPosition;
+    vec4 wPos = vec4(vPosition.xyz, 1.0); //force to homogeneous coords
     
     //Check F02_SKINNED
     #ifdef _D_SKINNED

@@ -61,7 +61,7 @@ out vec4 outcolors[4];
 vec3 DecodeNormalMap(vec4 lNormalTexVec4 )
 {
     lNormalTexVec4 = 2.0 * lNormalTexVec4 - 1.0;
-    return ( vec3( lNormalTexVec4.r, lNormalTexVec4.g, sqrt( max( 1.0 - lNormalTexVec4.r*lNormalTexVec4.r - lNormalTexVec4.g*lNormalTexVec4.g, 0.0 ) ) ) );
+    return ( vec3( lNormalTexVec4.r, lNormalTexVec4.g, sqrt( max( 1.0 - lNormalTexVec4.r * lNormalTexVec4.r - lNormalTexVec4.g * lNormalTexVec4.g, 0.0 ) ) ) );
 }
 
 float mip_map_level(in vec2 texture_coordinate)
@@ -143,7 +143,8 @@ void pbr_lighting(){
 	float lfSubsurface = 0.0; //Not used atm
 	float lfAo = 0.0;
 	float lfAoStrength = mpCustomPerMaterial.uOcclusionStrength;
-	
+	vec3 lfEmissive = vec3(0.0);
+
 	#if defined(_NB_UNLIT)
 		isLit = 0.0;
 	#endif
@@ -161,8 +162,13 @@ void pbr_lighting(){
     #elif defined(_NB_VERTEX_COLOUR)
 		lColourVec4 = vec4(vertColor.rgb, 1.0);
 	#else
-        lColourVec4 = vec4(mpCustomPerMaterial.uDiffuseFactor, 1.0);
-    #endif
+		lColourVec4 = vec4(mpCustomPerMaterial.uDiffuseFactor, 1.0);	
+	#endif
+
+
+	#if defined(_NB_UNLIT)
+		lColourVec4 = -log(max(1.0 - lColourVec4, vec4(0.0001))) / mpCommonPerFrame.cameraPosition.w;
+	#endif
 
 	//Alpha CutOut
 	if (lColourVec4.a < 1e-4) discard;
@@ -203,9 +209,10 @@ void pbr_lighting(){
     #endif
 
 	//Emissive
-	vec3 lfEmissive = mpCustomPerMaterial.uEmissiveFactor;
-	lfEmissive *= mpCustomPerMaterial.uEmissiveStrength;
 	#ifdef _NB_EMISSIVE_MAP
+		lfEmissive = mpCustomPerMaterial.uEmissiveFactor;
+		lfEmissive *= mpCustomPerMaterial.uEmissiveStrength;
+		
 		float emmissivemipmaplevel = textureQueryLod(mpCustomPerMaterial.gEmissiveMap, lTexCoordsVec4.xy).x;
 		lfEmissive *= texture2D_bilinear(mpCustomPerMaterial.gEmissiveMap, lTexCoordsVec4.xy).rgb;
 	#endif

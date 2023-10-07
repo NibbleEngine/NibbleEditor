@@ -131,7 +131,9 @@ namespace NbCore.UI.ImGui
                 int _minFilter = Array.IndexOf(_minFilters, _ActiveTexture.Data.MinFilter.ToString());
                 if (ImGuiCore.Combo("#MinFilterCombo", ref _minFilter, _minFilters, _minFilters.Length))
                 {
-                    GraphicsAPI.setupTextureMinFilter(_ActiveTexture, (NbTextureFilter)Enum.Parse(typeof(NbTextureFilter), _minFilters[_minFilter]));
+                    NbTextureFilter _filter = (NbTextureFilter)Enum.Parse(typeof(NbTextureFilter), _minFilters[_minFilter]);
+                    _ActiveTexture.Data.MinFilter = _filter;
+                    GraphicsAPI.setupTextureMinFilter(_ActiveTexture, _filter);
                 }
 
                 ImGuiCore.TableNextRow();

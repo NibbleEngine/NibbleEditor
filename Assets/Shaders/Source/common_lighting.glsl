@@ -9,10 +9,6 @@ float calcLightAttenuation(Light light, vec4 _fragPos){
     //float lfLightIntensity = log(light.color.w) / log(10.0);
     
     vec3 lightPos = light.position.xyz; 
-    vec3 lightDir = normalize(_fragPos.xyz - lightPos);
-    vec3 lPosToLight = lightPos - _fragPos.xyz;
-
-    //vec3 lightDir = normalize(mpCommonPerFrame.cameraDirection);
     float l_distance = distance(lightPos, _fragPos.xyz); //Calculate distance of 
     float lfDistanceSquared = l_distance * l_distance; //Distance to light squared
     
@@ -37,7 +33,22 @@ float calcLightAttenuation(Light light, vec4 _fragPos){
         // Linear Distance attenuation
         lfAttenuation *= 1.0 / l_distance;
     }
+    else if (lfFalloffType - 3.0 < 1e-4)
+    {
+        // Linear Distance attenuation
+        lfAttenuation *= 1.0 / sqrt(l_distance);
+    }
 
+    //Calculate attenuation of spot lights
+    vec3 L = normalize(_fragPos.xyz - lightPos);
+    vec3 acL = (1 - light.direction.w) * L + light.direction.w * lspotDir;
+    //lfAttenuation *= dot(acL, L);
+    
+    float theta = dot(L, lspotDir);
+    float epsilon   = light.parameters.y - light.parameters.z;
+    float intensity = clamp((theta - light.parameters.z) / epsilon, 0.0, 1.0);
+    lfAttenuation = mix(lfAttenuation, lfAttenuation * intensity, light.direction.w);
+    
     return lfAttenuation;
 }
 

@@ -10,9 +10,9 @@
     {
       "ObjectType": "NbCore.NbUniform",
       "Name": "gMaterialColourVec4",
-      "Type": 7,
-      "ShaderBinding": "mpCustomPerMaterial.uniforms[0]",
-      "ShaderLocation": -1,
+      "Type": 6,
+      "ShaderBinding": "mpCustomPerMaterial.uDiffuseFactor",
+      "ShaderLocation": 0,
       "Values": {
         "ObjectType": "NbCore.Math.NbVector4",
         "X": 0.7,
