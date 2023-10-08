@@ -1,5 +1,5 @@
 ﻿using NbCore;
-using NbCore.Math;
+using NbCore;
 using NbCore.Common;
 using NbCore.Platform.Graphics;
 using NbCore.Platform.Windowing;
@@ -173,8 +173,6 @@ namespace NibbleEditor
 
         public void RenderFrame(double dt)
         {
-            UpdateInput();
-
             //Update Camera
             Camera.UpdateCameraDirectionalVectors(RenderState.activeCam);
             RenderState.activeCam.updateViewMatrix();
@@ -182,6 +180,8 @@ namespace NibbleEditor
             //Render data
             _renderLayer.OnRenderFrameUpdate(dt);
             _uiLayer.OnRenderFrameUpdate(dt);
+
+            UpdateInput();
         }
 
         private void SetupResources()
@@ -360,7 +360,12 @@ namespace NibbleEditor
             mouseController();
             //gpController(); //TODO: Re-add controller support
 
-            
+
+            //Check for shortcuts
+            if (IsKeyDown(NbKey.LeftCtrl) && IsKeyPressed(NbKey.Q))
+            {
+                CloseWindow();
+            }
         }
 
         #endregion

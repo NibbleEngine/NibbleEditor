@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using NbCore;
 using ImGuiNET;
 using NbCore.Common;
-using NbCore.Math;
+using NbCore;
 using NbCore.Plugins;
 using NbCore.UI.ImGui;
 using System.Diagnostics;
@@ -311,8 +311,8 @@ namespace NibbleEditor
             {
                 //Update RenderSize
                 System.Numerics.Vector2 csize = ImGui.GetContentRegionAvail();
-                csize.X = Math.Max(csize.X, 100);
-                csize.Y = Math.Max(csize.Y, 100);
+                csize.X = System.Math.Max(csize.X, 100);
+                csize.Y = System.Math.Max(csize.Y, 100);
                 NbVector2i csizetk = new((int)csize.X, (int)csize.Y);
 
                 FBO render_fbo = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().getRenderFBO();
@@ -324,7 +324,7 @@ namespace NibbleEditor
                 NbVector2 uv0 = new NbVector2(A.X / render_fbo.Size.X, A.Y / render_fbo.Size.Y);
                 NbVector2 uv1 = new NbVector2(D.X / render_fbo.Size.X, D.Y / render_fbo.Size.Y);
 
-                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment2).texID),
+                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment3).texID),
                                 csize,
                                 new System.Numerics.Vector2(uv0.X, 1.0f - uv0.Y),
                                 new System.Numerics.Vector2(uv1.X, 1.0f - uv1.Y),
@@ -511,14 +511,16 @@ namespace NibbleEditor
                 Vector3 col = new Vector3(RenderState.settings.RenderSettings.BackgroundColor.X,
                                           RenderState.settings.RenderSettings.BackgroundColor.Y,
                                           RenderState.settings.RenderSettings.BackgroundColor.Z);
-                
-                if (ImGui.ColorPicker3("Background Color", ref col))
+
+                ImGui.SetNextItemWidth(300.0f);
+                if (ImGui.ColorPicker3("Background Color", ref col, 
+                    ImGuiColorEditFlags.DefaultOptions))
                 {
-                    RenderState.settings.RenderSettings.BackgroundColor = new(col.X, col.Y, col.Z, 1.0f);
+                    RenderState.settings.RenderSettings.BackgroundColor = new(col.X, col.Y, col.Z);
                 }
 
                 ImGui.DragFloat("HDR Exposure", 
-                    ref RenderState.settings.RenderSettings.HDRExposure, 0.001f, 0.001f, 100.0f);
+                    ref RenderState.settings.RenderSettings.HDRExposure, 0.005f, 0.001f, 100.0f);
                 ImGui.End();
             }
 

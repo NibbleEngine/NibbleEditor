@@ -5,13 +5,13 @@
   "MetaData": {
     "ObjectType": "NbCore.NbMeshMetaData",
     "AABBMIN": {
-      "ObjectType": "NbCore.Math.NbVector3",
+      "ObjectType": "NbCore.NbVector3",
       "X": -0.120000005,
       "Y": -0.120000005,
       "Z": -0.120000005
     },
     "AABBMAX": {
-      "ObjectType": "NbCore.Math.NbVector3",
+      "ObjectType": "NbCore.NbVector3",
       "X": 0.14,
       "Y": 0.14,
       "Z": 0.14

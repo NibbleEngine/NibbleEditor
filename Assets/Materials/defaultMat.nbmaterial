@@ -14,7 +14,7 @@
       "ShaderBinding": "mpCustomPerMaterial.uDiffuseFactor",
       "ShaderLocation": 0,
       "Values": {
-        "ObjectType": "NbCore.Math.NbVector4",
+        "ObjectType": "NbCore.NbVector4",
         "X": 0.7,
         "Y": 0.7,
         "Z": 0.7,

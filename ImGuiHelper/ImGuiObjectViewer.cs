@@ -4,7 +4,6 @@ using System.IO;
 using ImGuiNET;
 using MathNet.Numerics.Interpolation;
 using NbCore;
-using NbCore.Math;
 using NbCore.Systems;
 using NbCore.UI.ImGui;
 using ImGuiCore = ImGuiNET.ImGui;
@@ -363,13 +362,13 @@ namespace NibbleEditor
                     ImGuiCore.Text("InnerCutoff");
                     ImGuiCore.NextColumn();
                     ImGuiCore.SetNextItemWidth(-1.0f);
-                    if (ImGuiCore.DragFloat("##innerCutOff", ref lc.Data.InnerCutOff, 0.01f, 0.0f, Math.Min(180.0f, lc.Data.OutterCutOff)))
+                    if (ImGuiCore.DragFloat("##innerCutOff", ref lc.Data.InnerCutOff, 0.01f, 0.0f, System.Math.Min(180.0f, lc.Data.OutterCutOff)))
                         light_updated = true;
                     ImGuiCore.NextColumn();
                     ImGuiCore.Text("OutterCutoff");
                     ImGuiCore.NextColumn();
                     ImGuiCore.SetNextItemWidth(-1.0f);
-                    if (ImGuiCore.DragFloat("##outterCutOff", ref lc.Data.OutterCutOff, 0.01f, Math.Max(0.0f, lc.Data.InnerCutOff), 180.0f))
+                    if (ImGuiCore.DragFloat("##outterCutOff", ref lc.Data.OutterCutOff, 0.01f, System.Math.Max(0.0f, lc.Data.InnerCutOff), 180.0f))
                         light_updated = true;
                     
                     ImGuiCore.NextColumn();

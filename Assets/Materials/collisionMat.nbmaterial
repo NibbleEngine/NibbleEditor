@@ -14,7 +14,7 @@
       "ShaderBinding": "mpCustomPerMaterial.uniforms[0]",
       "ShaderLocation": -1,
       "Values": {
-        "ObjectType": "NbCore.Math.NbVector4",
+        "ObjectType": "NbCore.NbVector4",
         "X": 0.8,
         "Y": 0.8,
         "Z": 0.2,

@@ -5,6 +5,10 @@ using ImGuiCore = ImGuiNET.ImGui;
 using NbCore;
 using NbCore.Common;
 using NibbleEditor;
+using System.Runtime.InteropServices;
+using ImGuiNET;
+using System.Runtime.CompilerServices;
+using NbCore.Platform.Windowing;
 
 namespace NbCore.UI.ImGui
 {
@@ -20,6 +24,7 @@ namespace NbCore.UI.ImGui
         private SceneGraphNode new_node = null;
         private bool open_add_sphere_popup = false;
         private bool entity_added = false;
+        private ulong _dragged_node_id = 0;
 
         //primitive_add_props
         private int divs = 10;
@@ -139,7 +144,8 @@ namespace NbCore.UI.ImGui
         {
             //Draw using ImGUI
             ImGuiNET.ImGuiTreeNodeFlags base_flags = ImGuiNET.ImGuiTreeNodeFlags.OpenOnArrow | 
-                                                     ImGuiNET.ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiNET.ImGuiTreeNodeFlags.AllowItemOverlap;
+                                                     ImGuiNET.ImGuiTreeNodeFlags.SpanAvailWidth | 
+                                                     ImGuiNET.ImGuiTreeNodeFlags.AllowItemOverlap;
             
             if (n.Children.Count == 0)
                 base_flags |= ImGuiNET.ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiNET.ImGuiTreeNodeFlags.Leaf;
@@ -190,7 +196,7 @@ namespace NbCore.UI.ImGui
                     if (ImGuiCore.MenuItem("Add Light"))
                     {
                         //Create and register locator node
-                        new_node = _manager.EngineRef.CreateLightNode("Light#1", new Math.NbVector3(1.0f), 100.0f, 1.0f);
+                        new_node = _manager.EngineRef.CreateLightNode("Light#1", new NbVector3(1.0f), 100.0f, 1.0f);
 
                         Callbacks.Log(this, "Creating Light node", 
                             LogVerbosityLevel.INFO);
@@ -208,7 +214,7 @@ namespace NbCore.UI.ImGui
                         //Box Requires No parameters create it immediately
 
                         //Create Mesh
-                        Primitives.Box bx = new(1.0f,1.0f,1.0f, new Math.NbVector3(1.0f), true);
+                        Primitives.Box bx = new(1.0f,1.0f,1.0f, new NbVector3(1.0f), true);
 
                         NbMeshData md = bx.geom.GetMeshData();
                         NbMeshMetaData mmd = bx.geom.GetMetaData();
@@ -274,6 +280,44 @@ namespace NbCore.UI.ImGui
                 }
 
                 ImGuiCore.EndPopup();
+            }
+
+
+            if (ImGuiCore.BeginDragDropTarget())
+            {
+                ImGuiPayloadPtr payload = ImGuiCore.AcceptDragDropPayload("_TREENODE");
+
+                ulong source_node_id = 0xFFFFFF;
+                unsafe
+                {
+                    if (payload.NativePtr != null)
+                    {
+                        //Get data 
+                        source_node_id = Marshal.PtrToStructure<ulong>(payload.Data);
+                        //Console.WriteLine($"Add {source_node_id} to the children of {n.ID}");
+
+                        //Get Source Node
+                        SceneGraphNode g = (SceneGraphNode) _manager.EngineRef.GetEntityByID(source_node_id);
+                        g.SetParent(n);
+                        _manager.EngineRef.RequestEntityTransformUpdate(g);
+                    }
+                }
+
+                ImGuiCore.EndDragDropTarget();
+            }
+
+            if (ImGuiCore.BeginDragDropSource())
+            {
+                unsafe 
+                {
+                    fixed (ulong* test = &n.ID)
+                    {
+                        
+                        ImGuiCore.SetDragDropPayload("_TREENODE", new IntPtr(test), sizeof(ulong), ImGuiCond.Once);
+                    }
+                }
+                
+                ImGuiCore.EndDragDropSource();
             }
 
 

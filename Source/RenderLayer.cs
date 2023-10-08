@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NbCore;
 using NbCore.Common;
-using NbCore.Math;
 using NbCore.Platform.Windowing;
 using NbCore.Systems;
 using NbCore.UI.ImGui;
@@ -44,9 +42,9 @@ namespace NibbleEditor
             //Update common transforms
 
             //Apply extra viewport rotation
-            NbMatrix4 Rotx = NbMatrix4.CreateRotationX(MathUtils.radians(RenderState.rotAngles.X));
-            NbMatrix4 Roty = NbMatrix4.CreateRotationY(MathUtils.radians(RenderState.rotAngles.Y));
-            NbMatrix4 Rotz = NbMatrix4.CreateRotationZ(MathUtils.radians(RenderState.rotAngles.Z));
+            NbMatrix4 Rotx = NbMatrix4.CreateRotationX(Math.Radians(RenderState.rotAngles.X));
+            NbMatrix4 Roty = NbMatrix4.CreateRotationY(Math.Radians(RenderState.rotAngles.Y));
+            NbMatrix4 Rotz = NbMatrix4.CreateRotationZ(Math.Radians(RenderState.rotAngles.Z));
             RenderState.rotMat = Rotz * Rotx * Roty;
             //RenderState.rotMat = Matrix4.Identity;
         }
