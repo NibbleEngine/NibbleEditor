@@ -65,12 +65,6 @@ namespace NibbleEditor
         }
 
         
-        public void OnResize(NbResizeArgs e)
-        {
-            // Tell ImGui of the new size
-            _ImGuiManager.Resize(e.Width, e.Height);
-        }
-
         public void OnTextInput(NbTextInputArgs e)
         {
             _ImGuiManager.SendChar((char)e.Unicode);
@@ -159,58 +153,9 @@ namespace NibbleEditor
             System.Numerics.Vector2 dockSpaceSize = new(0.0f, -statusBarHeight);
             ImGui.DockSpace(dockSpaceID, dockSpaceSize, dockspace_flags);
 
-            
-            //unsafe
-            //{
-            //    if (firstDockSetup)
-            //    {
-            //        firstDockSetup = false;
-            //        dockSpaceID = ImGui.GetID("MainDockSpace");
-                    
-            //        ImGuiNative.vi
-            //        ImGuiNative.igDockBuilderRemoveNode(dockSpaceID);
-            //        ImGuiNative.igDockBuilderAddNode(dockSpaceID, dockspace_flags);
-            //        ImGuiNative.igDockBuilderSetNodeSize(dockSpaceID, dockSpaceSize);
-
-            //        //Add Right dock
-            //        uint temp;
-            //        //uint dockSpaceLeft;
-            //        uint dockSpaceRight = ImGuiNative.igDockBuilderSplitNode(dockSpaceID, ImGuiDir.Right, 0.3f,
-            //            null, &temp);
-            //        dockSpaceID = temp; //Temp holds the main view
-
-            //        uint dockSpaceRightDown =
-            //            ImGuiNative.igDockBuilderSplitNode(dockSpaceRight, ImGuiDir.Down,
-            //                0.5f, null, &dockSpaceRight);
-            //        uint dockSpaceRightUp = dockSpaceRight;
-
-            //        uint dockSpaceLeftDown = ImGuiNative.igDockBuilderSplitNode(dockSpaceID, ImGuiDir.Down, 0.1f,
-            //            null, &temp);
-            //        dockSpaceID = temp; //Temp holds the main view
-
-
-            //        //Set Window Docks
-            //        //Left 
-            //        ImGui.DockBu
-            //        ImGui.DockBuilderDockWindow("Scene", dockSpaceID);
-            //        ImGui.DockBuilderDockWindow("Statistics", dockSpaceLeftDown);
-            //        ImGui.DockBuilderDockWindow("Log", dockSpaceLeftDown);
-            //        //Right
-            //        ImGui.DockBuilderDockWindow("SceneGraph", dockSpaceRightUp);
-            //        ImGui.DockBuilderDockWindow("Camera", dockSpaceRightUp);
-            //        ImGui.DockBuilderDockWindow("Options", dockSpaceRightUp);
-            //        ImGui.DockBuilderDockWindow("Test Options", dockSpaceRightUp);
-            //        ImGui.DockBuilderDockWindow("Tools", dockSpaceRightUp);
-            //        ImGui.DockBuilderDockWindow("Node Editor", dockSpaceRightDown);
-            //        ImGui.DockBuilderDockWindow("Shader Editor", dockSpaceRightDown);
-            //        ImGui.DockBuilderDockWindow("Material Editor", dockSpaceRightDown);
-            //        ImGui.DockBuilderDockWindow("Texture Editor", dockSpaceRightDown);
-
-            //        ImGuiNative.igDockBuilderFinish(dockSpaceID);
-            //    }
-            //}
 
             //Main Menu
+            bool show_settings_window = false;
             if (ImGui.BeginMainMenuBar())
             {
                 if (ImGui.BeginMenu("File"))
@@ -220,13 +165,13 @@ namespace NibbleEditor
                         Log("Create new scene not implemented yet", LogVerbosityLevel.INFO);
                     }
 
-                    if (ImGui.MenuItem("Open"))
+                    if (ImGui.MenuItem("Open", "Ctrl + O"))
                     {
                         _ImGuiManager.ShowOpenSceneDialog();
                         IsOpenFileDialogOpen = true;
                     }
 
-                    if (ImGui.MenuItem("Save"))
+                    if (ImGui.MenuItem("Save", "Ctrl + S"))
                     {
                         Log("Saving Scene", LogVerbosityLevel.INFO);
                         SaveActiveSceneEvent.Invoke();
@@ -248,11 +193,11 @@ namespace NibbleEditor
                             ImGui.EndMenu();
                         }
                     }
+
                     
-                    if (ImGui.MenuItem("Settings"))
-                    {
-                        _ImGuiManager.ShowSettingsWindow();
-                    }
+                    if (ImGui.MenuItem("Settings", "Ctrl + Alt + S"))
+                        show_settings_window = true;
+                    
 
                     if (ImGui.MenuItem("Close", "Ctrl + Q"))
                     {
@@ -269,6 +214,17 @@ namespace NibbleEditor
                 }
 
                 ImGui.EndMenuBar();
+            }
+
+            //Handle Keyboard Shortcuts
+            if (WindowRef.IsKeyDown(NbKey.LeftCtrl) && WindowRef.IsKeyDown(NbKey.LeftAlt) && WindowRef.IsKeyPressed(NbKey.S))
+                show_settings_window = true;
+
+
+            if (show_settings_window)
+            {
+                _ImGuiManager.ShowSettingsWindow();
+                show_settings_window = false;
             }
 
             //Generate StatusBar
@@ -370,6 +326,21 @@ namespace NibbleEditor
                                               ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
                 _ImGuiManager.DrawTextureEditor();
+                ImGui.End();
+            }
+
+            if (ImGui.Begin("Script Editor", ImGuiWindowFlags.NoCollapse |
+                                              ImGuiWindowFlags.NoBringToFrontOnFocus))
+            {
+                _ImGuiManager.DrawScriptEditor();
+                ImGui.End();
+            }
+
+            if (ImGui.Begin("Text Editor", ImGuiWindowFlags.NoCollapse |
+                                           ImGuiWindowFlags.NoBringToFrontOnFocus |
+                                           ImGuiWindowFlags.NoScrollbar))
+            {
+                _ImGuiManager.DrawTextEditor();
                 ImGui.End();
             }
 
@@ -556,7 +527,7 @@ namespace NibbleEditor
                 if (ImGui.CollapsingHeader("Scripting"))
                 {
                     ImGui.Text(string.Format("Scripts : {0}", EngineRef.GetEntityListCount(EntityType.Script)));
-                    ImGui.Text(string.Format("Script Evaluations : {0}", EngineRef.GetSystem<NbCore.Systems.ScriptingSystem>().EntityDataMap.Values.Count));
+                    ImGui.Text(string.Format("Script Evaluations : {0}", EngineRef.GetSystem<NbCore.Systems.ScriptingSystem>().GetRegisteredComponents()));
                 }
 
                 ImGui.End();

@@ -96,11 +96,11 @@ namespace NbCore.UI.ImGui
                         Hash = (ulong)mmd.GetHashCode(),
                         MetaData = mmd,
                         Data = md,
-                        Material = _manager.EngineRef.GetMaterialByName("defaultMat")
+                        Material = _manager.WindowRef.Engine.GetMaterialByName("defaultMat")
                     };
 
                     //Create and register locator node
-                    new_node = _manager.EngineRef.CreateMeshNode("Sphere#1", nm);
+                    new_node = _manager.WindowRef.Engine.CreateMeshNode("Sphere#1", nm);
                     entity_added = true;
                     Callbacks.Log(this, "Creating Sphere Mesh Node", 
                         LogVerbosityLevel.INFO);
@@ -112,7 +112,7 @@ namespace NbCore.UI.ImGui
             if (entity_added)
             {
                 //Register new node to engine
-                _manager.EngineRef.AddSceneGraphNode(new_node, null, _clicked);
+                _manager.WindowRef.Engine.AddSceneGraphNode(new_node, null, _clicked);
                 _clicked.IsOpen = true; //Make sure to open the node so that the new node is visible
 
                 //Set Reference to the new node
@@ -187,7 +187,7 @@ namespace NbCore.UI.ImGui
                     if (ImGuiCore.MenuItem("Add Locator"))
                     {
                         //Create and register locator node
-                        new_node = _manager.EngineRef.CreateLocatorNode("Locator#1");
+                        new_node = _manager.WindowRef.Engine.CreateLocatorNode("Locator#1");
                         Callbacks.Log(this, "Creating Locator node", 
                             LogVerbosityLevel.INFO);
                         entity_added = true;
@@ -196,7 +196,7 @@ namespace NbCore.UI.ImGui
                     if (ImGuiCore.MenuItem("Add Light"))
                     {
                         //Create and register locator node
-                        new_node = _manager.EngineRef.CreateLightNode("Light#1", new NbVector3(1.0f), 100.0f, 1.0f);
+                        new_node = _manager.WindowRef.Engine.CreateLightNode("Light#1", new NbVector3(1.0f), 100.0f, 1.0f);
 
                         Callbacks.Log(this, "Creating Light node", 
                             LogVerbosityLevel.INFO);
@@ -225,11 +225,11 @@ namespace NbCore.UI.ImGui
                             Hash = (ulong)mmd.GetHashCode(),
                             MetaData = mmd,
                             Data = md,
-                            Material = _manager.EngineRef.GetMaterialByName("defaultMat")
+                            Material = _manager.WindowRef.Engine.GetMaterialByName("defaultMat")
                         };
 
                         //Create and register locator node
-                        new_node = _manager.EngineRef.CreateMeshNode("Box#1", nm);
+                        new_node = _manager.WindowRef.Engine.CreateMeshNode("Box#1", nm);
                         entity_added = true;
                         Callbacks.Log(this, "Creating Box Mesh Node", LogVerbosityLevel.INFO);
 
@@ -251,11 +251,11 @@ namespace NbCore.UI.ImGui
                             Hash = (ulong)mmd.GetHashCode(),
                             MetaData = mmd,
                             Data = md,
-                            Material = _manager.EngineRef.GetMaterialByName("defaultMat")
+                            Material = _manager.WindowRef.Engine.GetMaterialByName("defaultMat")
                         };
 
                         //Create and register locator mesh node
-                        new_node = _manager.EngineRef.CreateMeshNode("Quad#1", nm);
+                        new_node = _manager.WindowRef.Engine.CreateMeshNode("Quad#1", nm);
                         entity_added = true;
                         Callbacks.Log(this, "Creating Quad Mesh Node", LogVerbosityLevel.INFO);
                     }
@@ -275,7 +275,7 @@ namespace NbCore.UI.ImGui
                 if (ImGuiCore.MenuItem("Delete"))
                 {
                     Console.WriteLine("Delete Node permanently");
-                    _manager.EngineRef.DisposeSceneGraphNode(_clicked);
+                    _manager.WindowRef.Engine.DisposeSceneGraphNode(_clicked);
                     Console.WriteLine("Node deleted");
                 }
 
@@ -297,9 +297,9 @@ namespace NbCore.UI.ImGui
                         //Console.WriteLine($"Add {source_node_id} to the children of {n.ID}");
 
                         //Get Source Node
-                        SceneGraphNode g = (SceneGraphNode) _manager.EngineRef.GetEntityByID(source_node_id);
+                        SceneGraphNode g = (SceneGraphNode) _manager.WindowRef.Engine.GetEntityByID(source_node_id);
                         g.SetParent(n);
-                        _manager.EngineRef.RequestEntityTransformUpdate(g);
+                        _manager.WindowRef.Engine.RequestEntityTransformUpdate(g);
                     }
                 }
 

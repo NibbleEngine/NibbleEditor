@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using NbCore.Common;
+using NibbleEditor;
 using ImGuiCore = ImGuiNET.ImGui;
 
 namespace NbCore.UI.ImGui
 {
     public class ImGuiShaderEditor
     {
+        private AppImGuiManager _manager;
         private NbShaderConfig ActiveShader = null;
         private int selectedShaderId = -1;
         private int selectedGSSource = -1;
@@ -14,17 +16,14 @@ namespace NbCore.UI.ImGui
         private int selectedTESSource = -1;
         private bool showSourceEditor = false;
         private bool Updated = false;
-        private ImGuiShaderSourceEditor sourceEditor = new();
-
-        public ImGuiShaderEditor()
+        
+        public ImGuiShaderEditor(AppImGuiManager manager)
         {
-            
+            _manager = manager;
         }
         
         public void Draw()
         {
-            //TODO: Make this static if possible or maybe maintain a list of shaders in the resource manager
-            
             //Items
             List<Entity> shaderList = RenderState.engineRef.GetEntityTypeList(EntityType.ShaderConfig);
             string[] items = new string[shaderList.Count];
@@ -98,12 +97,13 @@ namespace NbCore.UI.ImGui
                 if (ImGuiCore.IsItemHovered() && OriginalVSSourceIndex != -1)
                     ImGuiCore.SetTooltip(sourceItems[OriginalVSSourceIndex]);
 
+                
                 ImGuiCore.PopItemWidth();
                 ImGuiCore.TableSetColumnIndex(2);
+
                 if (ImGuiCore.Button("Edit##1"))
                 {
-                    sourceEditor.SetShader(ActiveShader.Sources[NbShaderSourceType.VertexShader]);
-                    showSourceEditor = true;
+                    _manager.TextEditFile(ActiveShader.Sources[NbShaderSourceType.VertexShader].SourceFilePath);
                 }
 
                 int OriginalFSSourceIndex = -1;
@@ -128,10 +128,10 @@ namespace NbCore.UI.ImGui
 
                 ImGuiCore.PopItemWidth();
                 ImGuiCore.TableSetColumnIndex(2);
+
                 if (ImGuiCore.Button("Edit##2"))
                 {
-                    sourceEditor.SetShader(ActiveShader.Sources[NbShaderSourceType.FragmentShader]);
-                    showSourceEditor = true;
+                    _manager.TextEditFile(ActiveShader.Sources[NbShaderSourceType.FragmentShader].SourceFilePath);
                 }
 
                 ImGuiCore.EndTable();
@@ -144,12 +144,6 @@ namespace NbCore.UI.ImGui
                 {
                     Console.WriteLine("Shader recompilation not supported yet");
                 }
-            }
-
-            if (ImGuiCore.Begin("Source Editor", ref showSourceEditor, ImGuiNET.ImGuiWindowFlags.NoScrollbar))
-            {
-                sourceEditor.Draw();
-                ImGuiCore.End();
             }
 
         }

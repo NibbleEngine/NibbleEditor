@@ -107,7 +107,7 @@ namespace NibbleEditor
             _uiLayer.SaveActiveSceneEvent += SaveActiveScene;
 
             OnTextInput += _uiLayer.OnTextInput;
-            OnResize += _uiLayer.OnResize;
+            //OnResize += _uiLayer.OnResize;
             OnResize += _renderLayer.OnResize;
             _logger.LogEvent += _uiLayer.OnLog;
             
@@ -132,9 +132,9 @@ namespace NibbleEditor
             SceneGraphNode test3 = Engine.CreateLocatorNode("Test Locator 3");
             test2.AddChild(test3);
 
-            SceneGraphNode light = Engine.CreateLightNode("Default Light", new NbVector3(1.0f), 200.0f, 1.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
-            TransformationSystem.SetEntityLocation(light, new NbVector3(5.0f, 0.0f, 5.0f));
-            TransformationSystem.SetEntityScale(light, new NbVector3(100.0f));
+            SceneGraphNode light = Engine.CreateLightNode("Default Light", new NbVector3(1.0f), 300.0f, 1000.0f, ATTENUATION_TYPE.QUADRATIC, LIGHT_TYPE.POINT);
+            Engine.SetNodeLocation(light, new NbVector3(5.0f, 0.0f, 5.0f));
+            Engine.SetNodeScale(light, new NbVector3(1.0f));
             test1.AddChild(light);
             root.AddChild(test1);
 
@@ -356,10 +356,10 @@ namespace NibbleEditor
 
         public void UpdateInput()
         {
+            //Move Camera
             keyboardController();
             mouseController();
             //gpController(); //TODO: Re-add controller support
-
 
             //Check for shortcuts
             if (IsKeyDown(NbKey.LeftCtrl) && IsKeyPressed(NbKey.Q))
@@ -436,7 +436,7 @@ namespace NibbleEditor
             RenderState.activeCam = cam;
 
             //Set Camera Initial State
-            TransformController tcontroller = Engine.GetSystem<NbCore.Systems.TransformationSystem>().GetEntityTransformController(cam);
+            TransformController tcontroller = Engine.GetSystem<TransformationSystem>().GetEntityTransformController(cam);
             tcontroller.AddFutureState(new NbVector3(0.0f, 0.2f, 0.5f), NbQuaternion.FromEulerAngles(0.0f, -3.14f / 2.0f, 0.0f, "XYZ"), new NbVector3(1.0f));
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using ImGuiNET;
 using MathNet.Numerics.Interpolation;
 using NbCore;
@@ -15,9 +16,7 @@ namespace NibbleEditor
     {
         private SceneGraphNode _model;
         private ImGuiManager _manager;
-        private string script_path = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
-        private OpenFileDialog openScriptDialog;
-
+        
         //Imgui variables to reference 
         private int _selectedComponentId = -1;
         private string[] AttenuationTypes = new string[] {ATTENUATION_TYPE.LINEAR.ToString(),
@@ -30,8 +29,6 @@ namespace NibbleEditor
         public ImGuiObjectViewer(ImGuiManager mgr)
         {
             _manager = mgr;
-            openScriptDialog = new("script-open-file", ".cs", false); 
-            openScriptDialog.SetDialogPath(script_path);
         }
 
         public void SetModel(SceneGraphNode m)
@@ -66,7 +63,7 @@ namespace NibbleEditor
 
         private void RequestNodeUpdateRecursive(SceneGraphNode n)
         {
-            _manager.EngineRef.GetSystem<TransformationSystem>().RequestEntityUpdate(n);
+            _manager.WindowRef.Engine.GetSystem<TransformationSystem>().RequestEntityUpdate(n);
             
             foreach (SceneGraphNode child in n.Children)
                 RequestNodeUpdateRecursive(child);
@@ -225,7 +222,7 @@ namespace NibbleEditor
                             ImGuiCore.TableSetColumnIndex(1);
 
                             //Items
-                            List<Entity> materialList = _manager.EngineRef.GetEntityTypeList(EntityType.Material);
+                            List<Entity> materialList = _manager.WindowRef.Engine.GetEntityTypeList(EntityType.Material);
                             materialList = materialList.FindAll(x => ((NbMaterial)x).Shader != null);
                             materialList = materialList.FindAll(x => ((NbMaterial)x).Shader.ProgramID != 0);
 
@@ -493,7 +490,7 @@ namespace NibbleEditor
                 }
             }
 
-            //JointCOmponent
+            //JointComponent
             if (_model.HasComponent<JointComponent>())
             {
                 JointComponent jc = _model.GetComponent<JointComponent>();
@@ -571,83 +568,108 @@ namespace NibbleEditor
             //ScriptComponent
             if (_model.HasComponent<ScriptComponent>())
             {
-                ScriptComponent sc = _model.GetComponent<ScriptComponent>();
-
-                float lineheight = ImGuiCore.GetTextLineHeight();
-                
-                System.Numerics.Vector2 node_rect_pos = ImGuiCore.GetCursorPos();
-                bool header_open = ImGuiCore.CollapsingHeader("Script Component", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.AllowItemOverlap);
-                System.Numerics.Vector2 node_rect_size = ImGuiCore.GetItemRectSize();
-                float button_width = node_rect_size.Y;
-                float button_height = button_width;
-                ImGuiCore.SameLine();
-                ImGuiCore.SetCursorPosX(node_rect_pos.X + node_rect_size.X - button_width - 3);
-                ImGuiCore.PushFont(ImGuiCore.GetIO().Fonts.Fonts[1]);
-                if (ImGuiCore.Button("-##ScriptComponent", new System.Numerics.Vector2(button_width, button_height)))
+                int list_index = 0;
+                bool break_at_end_of_loop = false;
+                foreach (ScriptComponent sc in _model.GetComponents<ScriptComponent>())
                 {
-                    NbCore.Common.Callbacks.Log(this, "REMOVING SCRIPT COMPONENT", LogVerbosityLevel.INFO);
-                    _manager.EngineRef.RemoveScriptComponentFromNode(_model);
-                }
-                ImGuiCore.PopFont();
+                    float lineheight = ImGuiCore.GetTextLineHeight();
 
-                if (header_open)
-                {
-                    if (ImGuiCore.BeginTable("##ScriptCompTable", 3, ImGuiTableFlags.None))
+                    System.Numerics.Vector2 node_rect_pos = ImGuiCore.GetCursorPos();
+                    bool header_open = ImGuiCore.CollapsingHeader("Script Component##" + list_index, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.AllowItemOverlap);
+                    System.Numerics.Vector2 node_rect_size = ImGuiCore.GetItemRectSize();
+                    float button_width = node_rect_size.Y;
+                    float button_height = button_width;
+                    ImGuiCore.SameLine();
+                    ImGuiCore.SetCursorPosX(node_rect_pos.X + node_rect_size.X - button_width - 3);
+                    ImGuiCore.PushFont(ImGuiCore.GetIO().Fonts.Fonts[1]);
+                    if (ImGuiCore.Button("-##ScriptComponent" + list_index, new System.Numerics.Vector2(button_width, button_height)))
                     {
-                        ImGuiCore.TableSetupColumn("##ScriptCompTable_PathName", ImGuiTableColumnFlags.WidthFixed);
-                        ImGuiCore.TableSetupColumn("##ScriptCompTable_Path", ImGuiTableColumnFlags.WidthStretch);
-                        ImGuiCore.TableSetupColumn("##ScriptCompTable_Browse", ImGuiTableColumnFlags.WidthFixed);
-                        
-                        ImGuiCore.TableNextRow();
-                        ImGuiCore.TableSetColumnIndex(0);
-                        ImGuiCore.Text("Script Path");
-                        ImGuiCore.TableSetColumnIndex(1);
-                        ImGuiCore.PushItemWidth(-1.0f);
-                        ImGuiCore.InputText("##ScriptPath", ref sc.SourcePath, 200);
-                        if (ImGuiCore.IsItemHovered())
+                        NbCore.Common.Callbacks.Log(this, "REMOVING SCRIPT COMPONENT", LogVerbosityLevel.INFO);
+                        _manager.WindowRef.Engine.RemoveScriptComponentFromNode(_model, sc);
+                        break_at_end_of_loop = true;
+                    }
+                    ImGuiCore.PopFont();
+
+                    if (header_open)
+                    {
+                        if (ImGuiCore.BeginTable("##ScriptCompTable" + list_index, 3, ImGuiTableFlags.None))
                         {
-                            ImGuiCore.BeginTooltip();
-                            ImGuiCore.Text(sc.SourcePath);
-                            ImGuiCore.EndTooltip();
+                            ImGuiCore.TableSetupColumn("##ScriptCompTable_Label" + list_index, ImGuiTableColumnFlags.WidthFixed);
+                            ImGuiCore.TableSetupColumn("##ScriptCompTable_Selection" + list_index, ImGuiTableColumnFlags.WidthStretch);
+
+                            ImGuiCore.TableNextRow();
+                            ImGuiCore.TableSetColumnIndex(0);
+                            ImGuiCore.Text("Script: ");
+                            ImGuiCore.TableSetColumnIndex(1);
+
+                            //Items
+                            List<Entity> scriptList = _manager.WindowRef.Engine.GetEntityTypeList(EntityType.Script);
+                            string[] items = new string[scriptList.Count];
+                            for (int i = 0; i < items.Length; i++)
+                            {
+                                NbScriptAsset mm = (NbScriptAsset) scriptList[i];
+                                items[i] = mm.Path;
+                            }
+
+                            int script_id = scriptList.IndexOf(sc.Asset);
+
+                            if (ImGuiCore.Combo("##ScriptCombo" + list_index, ref script_id, items, items.Length))
+                            {
+                                if (sc.Script != null)
+                                {
+                                    _manager.WindowRef.Engine.GetSystem<ScriptingSystem>().Remove(sc);
+                                }
+                                sc.Asset = (NbScriptAsset) scriptList[script_id];
+                                sc.Script = _manager.WindowRef.Engine.CreateScript(sc);
+                                _manager.WindowRef.Engine.GetSystem<ScriptingSystem>().RegisterEntity(sc);
+                            }
+
+
+                            ImGuiCore.EndTable();
+
+                            if (sc.Script != null)
+                            {
+                                if (ImGuiCore.TreeNode("Properties##" + list_index))
+                                {
+
+                                    //Load dynamic properties from the script object using reflection\
+                                    Type scriptType = sc.Script.GetType();
+                                    PropertyInfo[] properties = scriptType.GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance);
+
+                                    for (int i = 0; i < properties.Length; i++)
+                                    {
+                                        PropertyInfo pInfo = properties[i];
+
+                                        if (pInfo.PropertyType == typeof(int))
+                                        {
+                                            //Draw int property
+                                            int val = (int)pInfo.GetValue(sc.Script);
+                                            if (ImGuiCore.InputInt(pInfo.Name + "##" + list_index, ref val))
+                                                pInfo.SetValue(sc.Script, val);
+                                        }
+                                        else if (pInfo.PropertyType == typeof(float))
+                                        {
+                                            //Draw float property
+                                            float val = (float)pInfo.GetValue(sc.Script);
+                                            if (ImGuiCore.InputFloat(pInfo.Name + "##" + list_index, ref val))
+                                                pInfo.SetValue(sc.Script, val);
+                                        }
+                                    }
+
+
+                                    ImGuiCore.TreePop();
+                                }
+                            }
+                            
                         }
-                        ImGuiCore.PopItemWidth();
-                        ImGuiCore.TableSetColumnIndex(2);
-                        ImGuiCore.PushItemWidth(-1.0f);
-                        if (ImGuiCore.Button("Browse"))
-                        {
-                            openScriptDialog.Open();
-                        }
-                        ImGuiCore.PopItemWidth();
-                        ImGuiCore.EndTable();
                     }
+
+                    list_index++;
+                    if (break_at_end_of_loop)
+                        break;
                 }
-
-                //Draw Open File Dialog
-                if (openScriptDialog.Draw(new() { X = 640, Y = 480 }))
-                {
-                    string script_filepath = openScriptDialog.GetSelectedFile();
-                    ulong script_hash = NbHasher.Hash(script_filepath);
-                    NbScript old_script = _manager.EngineRef.GetScriptByHash(script_hash);
-
-                    if (old_script != null)
-                    {
-                        //Hack : nullify the hash so that the old script connections will not be removed
-                        _manager.EngineRef.DestroyEntity(old_script);
-                    }
-                    
-                    NbScript script = _manager.EngineRef.CreateScript(script_filepath);
-                    
-                    if (script != null)
-                    {
-                        sc.SourcePath = script_filepath;
-                        sc.ScriptHash = script_hash;
-                        _manager.EngineRef.GetSystem<ScriptingSystem>().RegisterEntity(_model);
-                    }
-                }
-
             }
-
-            
+        
 
         }
 

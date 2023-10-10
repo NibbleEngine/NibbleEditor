@@ -15,6 +15,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleTextureViewer", "..\N
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleNMSPlugin", "..\NibbleNMSPlugin\NibbleNMSPlugin.csproj", "{C0051D48-9B71-4EF0-8185-F8C096BBF613}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NibbleZwiftPlugin", "..\NibbleZwiftPlugin\NibbleZwiftPlugin.csproj", "{92E68F58-6EBE-4F90-8A00-41C311394B54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptTest", "..\ScriptTest\ScriptTest.csproj", "{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +67,22 @@ Global
 		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.OpenGL_RELEASE|Any CPU.Build.0 = Debug|Any CPU
 		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0051D48-9B71-4EF0-8185-F8C096BBF613}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92E68F58-6EBE-4F90-8A00-41C311394B54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92E68F58-6EBE-4F90-8A00-41C311394B54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92E68F58-6EBE-4F90-8A00-41C311394B54}.OpenGL_DEBUG|Any CPU.ActiveCfg = Debug|Any CPU
+		{92E68F58-6EBE-4F90-8A00-41C311394B54}.OpenGL_DEBUG|Any CPU.Build.0 = Debug|Any CPU
+		{92E68F58-6EBE-4F90-8A00-41C311394B54}.OpenGL_RELEASE|Any CPU.ActiveCfg = Debug|Any CPU
+		{92E68F58-6EBE-4F90-8A00-41C311394B54}.OpenGL_RELEASE|Any CPU.Build.0 = Debug|Any CPU
+		{92E68F58-6EBE-4F90-8A00-41C311394B54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92E68F58-6EBE-4F90-8A00-41C311394B54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}.OpenGL_DEBUG|Any CPU.ActiveCfg = Debug|Any CPU
+		{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}.OpenGL_DEBUG|Any CPU.Build.0 = Debug|Any CPU
+		{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}.OpenGL_RELEASE|Any CPU.ActiveCfg = Debug|Any CPU
+		{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}.OpenGL_RELEASE|Any CPU.Build.0 = Debug|Any CPU
+		{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B53DCFBF-0988-4EB1-89F6-8A202C8694FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -2,6 +2,8 @@
 using System;
 using NbCore;
 using NbCore.UI.ImGui;
+using System.Diagnostics.Contracts;
+using NbCore.Platform.Windowing;
 
 namespace NibbleEditor
 {
@@ -69,12 +71,15 @@ namespace NibbleEditor
         private readonly ImGuiObjectViewer ObjectViewer;
         private readonly ImGuiSceneGraphViewer SceneGraphViewer;
         private readonly ImGuiMaterialEditor MaterialEditor = new();
-        private readonly ImGuiShaderEditor ShaderEditor = new();
+        private readonly ImGuiShaderEditor ShaderEditor;
         private readonly ImGuiTextureEditor TextureEditor = new();
+        private readonly ImGuiScriptEditor ScriptEditor;
+        private readonly ImGuiTextEditor TextEditor;
         private readonly ImGuiAboutWindow AboutWindow = new();
         private readonly ImGuiSettingsWindow SettingsWindow = new();
 
         public ImGuiOpenFileModal OpenFileModal = new("open-scene", "", ".nb");
+        private NbWindow WindowRef;
 
         private bool show_open_scene_dialog = false;
         private bool show_settings_window = false;
@@ -82,10 +87,13 @@ namespace NibbleEditor
         private bool show_test_components = false;
         
         
-        public AppImGuiManager(Window win, Engine engine) : base(win.ClientSize.X, win.ClientSize.Y, engine)
+        public AppImGuiManager(Window win, Engine engine) : base(win)
         {
             SceneGraphViewer = new(this);
             ObjectViewer = new(this);
+            TextEditor = new(this);
+            ShaderEditor = new(this);
+            ScriptEditor = new(this);
             SetWindowRef(win);
         }
 
@@ -107,6 +115,23 @@ namespace NibbleEditor
         public void ShowOpenSceneDialog()
         {
             OpenFileModal.ShowModal();
+        }
+
+        //Text Editor Related Methods
+        public void DrawTextEditor()
+        {
+            TextEditor?.Draw();
+        }
+
+        public void TextEditFile(string path)
+        {
+            TextEditor.OpenFile(path);
+        }
+
+        //Script Editor Related Methods
+        public void DrawScriptEditor()
+        {
+            ScriptEditor?.Draw();
         }
 
 
