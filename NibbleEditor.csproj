@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Resources\ianm32logo_border.png" />
-    <EmbeddedResource Include="Resources\lamp.png" />
+    <EmbeddedResource Include="Resources\atlas.png" />
     <EmbeddedResource Include="Resources\Roboto-Medium.ttf" />
   </ItemGroup>
 
@@ -47,7 +47,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	<NibbleDeps Include="deps\$(Configuration)\*.dll" />
+	<NibbleDeps Include="deps\$(Configuration)\$(RuntimeIdentifier)\*.dll" />
   </ItemGroup>
 
   <ItemGroup>
@@ -58,9 +58,8 @@
 	<!-- Copy Assets to the Build Directory-->
 	<Target Name="CopyCustomContentBuild" AfterTargets="AfterBuild">
 		<Copy SourceFiles="@(Assets)" DestinationFolder="$(TargetDir)Assets\%(RecursiveDir)" />
-		<!--Copy SourceFiles="@(Cimgui)" DestinationFolder="$(TargetDir)" /-->
 		<Copy SourceFiles="@(NibbleDeps)" DestinationFolder="$(TargetDir)lib" />
-		<Message Text="Dependencies copied successfully." Importance="high" />
+		<Message Text="Dependencies copied successfully from deps\$(Configuration)\$(RuntimeIdentifier)\*.dll" Importance="high" />
 	</Target>
 	
 	<!-- Copy Assets to the Publish Directory-->
@@ -73,7 +72,6 @@
 	
 	<ItemGroup>
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-	  <PackageReference Include="ImGui.NET" Version="1.89.6" />
       <PackageReference Condition="$(DefineConstants.Contains('OPENGL'))" Include="OpenTK" Version="4.7.7" />
 	</ItemGroup>
 	
@@ -82,13 +80,14 @@
 	</ItemGroup>
 	
   <ItemGroup>
-	  <!--Reference Include="ImGui.NET">
-      <HintPath>lib\ImGui.NET.dll</HintPath>
-    </Reference-->
-	<!-->Reference Include="Nibble">
-	  <HintPath>lib\Nibble.dll</HintPath>
-	</Reference-->
+		<Reference Include="ImGui.NET">
+			<HintPath>..\lib\ImGui.NET.dll</HintPath>
+		</Reference>
+	  <Reference Include="ImGuizmo.NET">
+		  <HintPath>..\lib\ImGuizmo.NET.dll</HintPath>
+	  </Reference>
   </ItemGroup>
 	
 
 </Project>
+

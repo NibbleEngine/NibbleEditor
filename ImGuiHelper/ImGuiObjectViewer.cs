@@ -38,6 +38,11 @@ namespace NibbleEditor
             _model = m;
         }
 
+        public SceneGraphNode GetModel()
+        {
+            return _model;
+        }
+
         public void Draw()
         {
 
@@ -575,7 +580,7 @@ namespace NibbleEditor
                     float lineheight = ImGuiCore.GetTextLineHeight();
 
                     System.Numerics.Vector2 node_rect_pos = ImGuiCore.GetCursorPos();
-                    bool header_open = ImGuiCore.CollapsingHeader("Script Component##" + list_index, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.AllowItemOverlap);
+                    bool header_open = ImGuiCore.CollapsingHeader("Script Component##" + list_index, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.AllowOverlap);
                     System.Numerics.Vector2 node_rect_size = ImGuiCore.GetItemRectSize();
                     float button_width = node_rect_size.Y;
                     float button_height = button_width;

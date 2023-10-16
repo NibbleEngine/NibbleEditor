@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Numerics;
-using ImGuiCore = ImGuiNET.ImGui;
 using NbCore;
 using NbCore.Common;
 using NibbleEditor;
 using System.Runtime.InteropServices;
-using ImGuiNET;
+using ImGuiCore = ImGuiNET.ImGui;
 using System.Runtime.CompilerServices;
 using NbCore.Platform.Windowing;
+using ImGuiNET;
 
 namespace NbCore.UI.ImGui
 {
@@ -93,7 +93,7 @@ namespace NbCore.UI.ImGui
 
                     NbMesh nm = new()
                     {
-                        Hash = (ulong)mmd.GetHashCode(),
+                        Hash = NbHasher.CombineHash(md.Hash, mmd.GetHash()),
                         MetaData = mmd,
                         Data = md,
                         Material = _manager.WindowRef.Engine.GetMaterialByName("defaultMat")
@@ -145,7 +145,7 @@ namespace NbCore.UI.ImGui
             //Draw using ImGUI
             ImGuiNET.ImGuiTreeNodeFlags base_flags = ImGuiNET.ImGuiTreeNodeFlags.OpenOnArrow | 
                                                      ImGuiNET.ImGuiTreeNodeFlags.SpanAvailWidth | 
-                                                     ImGuiNET.ImGuiTreeNodeFlags.AllowItemOverlap;
+                                                     ImGuiNET.ImGuiTreeNodeFlags.AllowOverlap;
             
             if (n.Children.Count == 0)
                 base_flags |= ImGuiNET.ImGuiTreeNodeFlags.NoTreePushOnOpen | ImGuiNET.ImGuiTreeNodeFlags.Leaf;
@@ -222,7 +222,7 @@ namespace NbCore.UI.ImGui
 
                         NbMesh nm = new()
                         {
-                            Hash = (ulong)mmd.GetHashCode(),
+                            Hash = NbHasher.CombineHash(md.Hash, mmd.GetHash()),
                             MetaData = mmd,
                             Data = md,
                             Material = _manager.WindowRef.Engine.GetMaterialByName("defaultMat")
@@ -248,7 +248,7 @@ namespace NbCore.UI.ImGui
 
                         NbMesh nm = new()
                         {
-                            Hash = (ulong)mmd.GetHashCode(),
+                            Hash = NbHasher.CombineHash(md.Hash, mmd.GetHash()),
                             MetaData = mmd,
                             Data = md,
                             Material = _manager.WindowRef.Engine.GetMaterialByName("defaultMat")

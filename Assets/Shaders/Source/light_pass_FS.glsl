@@ -106,6 +106,6 @@ void main()
 	// 		albedoColor.rgb, lfMetallic, lfRoughness, lfAo, lfAoStrength, lfEmissive);
 	// finalColor.a = albedoColor.a;
 	
-	fragColor = mix(albedoColor, finalColor, fragNormal.a);  //mix with unlit
+	fragColor = mix(vec4(0.0, 0.0, 0.0, 0.0), finalColor, fragNormal.a);  //mix with unlit
 	//fragColor = 0.5 * (1.0 + fragNormal);
 }

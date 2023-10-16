@@ -184,6 +184,11 @@ namespace NibbleEditor
             ObjectViewer.SetModel(m);
         }
 
+        public SceneGraphNode GetSelectedObject()
+        {
+            return ObjectViewer.GetModel();
+        }
+
         //SceneGraph Related Methods
 
         public void DrawSceneGraph()

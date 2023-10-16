@@ -12,6 +12,8 @@ using System.Linq;
 using NbCore.Platform.Windowing;
 using NbCore.Platform.Graphics;
 using System.Numerics;
+using System.Security.AccessControl;
+using ImGuizmoNET;
 
 namespace NibbleEditor
 {
@@ -38,6 +40,13 @@ namespace NibbleEditor
         double CPUUsage = 0.0;
         TimeSpan lastProcTotalTime = new TimeSpan();
         DateTime lastTime = DateTime.Now;
+
+        //UI Privates
+        private OPERATION GizmoSelection = 0x0;
+        private bool TranslationGizmoToggle = false;
+        private bool RotationnGizmoToggle = false;
+        private bool ScaleGizmoToggle = false;
+        private float[] delta_transform = new float[16];
 
         public UILayer(Window win, Engine e) : base(win, e)
         {
@@ -124,9 +133,8 @@ namespace NibbleEditor
         public void DrawUI()
         {
             //Enable docking in main view
-            ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags.None;
-            dockspace_flags |= ImGuiDockNodeFlags.PassthruCentralNode;
-
+            ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags.PassthruCentralNode;
+            
             ImGuiWindowFlags window_flags = ImGuiWindowFlags.NoBackground |
                                             ImGuiWindowFlags.NoCollapse |
                                             ImGuiWindowFlags.NoResize |
@@ -137,25 +145,22 @@ namespace NibbleEditor
             ImGui.SetNextWindowPos(vp.WorkPos);
             ImGui.SetNextWindowSize(vp.WorkSize);
             ImGui.SetNextWindowViewport(vp.ID);
-            
+
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, new System.Numerics.Vector2(0.0f, 0.0f));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new System.Numerics.Vector2(0.0f, 0.0f));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
-            
+
             bool keep_window_open = true;
             int statusBarHeight = (int)(1.75f * ImGui.CalcTextSize("Status").Y);
+            float last_window_height = 0.0f;
             ImGui.Begin("##MainWindow", ref keep_window_open, window_flags);
 
-            ImGui.PopStyleVar(1);
-
-            uint dockSpaceID = ImGui.GetID("MainDockSpace");
-            //System.Numerics.Vector2 dockSpaceSize = vp.GetWorkSize();
-            System.Numerics.Vector2 dockSpaceSize = new(0.0f, -statusBarHeight);
-            ImGui.DockSpace(dockSpaceID, dockSpaceSize, dockspace_flags);
-
+            
+            ImGui.PopStyleVar(3);
 
             //Main Menu
             bool show_settings_window = false;
+            Vector2 mainMenuBarPos = ImGui.GetCursorPos();
             if (ImGui.BeginMainMenuBar())
             {
                 if (ImGui.BeginMenu("File"))
@@ -194,10 +199,10 @@ namespace NibbleEditor
                         }
                     }
 
-                    
+
                     if (ImGui.MenuItem("Settings", "Ctrl + Alt + S"))
                         show_settings_window = true;
-                    
+
 
                     if (ImGui.MenuItem("Close", "Ctrl + Q"))
                     {
@@ -213,13 +218,178 @@ namespace NibbleEditor
                     _ImGuiManager.ShowAboutWindow();
                 }
 
+                last_window_height += ImGui.GetWindowHeight();
                 ImGui.EndMenuBar();
             }
+
+
+            ImGui.SetNextWindowPos(new Vector2(vp.WorkPos.X, ImGui.GetFrameHeight()));
+            ImGui.SetNextWindowSize(new(WindowRef.Size.X, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, 0.0f);
+            ImGui.PushStyleColor(ImGuiCol.WindowBg, 0x60000000);
+            if (ImGui.Begin("SecondaryMenuBar", ImGuiWindowFlags.NoDocking |
+                                                ImGuiWindowFlags.NoMove |
+                                                ImGuiWindowFlags.NoScrollbar |
+                                                ImGuiWindowFlags.NoResize|
+                                                ImGuiWindowFlags.NoTitleBar))
+            {
+                NbTexture atlas_tex = EngineRef.GetTexture("atlas.png");
+                float img_size = 24;
+                Vector2 uv0;
+                Vector2 uv1;
+                float atlas_image_id;
+                float atlas_image_count = 20.0f;
+                float atlas_image_uv_step = 1.0f / atlas_image_count;
+
+                //Play-Edit button
+                atlas_image_id = 0;
+                if (RenderState.AppMode == ApplicationMode.EDIT)
+                {
+                    uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
+                } else
+                {
+                    uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
+                }
+
+                if (ImGui.ImageButton("Toggle##ApplicationMode",
+                                (IntPtr)atlas_tex.texID,
+                                new Vector2(img_size, img_size),
+                                uv0, uv1))
+                {
+                    RenderState.AppMode = RenderState.AppMode == ApplicationMode.EDIT ? ApplicationMode.GAME : ApplicationMode.EDIT;
+                }
+
+                ImGui.SameLine();
+
+                //Toggle Lighting Button
+                atlas_image_id = 2;
+                if (RenderState.settings.RenderSettings.UseLighting == false)
+                {
+                    uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
+                }
+                else
+                {
+                    uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
+                }
+
+                if (ImGui.ImageButton("Toggle##Lighting",
+                                (IntPtr)atlas_tex.texID,
+                                new Vector2(img_size, img_size),
+                                uv0, uv1))
+                {
+                    RenderState.settings.RenderSettings.UseLighting = !RenderState.settings.RenderSettings.UseLighting;
+                }
+
+                ImGui.SameLine();
+
+                //Toggle Translation Button
+                atlas_image_id = 4;
+                if (TranslationGizmoToggle == true)
+                {
+                    uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
+                }
+                else
+                {
+                    uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
+                }
+
+                if (ImGui.ImageButton("Toggle##TranslationGizmo",
+                                (IntPtr)atlas_tex.texID,
+                                new Vector2(img_size, img_size),
+                                uv0, uv1))
+                {
+                    TranslationGizmoToggle = true;
+                    RotationnGizmoToggle = false;
+                    ScaleGizmoToggle = false;
+                    GizmoSelection = OPERATION.TRANSLATE;
+                }
+
+                ImGui.SameLine();
+                //Toggle Rotation Button
+                atlas_image_id = 6;
+                if (RotationnGizmoToggle == true)
+                {
+                    uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
+                }
+                else
+                {
+                    uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
+                }
+
+                if (ImGui.ImageButton("Toggle##RotationGizmo",
+                                (IntPtr)atlas_tex.texID,
+                                new Vector2(img_size, img_size),
+                                uv0, uv1))
+                {
+                    RotationnGizmoToggle = true;
+                    TranslationGizmoToggle = false;
+                    ScaleGizmoToggle = false;
+                    GizmoSelection = OPERATION.ROTATE;
+                }
+
+                ImGui.SameLine();
+                //Toggle Scale Button
+                atlas_image_id = 8;
+                if (ScaleGizmoToggle == true)
+                {
+                    uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
+                }
+                else
+                {
+                    uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
+                }
+
+                if (ImGui.ImageButton("Toggle##ScaleGizmoToggle",
+                                (IntPtr)atlas_tex.texID,
+                                new Vector2(img_size, img_size),
+                                uv0, uv1))
+                {
+                    ScaleGizmoToggle = true;
+                    RotationnGizmoToggle = false;
+                    TranslationGizmoToggle = false;
+                    GizmoSelection = OPERATION.SCALE;
+                }
+
+                last_window_height += ImGui.GetWindowHeight();
+                ImGui.End();
+            }
+            ImGui.PopStyleColor();
+            ImGui.PopStyleVar(3);
+
+
+            
+            //Create Dockspace Node
+            ImGui.SetNextWindowPos(new Vector2(0.0f, last_window_height));
+            ImGui.SetNextWindowSize(new Vector2(WindowRef.Size.X, WindowRef.Size.Y - last_window_height - statusBarHeight));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0.0f);
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, 0.0f);
+            if (ImGui.Begin("DockSpaceWindow", ImGuiWindowFlags.NoTitleBar | 
+                                               ImGuiWindowFlags.NoResize |
+                                               ImGuiWindowFlags.NoDecoration |
+                                               ImGuiWindowFlags.NoMove))
+            {
+                uint dockSpaceID = ImGui.GetID("MainDockSpace");
+                //System.Numerics.Vector2 dockSpaceSize = vp.GetWorkSize();
+                ImGui.DockSpace(dockSpaceID, Vector2.Zero, dockspace_flags);
+                ImGui.End();
+            }
+            ImGui.PopStyleVar(2);
 
             //Handle Keyboard Shortcuts
             if (WindowRef.IsKeyDown(NbKey.LeftCtrl) && WindowRef.IsKeyDown(NbKey.LeftAlt) && WindowRef.IsKeyPressed(NbKey.S))
                 show_settings_window = true;
-
 
             if (show_settings_window)
             {
@@ -230,8 +400,8 @@ namespace NibbleEditor
             //Generate StatusBar
             //StatusBar
 
-            ImGui.SetNextWindowPos(new System.Numerics.Vector2(0, WindowRef.Size.Y - statusBarHeight));
-            ImGui.SetNextWindowSize(new System.Numerics.Vector2(WindowRef.Size.X, statusBarHeight));
+            ImGui.SetNextWindowPos(new(0, WindowRef.Size.Y - statusBarHeight));
+            ImGui.SetNextWindowSize(new(WindowRef.Size.X, statusBarHeight));
 
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
 
@@ -253,9 +423,11 @@ namespace NibbleEditor
             }
             ImGui.PopStyleVar();
 
+
             ImGui.End(); //End of main Window
 
             ImGui.SetCursorPosX(0.0f);
+
 
             //Scene Render
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
@@ -279,6 +451,12 @@ namespace NibbleEditor
                 NbVector2 D = fbo_center + new NbVector2(csize.X / 2.0f, csize.Y / 2.0f);
                 NbVector2 uv0 = new NbVector2(A.X / render_fbo.Size.X, A.Y / render_fbo.Size.Y);
                 NbVector2 uv1 = new NbVector2(D.X / render_fbo.Size.X, D.Y / render_fbo.Size.Y);
+                
+                //Workaround to not use the scaled viewport
+                uv0.X = 0.0f;
+                uv0.Y = 0.0f;
+                uv1.X = 1.0f;
+                uv1.Y = 1.0f;
 
                 ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment3).texID),
                                 csize,
@@ -289,11 +467,94 @@ namespace NibbleEditor
 
                 bool active_status = ImGui.IsItemHovered();
                 CaptureInput?.Invoke(active_status);
+
+
+                //Imguizmo Setup
+                ImGuizmo.SetOrthographic(false);
+                ImGuizmo.SetDrawlist();
+                ImGuizmo.SetRect(ImGui.GetWindowPos().X, ImGui.GetWindowPos().Y, 
+                                                ImGui.GetWindowWidth(), ImGui.GetWindowHeight());
+                
+                float[] view = RenderState.activeCam.lookMat.ToArray();
+                float[] proj = RenderState.activeCam.projMat.ToArray();
+                float[] transform = NbMatrix4.Identity().ToArray();
+
+                
+                //Draw Grid
+                ImGuizmo.DrawGrid(ref view[0], ref proj[0], ref transform[0], 2.0f);
+
+                //Get selected object on the scenegraph
+                SceneGraphNode node = _ImGuiManager.GetSelectedObject();
+
+                if (node != null)
+                {
+                    float[] node_transform = EngineRef.GetNodeTransformArray(node);
+                    
+                    OPERATION op = 0x0;
+
+                    if (TranslationGizmoToggle)
+                        op |= OPERATION.TRANSLATE;
+
+                    if (RotationnGizmoToggle)
+                        op |= OPERATION.ROTATE;
+
+                    if (ScaleGizmoToggle)
+                        op |= OPERATION.SCALE;
+
+                    float[] gizmosnap = new float[3];
+                    if (WindowRef.IsKeyDown(NbKey.LeftShift))
+                    {
+                        gizmosnap[0] = 0.1f;
+                        gizmosnap[1] = 0.1f;
+                        gizmosnap[2] = 0.1f;
+                    }
+                    
+                    //Draw Transform
+                    ImGuizmo.Manipulate(ref view[0], ref proj[0],
+                        op, MODE.LOCAL, 
+                        ref node_transform[0], ref delta_transform[0], ref gizmosnap[0]);
+
+                    if (ImGuizmo.IsUsing())
+                    {
+                        NbMatrix4 new_transform = NbCore.Math.Matrix4FromArray(delta_transform, 0);
+                        NbVector3 delta_loc = NbMatrix4.ExtractTranslation(new_transform);
+                        NbQuaternion delta_rot = NbMatrix4.ExtractRotation(new_transform);
+                        NbVector3 delta_scale = NbMatrix4.ExtractScale(new_transform);
+                        
+                        //Console.WriteLine($"{delta_loc.X} {delta_loc.Y} {delta_loc.Z}");
+                        //Console.WriteLine($"{gizmosnap[0]}");
+                        //Console.WriteLine($"{delta_rot[0]} {delta_rot[1]} {delta_rot[2]} {delta_rot[3]}");
+                        //Console.WriteLine(delta_rot.ToString());
+
+                        //Update node transform
+                        if (op == OPERATION.ROTATE)
+                        {
+                            TransformComponent tc = node.GetComponent<TransformComponent>();
+                            EngineRef.SetNodeRotation(node, delta_rot * tc.Data.localRotation);
+                        }
+                        
+                        if (op == OPERATION.TRANSLATE)
+                        {
+                            TransformComponent tc = node.GetComponent<TransformComponent>();
+                            EngineRef.SetNodeLocation(node, tc.Data.localTranslation + delta_loc);
+                        }
+
+                        if (op == OPERATION.SCALE)
+                        {
+                            TransformComponent tc = node.GetComponent<TransformComponent>();
+                            EngineRef.SetNodeScale(node, tc.Data.localScale * delta_scale); ;
+                        }
+
+                    }
+                }
+                
                 ImGui.End();
             }
 
-            ImGui.PopStyleVar();
+            ImGui.PopStyleVar(2);
 
+            
+            
             if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse |
                                           ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
@@ -441,6 +702,8 @@ namespace NibbleEditor
             if (ImGui.Begin("Options", ImGuiWindowFlags.NoCollapse))
             {
                 ImGui.LabelText("View Options", "");
+                
+                
                 ImGui.Checkbox("Show Lights", ref RenderState.settings.ViewSettings.ViewLights);
                 ImGui.Checkbox("Show Light Volumes", ref RenderState.settings.ViewSettings.ViewLightVolumes);
                 ImGui.Checkbox("Show Joints", ref RenderState.settings.ViewSettings.ViewJoints);
@@ -539,7 +802,6 @@ namespace NibbleEditor
                 ImGui.End();
             }
 
-
         }
 
 
@@ -618,3 +880,6 @@ namespace NibbleEditor
 
     }
 }
+
+
+

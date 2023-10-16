@@ -11,6 +11,7 @@ using NbCore.Systems;
 using ImGuiNET;
 using System;
 using System.Threading;
+using SixLabors.ImageSharp.Processing;
 
 namespace NibbleEditor
 {
@@ -138,6 +139,25 @@ namespace NibbleEditor
             test1.AddChild(light);
             root.AddChild(test1);
 
+
+            //Test line cross
+            Primitive line_cross = new LineCross(10.0f);
+
+            //Create 
+            NbMesh line_cross_mesh = new()
+            {
+
+                Data = line_cross.geom.GetMeshData(NbRenderPrimitive.Lines),
+                MetaData = line_cross.geom.GetMetaData(),
+                Material = Engine.GetMaterialByName("defaultMat")
+            };
+            line_cross_mesh.Hash = NbHasher.CombineHash(line_cross_mesh.Data.Hash,
+                                                        line_cross_mesh.MetaData.GetHash());
+
+            SceneGraphNode line_cross_node = Engine.CreateMeshNode("test_line_cross", line_cross_mesh);
+
+            root.AddChild(line_cross_node);
+            
             Engine.ImportSceneGraph(graph);
             Engine.GetSystem<SceneManagementSystem>().SetActiveScene(graph);
 #endif
@@ -190,12 +210,11 @@ namespace NibbleEditor
             
             //Initialize Logo Atlas Texture
             byte[] imgData = Callbacks.getResourceFromAssembly(Assembly.GetExecutingAssembly(),
-            "lamp.png");
-            
-            NbTexture tex = new NbTexture("atlas.png", imgData);
-            GraphicsAPI.GenerateTexture(tex);
-            GraphicsAPI.UploadTexture(tex);
-            tex.Data.Data = null; //Release cpu data
+            "atlas.png");
+
+
+            NbTexture tex = Engine.CreateTexture(imgData, "atlas.png",
+                NbTextureWrapMode.Repeat, NbTextureFilter.Linear, NbTextureFilter.Linear, false);
             Engine.RegisterEntity(tex);
 
             //Create Imposter Shader Config 
@@ -385,8 +404,8 @@ namespace NibbleEditor
             //rotx = 50 * step * (kbHandler.getKeyStatus(OpenTK.Input.Key.E) - kbHandler.getKeyStatus(OpenTK.Input.Key.Q));
             //float roty = (kbHandler.getKeyStatus(Key.C) - kbHandler.getKeyStatus(Key.Z));
 
-            RenderState.rotAngles.Y += 100 * step * (keyDownStateToInt(NbKey.E) - keyDownStateToInt(NbKey.Q));
-            RenderState.rotAngles.Y %= 360;
+            //RenderState.rotAngles.Y += 100 * step * (keyDownStateToInt(NbKey.E) - keyDownStateToInt(NbKey.Q));
+            //RenderState.rotAngles.Y %= 360;
 
             //Move Camera
             targetCameraPos.PosImpulse.X = x;

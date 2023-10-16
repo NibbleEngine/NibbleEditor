@@ -211,7 +211,7 @@ namespace NibbleEditor
             }
 
             //Samplers
-            ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap;
+            ImGuiTreeNodeFlags base_flags = ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowOverlap;
             
             if (_ActiveMaterial.Samplers.Count == 0)
                 base_flags |= ImGuiTreeNodeFlags.Leaf;
@@ -244,7 +244,7 @@ namespace NibbleEditor
                     NbSampler current_sampler = _ActiveMaterial.Samplers[i];
 
                     node_rect_pos = ImGui.GetCursorPos();
-                    bool node_open = ImGui.TreeNodeEx(current_sampler.Name + "###Sampler" + i, ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap);
+                    bool node_open = ImGui.TreeNodeEx(current_sampler.Name + "###Sampler" + i, ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowOverlap);
                     node_rect_size = ImGui.GetItemRectSize();
                     button_width = node_rect_size.Y;
                     button_height = button_width;
@@ -366,7 +366,7 @@ namespace NibbleEditor
             }
             
 
-            base_flags = ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap;
+            base_flags = ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowOverlap;
             if (_ActiveMaterial.Uniforms.Count == 0)
                 base_flags |= ImGuiTreeNodeFlags.Leaf;
 
@@ -399,7 +399,7 @@ namespace NibbleEditor
                     NbUniform current_uf = _ActiveMaterial.Uniforms[i];
 
                     node_rect_pos = ImGui.GetCursorPos();
-                    bool node_open = ImGui.TreeNodeEx(current_uf.Name + "###Uniform" + i, ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowItemOverlap);
+                    bool node_open = ImGui.TreeNodeEx(current_uf.Name + "###Uniform" + i, ImGuiTreeNodeFlags.SpanAvailWidth | ImGuiTreeNodeFlags.AllowOverlap);
                     node_rect_size = ImGui.GetItemRectSize();
                     button_width = node_rect_size.Y;
                     button_height = button_width;
