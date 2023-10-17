@@ -283,13 +283,13 @@ namespace NibbleEditor
                             NbTexture samplerTex = current_sampler.Texture;
                             if (samplerTex is not null && samplerTex.Data.target != NbTextureTarget.Texture2DArray)
                             {
-                                ImGui.Image((IntPtr) samplerTex.texID, new Vector2(64, 64));
+                                ImGui.Image((IntPtr) samplerTex.GpuID, new Vector2(64, 64));
 
                                 if (ImGui.IsItemHovered())
                                 {
                                     ImGui.BeginTooltip();
                                     if (samplerTex.Data.target != NbTextureTarget.Texture2DArray)
-                                        ImGui.Image((IntPtr)samplerTex.texID, new Vector2(512, 512));
+                                        ImGui.Image((IntPtr)samplerTex.GpuID, new Vector2(512, 512));
                                     ImGui.Text(current_sampler.Name);
                                     ImGui.Text(current_sampler.Texture.Path);
                                     ImGui.EndTooltip();

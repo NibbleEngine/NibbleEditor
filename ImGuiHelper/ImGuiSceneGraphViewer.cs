@@ -16,7 +16,6 @@ namespace NbCore.UI.ImGui
     public class ImGuiSceneGraphViewer
     {
         private SceneGraphNode _root = null;
-        private SceneGraphNode _selected = null;
         private SceneGraphNode _clicked = null;
         private AppImGuiManager _manager = null;
 
@@ -50,7 +49,6 @@ namespace NbCore.UI.ImGui
         public void Clear()
         {
             _root = null;
-            _selected = null;
             _clicked = null;
         }
 
@@ -153,7 +151,6 @@ namespace NbCore.UI.ImGui
             if (_clicked != null && n == _clicked)
             {
                 base_flags |= ImGuiNET.ImGuiTreeNodeFlags.Selected;
-                _selected = n;
             }
 
 
@@ -171,7 +168,6 @@ namespace NbCore.UI.ImGui
             {
                 _clicked = n;
                 _manager.SetObjectReference(n);
-                _manager.SetActiveMaterial(n);
                 ImGuiCore.CloseCurrentPopup();
             }
 
@@ -180,7 +176,6 @@ namespace NbCore.UI.ImGui
                 //Right click also counts as selection
                 _clicked = n;
                 _manager.SetObjectReference(n);
-                _manager.SetActiveMaterial(n);
                 
                 if (ImGuiCore.BeginMenu("Add Child Node##child-ctx"))
                 {
@@ -275,7 +270,21 @@ namespace NbCore.UI.ImGui
                 if (ImGuiCore.MenuItem("Delete"))
                 {
                     Console.WriteLine("Delete Node permanently");
-                    _manager.WindowRef.Engine.DisposeSceneGraphNode(_clicked);
+
+                    SceneGraphNode to_delete = _clicked;
+                    
+                    _clicked = _clicked.Parent;
+                    _manager.SetObjectReference(_clicked);
+
+                    _manager.WindowRef.Engine.DisposeSceneGraphNode(to_delete);
+
+                    Console.WriteLine("Node deleted");
+                }
+
+                if (ImGuiCore.MenuItem("Delete Sub-Hierarchy"))
+                {
+                    Console.WriteLine("Deleted Node and its Children permanently");
+                    _manager.WindowRef.Engine.RecursiveSceneGraphNodeDispose(_clicked);
                     Console.WriteLine("Node deleted");
                 }
 

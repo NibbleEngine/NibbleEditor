@@ -42,7 +42,6 @@ namespace NibbleEditor
         DateTime lastTime = DateTime.Now;
 
         //UI Privates
-        private OPERATION GizmoSelection = 0x0;
         private bool TranslationGizmoToggle = false;
         private bool RotationnGizmoToggle = false;
         private bool ScaleGizmoToggle = false;
@@ -71,8 +70,8 @@ namespace NibbleEditor
         public void OnNewScene(SceneGraph s)
         {
             _ImGuiManager.PopulateSceneGraph(s);
+            _ImGuiManager.SetObjectReference(s.Root);
         }
-
         
         public void OnTextInput(NbTextInputArgs e)
         {
@@ -256,7 +255,7 @@ namespace NibbleEditor
                 }
 
                 if (ImGui.ImageButton("Toggle##ApplicationMode",
-                                (IntPtr)atlas_tex.texID,
+                                (IntPtr)atlas_tex.GpuID,
                                 new Vector2(img_size, img_size),
                                 uv0, uv1))
                 {
@@ -279,7 +278,7 @@ namespace NibbleEditor
                 }
 
                 if (ImGui.ImageButton("Toggle##Lighting",
-                                (IntPtr)atlas_tex.texID,
+                                (IntPtr)atlas_tex.GpuID,
                                 new Vector2(img_size, img_size),
                                 uv0, uv1))
                 {
@@ -302,14 +301,13 @@ namespace NibbleEditor
                 }
 
                 if (ImGui.ImageButton("Toggle##TranslationGizmo",
-                                (IntPtr)atlas_tex.texID,
+                                (IntPtr)atlas_tex.GpuID,
                                 new Vector2(img_size, img_size),
                                 uv0, uv1))
                 {
                     TranslationGizmoToggle = true;
                     RotationnGizmoToggle = false;
                     ScaleGizmoToggle = false;
-                    GizmoSelection = OPERATION.TRANSLATE;
                 }
 
                 ImGui.SameLine();
@@ -327,14 +325,13 @@ namespace NibbleEditor
                 }
 
                 if (ImGui.ImageButton("Toggle##RotationGizmo",
-                                (IntPtr)atlas_tex.texID,
+                                (IntPtr)atlas_tex.GpuID,
                                 new Vector2(img_size, img_size),
                                 uv0, uv1))
                 {
                     RotationnGizmoToggle = true;
                     TranslationGizmoToggle = false;
                     ScaleGizmoToggle = false;
-                    GizmoSelection = OPERATION.ROTATE;
                 }
 
                 ImGui.SameLine();
@@ -352,14 +349,13 @@ namespace NibbleEditor
                 }
 
                 if (ImGui.ImageButton("Toggle##ScaleGizmoToggle",
-                                (IntPtr)atlas_tex.texID,
+                                (IntPtr)atlas_tex.GpuID,
                                 new Vector2(img_size, img_size),
                                 uv0, uv1))
                 {
                     ScaleGizmoToggle = true;
                     RotationnGizmoToggle = false;
                     TranslationGizmoToggle = false;
-                    GizmoSelection = OPERATION.SCALE;
                 }
 
                 last_window_height += ImGui.GetWindowHeight();
@@ -369,7 +365,6 @@ namespace NibbleEditor
             ImGui.PopStyleVar(3);
 
 
-            
             //Create Dockspace Node
             ImGui.SetNextWindowPos(new Vector2(0.0f, last_window_height));
             ImGui.SetNextWindowSize(new Vector2(WindowRef.Size.X, WindowRef.Size.Y - last_window_height - statusBarHeight));
@@ -458,7 +453,7 @@ namespace NibbleEditor
                 uv1.X = 1.0f;
                 uv1.Y = 1.0f;
 
-                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment3).texID),
+                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment3).GpuID),
                                 csize,
                                 new System.Numerics.Vector2(uv0.X, 1.0f - uv0.Y),
                                 new System.Numerics.Vector2(uv1.X, 1.0f - uv1.Y),

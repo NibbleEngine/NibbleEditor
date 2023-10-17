@@ -1,0 +1,11 @@
+{
+  "ObjectType": "NbCore.NbMaterial",
+  "Name": "Material_5617",
+  "Class": 0,
+  "ShaderConfig": "UberShader_Deferred",
+  "Flags": [
+    "_NB_VERTEX_COLOUR"
+  ],
+  "Uniforms": [],
+  "Samplers": []
+}

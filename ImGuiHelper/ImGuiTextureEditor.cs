@@ -78,7 +78,7 @@ namespace NbCore.UI.ImGui
             }
 
 
-            if (_ActiveTexture.texID != 0 && _ActiveTexture.Data.target != NbTextureTarget.Texture2DArray)
+            if (_ActiveTexture.GpuID != 0 && _ActiveTexture.Data.target != NbTextureTarget.Texture2DArray)
             {
                 ImGuiCore.SetNextItemWidth(-1);
                 float image_aspect = (float)_ActiveTexture.Data.Width / _ActiveTexture.Data.Height;
@@ -96,7 +96,7 @@ namespace NbCore.UI.ImGui
                     vpsize = new System.Numerics.Vector2(avail_size.X * image_aspect, avail_size.Y);
                 }
                 
-                ImGuiCore.Image((IntPtr) _ActiveTexture.texID, vpsize);
+                ImGuiCore.Image((IntPtr) _ActiveTexture.GpuID, vpsize);
             }
 
             if (ImGuiCore.BeginTable("##TextureInfo", 2))

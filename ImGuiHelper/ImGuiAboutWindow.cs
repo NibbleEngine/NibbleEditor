@@ -105,7 +105,7 @@ namespace NibbleEditor
                       ImGuiNET.ImGuiWindowFlags.NoResize |
                       ImGuiNET.ImGuiWindowFlags.NoCollapse);
 
-            ImGuiCore.Image(new IntPtr(tex.texID),
+            ImGuiCore.Image(new IntPtr(tex.GpuID),
                         new System.Numerics.Vector2(256, 256),
                         new System.Numerics.Vector2(0, 0),
                         new System.Numerics.Vector2(1, 1));
