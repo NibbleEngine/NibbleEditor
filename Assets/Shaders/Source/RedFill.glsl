@@ -25,14 +25,25 @@ void main()
 {
 
 	float angle = 3.14 * fract(mpCommonPerFrame.gfTime);
-	float radius = 0.05 * sin(angle);
+	float radius = 0.10 * sin(angle);
 	
-	if (length(uv0 - vec2(0.5, 0.5)) < radius){
-		fragColour = vec4(0.0, 0.0, 1.0, 0.5);
-	} else if (uv0.x > 0.98 || uv0.x < 0.03 || uv0.y > 0.98 || uv0.y < 0.03){
-		fragColour = vec4(1.0, 0.0, 0.0, 0.5);
-	}
+	float width = 44.1;
+	float space = 200.0;
 	
-	//if (uv0.x > 0.98 || uv0.x < 0.03 || uv0.y > 0.98 || uv0.y < 0.03)
-	//	fragColour = vec4(0.0, 0.0, 1.0, 0.2);
+	vec2 uv = (uv0 - vec2(0.5)) * 1000;
+	
+	vec2 a1 = mod(uv + space, width);
+	vec2 a2 = mod(uv - space, width);
+
+	vec2 a = a1 - a2;
+	float x = min(a.x, a.y);
+	
+	x = clamp(x, 0.0, 1.0);
+	vec3 col = vec3(0.8);
+
+	float dist = length(uv);
+	col *= 1.0 - length(abs(uv)/ 1000.0);
+	fragColour = vec4(col, 1.0 - x);
+	
+	
 }

@@ -4,9 +4,7 @@ using NbCore.Common;
 using NbCore.Platform.Graphics;
 using NbCore.Platform.Windowing;
 using System.IO;
-
 using System.Reflection;
-using NbCore.Primitives;
 using NbCore.Systems;
 using ImGuiNET;
 using System;
@@ -106,15 +104,16 @@ namespace NibbleEditor
             //Attach Layers to events
             _uiLayer.CloseWindowEvent += CloseWindow;
             _uiLayer.SaveActiveSceneEvent += SaveActiveScene;
+            _uiLayer.CaptureInput += MoveCamera;
 
             OnTextInput += _uiLayer.OnTextInput;
-            //OnResize += _uiLayer.OnResize;
-            OnResize += _renderLayer.OnResize;
+            _uiLayer.SceneWindowResizeEvent += _renderLayer.OnResize;
+            //OnResize += _renderLayer.OnResize;
             _logger.LogEvent += _uiLayer.OnLog;
             
             //Pass rendering settings to the Window
-            SetRenderFrameFrequency(60);
-            SetUpdateFrameFrequency(60);
+            SetRenderFrameFrequency(RenderState.settings.RenderSettings.FPS);
+            SetUpdateFrameFrequency(RenderState.settings.TickRate);
             SetVSync(RenderState.settings.RenderSettings.UseVSync);
 
 
@@ -141,13 +140,13 @@ namespace NibbleEditor
 
 
             //Test line cross
-            Primitive line_cross = new LineCross(10.0f);
+            NbPrimitive line_cross = new LineCross(0.0008f, 10.0f);
 
             //Create 
             NbMesh line_cross_mesh = new()
             {
 
-                Data = line_cross.geom.GetMeshData(NbRenderPrimitive.Lines),
+                Data = line_cross.geom.GetMeshData(),
                 MetaData = line_cross.geom.GetMetaData(),
                 Material = Engine.GetMaterialByName("defaultMat")
             };
@@ -280,67 +279,7 @@ namespace NibbleEditor
         }
 
 
-        private void CreateGizmo()
-        {
-            //Create Gizmo Material
-            NbMaterial gizmo_mat = new NbMaterial();
-            gizmo_mat.Class = NbMaterialClass.Transluscent;
-            gizmo_mat.AddFlag(NbMaterialFlagEnum._NB_VERTEX_COLOUR);
-            gizmo_mat.AddFlag(NbMaterialFlagEnum._NB_UNLIT);
-            gizmo_mat.Shader = Engine.GetShaderByHash(Engine.CalculateShaderHash(Engine.GetShaderConfigByName("UberShader_Deferred"), 
-                                                                                 Engine.GetMaterialShaderDirectives(gizmo_mat)));
-            
-            //Translation Gizmo
-            TranslationGizmo trans = new();
-            
-            //Create Meshes
-            LineSegment x_line = new LineSegment(new NbVector3(0.0f, 0.0f, 0.0f),
-                                                 new NbVector3(1.0f, 0.0f, 0.0f),
-                                                 new NbVector3(1.0f, 0.0f, 0.0f));
-            LineSegment y_line = new LineSegment(new NbVector3(0.0f, 0.0f, 0.0f),
-                                                 new NbVector3(0.0f, 1.0f, 0.0f),
-                                                 new NbVector3(0.0f, 1.0f, 0.0f));
-            LineSegment z_line = new LineSegment(new NbVector3(0.0f, 0.0f, 0.0f),
-                                                 new NbVector3(0.0f, 0.0f, 1.0f),
-                                                 new NbVector3(0.0f, 0.0f, 1.0f));
-
-            trans.XAxisMesh = new()
-            {
-                Hash = NbHasher.Hash("translation_gizmo_x"),
-                Data = x_line.geom.GetMeshData(),
-                MetaData = x_line.geom.GetMetaData(),
-                Material = gizmo_mat
-            };
-
-            trans.YAxisMesh = new()
-            {
-                Hash = NbHasher.Hash("translation_gizmo_y"),
-                Data = y_line.geom.GetMeshData(),
-                MetaData = y_line.geom.GetMetaData(),
-                Material = gizmo_mat
-            };
-
-            trans.ZAxisMesh = new()
-            {
-                Hash = NbHasher.Hash("translation_gizmo_z"),
-                Data = z_line.geom.GetMeshData(),
-                MetaData = z_line.geom.GetMetaData(),
-                Material = gizmo_mat
-            };
-
-            //Create Nodes for the gizmo
-            trans.XAxis = Engine.CreateMeshNode("XAxis", trans.XAxisMesh);
-            trans.YAxis = Engine.CreateMeshNode("YAxis", trans.YAxisMesh);
-            trans.ZAxis = Engine.CreateMeshNode("ZAxis", trans.ZAxisMesh);
-
-            //Register Nodes 
-            Engine.RegisterEntity(trans.XAxis);
-            Engine.RegisterEntity(trans.YAxis);
-            Engine.RegisterEntity(trans.ZAxis);
-
-
-        }
-
+        
         #region INPUT_HANDLERS
 
         //Gamepad handler
@@ -373,13 +312,16 @@ namespace NibbleEditor
             return state ? 1 : 0;
         }
 
-        public void UpdateInput()
+        public void MoveCamera()
         {
             //Move Camera
             keyboardController();
             mouseController();
             //gpController(); //TODO: Re-add controller support
+        }
 
+        public void UpdateInput()
+        {
             //Check for shortcuts
             if (IsKeyDown(NbKey.LeftCtrl) && IsKeyPressed(NbKey.Q))
             {

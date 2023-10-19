@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NbCore;
 using NbCore.Common;
 using NbCore.Platform.Windowing;
@@ -16,7 +17,7 @@ namespace NibbleEditor
 
         public void OnResize(NbResizeArgs e)
         {
-            // Tell ImGui of the new size
+            //Update renderbuffer size
             EngineRef.GetSystem<RenderingSystem>().Resize(e.Width, e.Height);
         }
 
@@ -42,9 +43,9 @@ namespace NibbleEditor
             //Update common transforms
 
             //Apply extra viewport rotation
-            NbMatrix4 Rotx = NbMatrix4.CreateRotationX(Math.Radians(RenderState.rotAngles.X));
-            NbMatrix4 Roty = NbMatrix4.CreateRotationY(Math.Radians(RenderState.rotAngles.Y));
-            NbMatrix4 Rotz = NbMatrix4.CreateRotationZ(Math.Radians(RenderState.rotAngles.Z));
+            NbMatrix4 Rotx = NbMatrix4.CreateRotationX(NbCore.Math.Radians(RenderState.rotAngles.X));
+            NbMatrix4 Roty = NbMatrix4.CreateRotationY(NbCore.Math.Radians(RenderState.rotAngles.Y));
+            NbMatrix4 Rotz = NbMatrix4.CreateRotationZ(NbCore.Math.Radians(RenderState.rotAngles.Z));
             RenderState.rotMat = Rotz * Rotx * Roty;
             //RenderState.rotMat = Matrix4.Identity;
         }

@@ -83,7 +83,7 @@ namespace NbCore.UI.ImGui
                 if (ImGuiCore.Button("Add"))
                 {
                     //Create Mesh
-                    Primitives.Sphere sph = new(new(0.0f), 1.0f, divs);
+                    Sphere sph = new(new(0.0f), 1.0f, divs);
 
                     NbMeshData md = sph.geom.GetMeshData();
                     NbMeshMetaData mmd = sph.geom.GetMetaData();
@@ -209,7 +209,7 @@ namespace NbCore.UI.ImGui
                         //Box Requires No parameters create it immediately
 
                         //Create Mesh
-                        Primitives.Box bx = new(1.0f,1.0f,1.0f, new NbVector3(1.0f), true);
+                        Box bx = new(1.0f,1.0f,1.0f, new NbVector3(1.0f), true);
 
                         NbMeshData md = bx.geom.GetMeshData();
                         NbMeshMetaData mmd = bx.geom.GetMetaData();
@@ -235,7 +235,7 @@ namespace NbCore.UI.ImGui
                         //Box Requires No parameters create it immediately
 
                         //Create Mesh
-                        Primitives.Quad q = new(1.0f, 1.0f);
+                        Quad q = new(1.0f, 1.0f);
 
                         NbMeshData md = q.geom.GetMeshData();
                         NbMeshMetaData mmd = q.geom.GetMetaData();

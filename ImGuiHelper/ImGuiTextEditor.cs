@@ -77,11 +77,11 @@ namespace NbCore.UI.ImGui
                         }
 
 
-                        if (_manager.WindowRef.MouseScrollDelta.Y > 0)
+                        if (_manager.WindowRef.MouseScrollDelta.Y < 0)
                         {
                             //Decrease font
                             fontIndex = System.Math.Max(fontIndex - 1, 1);
-                        } else if (_manager.WindowRef.MouseScrollDelta.Y < 0)
+                        } else if (_manager.WindowRef.MouseScrollDelta.Y > 0)
                         {
                             //Increase font
                             fontIndex = System.Math.Min(fontIndex + 1, 5);

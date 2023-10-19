@@ -34,20 +34,19 @@ layout (std430, binding=1) buffer _COMMON_PER_MESH
 
 layout (std430, binding=2) buffer _COMMON_PER_MESHGROUP
 {
-    mat4 boneMatricesTBO[256];
-    int BoneIndicesRemap[128];
+    mat4 boneMatricesTBO[512];
 };
 
 //Outputs
 out vec4 fragPos; 
 out vec4 screenPos;
 out vec4 vertColor;
-out vec4 uv;
+out vec2 uv0;
 
 void main()
 {
     //Pass uv to fragment shader
-    uv = uvPosition0;
+    uv0 = uvPosition0.xy;
     vertColor = bPosition;
 
     //Load Per Instance data

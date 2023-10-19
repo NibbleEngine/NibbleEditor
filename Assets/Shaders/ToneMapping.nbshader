@@ -1,7 +1,7 @@
 {
   "ObjectType": "NbCore.NbShader",
   "IsGeneric" : true,
-  "Type" : 26,
+  "Type" : 28,
   "Config" : "ToneMapping",
   "directives" : []
 }

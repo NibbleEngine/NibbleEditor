@@ -403,7 +403,7 @@ namespace NibbleEditor
                     
                     System.Numerics.Vector3 v = new(lc.Data.Color.X, lc.Data.Color.Y, lc.Data.Color.Z);
                     ImGuiCore.SetNextItemWidth(-1.0f);
-                    if (ImGuiCore.ColorPicker3("##Color", ref v, ImGuiColorEditFlags.NoSidePreview))
+                    if (ImGuiCore.ColorEdit3("##Color", ref v, ImGuiColorEditFlags.NoSidePreview))
                     {
                         lc.Data.Color = new(v.X, v.Y, v.Z);
                         light_updated = true;

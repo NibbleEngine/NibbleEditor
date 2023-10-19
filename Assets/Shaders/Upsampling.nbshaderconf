@@ -1,0 +1,14 @@
+{
+  "ObjectType": "NbCore.NbShaderConfig",
+  "Path": "",
+  "Name": "Upsampling",
+  "ShaderMode": 8,
+  "Sources": [
+    {
+      "VertexShader": ".\\Assets\\Shaders\\Source\\Gbuffer_VS.glsl"
+    },
+    {
+      "FragmentShader": ".\\Assets\\Shaders\\Source\\upsampling_shader_fs.glsl"
+    }
+  ]
+}

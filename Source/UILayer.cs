@@ -14,11 +14,12 @@ using NbCore.Platform.Graphics;
 using System.Numerics;
 using System.Security.AccessControl;
 using ImGuizmoNET;
+using OpenTK.Windowing.Common;
 
 namespace NibbleEditor
 {
     public delegate void CloseWindowEventHandler();
-    public delegate void CaptureInputHandler(bool state);
+    public delegate void CaptureInputHandler();
     public delegate void SaveActiveSceneHandler();
 
     public class UILayer : ApplicationLayer
@@ -34,6 +35,7 @@ namespace NibbleEditor
         public event CloseWindowEventHandler CloseWindowEvent;
         public event CaptureInputHandler CaptureInput;
         public event SaveActiveSceneHandler SaveActiveSceneEvent;
+        public NbResizeEventHandler SceneWindowResizeEvent;
 
         //Stats
         float TotalProcMemory = 0.0f;
@@ -46,6 +48,8 @@ namespace NibbleEditor
         private bool RotationnGizmoToggle = false;
         private bool ScaleGizmoToggle = false;
         private float[] delta_transform = new float[16];
+        private NbVector2i OldSceneWinSize = new NbVector2i(800, 600);
+        private Stopwatch SceneResizeWatch;
 
         public UILayer(Window win, Engine e) : base(win, e)
         {
@@ -64,6 +68,9 @@ namespace NibbleEditor
             sysPerfTimer.Elapsed += FetchAppPerformanceStats;
             sysPerfTimer.Interval = 1000;
             sysPerfTimer.Start();
+
+            //Scene resize watch
+            SceneResizeWatch = new Stopwatch();
         }
 
         //Event Handlers
@@ -425,58 +432,64 @@ namespace NibbleEditor
 
 
             //Scene Render
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new System.Numerics.Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowMinSize, new Vector2(100, 100));
 
             //Cause of ImguiNET that does not yet support DockBuilder. The main Viewport will be docked to the main window.
             //All other windows will be separate.
-            if (ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar))
+            if (ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
             {
                 //Update RenderSize
-                System.Numerics.Vector2 csize = ImGui.GetContentRegionAvail();
-                csize.X = System.Math.Max(csize.X, 100);
-                csize.Y = System.Math.Max(csize.Y, 100);
-                NbVector2i csizetk = new((int)csize.X, (int)csize.Y);
+                Vector2 csize = ImGui.GetContentRegionAvail();
+                
+                if ((int)csize.X != OldSceneWinSize.X || (int)csize.Y != OldSceneWinSize.Y)
+                {
+                    if (!SceneResizeWatch.IsRunning)
+                        SceneResizeWatch.Start();
+                    else
+                        SceneResizeWatch.Restart();
 
+                    OldSceneWinSize.X = (int)csize.X;
+                    OldSceneWinSize.Y = (int)csize.Y;
+                }
+
+                //Check if we need to invoke the resize event
+                if (SceneResizeWatch.ElapsedMilliseconds > 60)
+                {
+                    NbResizeArgs new_args = new(new ResizeEventArgs((int) csize.X, (int) csize.Y));
+                    SceneWindowResizeEvent?.Invoke(new_args);
+                    SceneResizeWatch.Stop();
+                    SceneResizeWatch.Reset();
+                }
+                
                 FBO render_fbo = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().getRenderFBO();
 
-                //Calculate SceneViewport UVs
-                NbVector2 fbo_center = new(render_fbo.Size.X / 2.0f, render_fbo.Size.Y / 2.0f);
-                NbVector2 A = fbo_center - new NbVector2(csize.X / 2.0f, csize.Y / 2.0f);
-                NbVector2 D = fbo_center + new NbVector2(csize.X / 2.0f, csize.Y / 2.0f);
-                NbVector2 uv0 = new NbVector2(A.X / render_fbo.Size.X, A.Y / render_fbo.Size.Y);
-                NbVector2 uv1 = new NbVector2(D.X / render_fbo.Size.X, D.Y / render_fbo.Size.Y);
-                
-                //Workaround to not use the scaled viewport
-                uv0.X = 0.0f;
-                uv0.Y = 0.0f;
-                uv1.X = 1.0f;
-                uv1.Y = 1.0f;
-
-                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment3).GpuID),
+                ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment2).GpuID),
                                 csize,
-                                new System.Numerics.Vector2(uv0.X, 1.0f - uv0.Y),
-                                new System.Numerics.Vector2(uv1.X, 1.0f - uv1.Y),
-                                new System.Numerics.Vector4(1.0f),
-                                new System.Numerics.Vector4(1.0f, 1.0f, 1.0f, 0.2f));
-
-                bool active_status = ImGui.IsItemHovered();
-                CaptureInput?.Invoke(active_status);
+                                new Vector2(0.0f, 1.0f),
+                                new Vector2(1.0f, 0.0f),
+                                new Vector4(1.0f),
+                                new Vector4(1.0f, 1.0f, 1.0f, 0.2f));
 
 
+                //Console.WriteLine($"Scene Hovered {ImGui.IsItemHovered()} {ImGui.IsItemActivated()} {ImGui.IsItemFocused()}");
+                if (ImGui.IsItemHovered())
+                    CaptureInput?.Invoke();
+                
                 //Imguizmo Setup
                 ImGuizmo.SetOrthographic(false);
                 ImGuizmo.SetDrawlist();
-                ImGuizmo.SetRect(ImGui.GetWindowPos().X, ImGui.GetWindowPos().Y, 
-                                                ImGui.GetWindowWidth(), ImGui.GetWindowHeight());
+                ImGuizmo.SetRect(ImGui.GetWindowPos().X, 
+                                 ImGui.GetWindowPos().Y,
+                                 csize.X, csize.Y);
                 
                 float[] view = RenderState.activeCam.lookMat.ToArray();
                 float[] proj = RenderState.activeCam.projMat.ToArray();
                 float[] transform = NbMatrix4.Identity().ToArray();
 
-                
                 //Draw Grid
-                ImGuizmo.DrawGrid(ref view[0], ref proj[0], ref transform[0], 2.0f);
+                //ImGuizmo.DrawGrid(ref view[0], ref proj[0], ref transform[0], 2.0f);
 
                 //Get selected object on the scenegraph
                 SceneGraphNode node = _ImGuiManager.GetSelectedObject();
@@ -546,7 +559,7 @@ namespace NibbleEditor
                 ImGui.End();
             }
 
-            ImGui.PopStyleVar(2);
+            ImGui.PopStyleVar(3);
 
             
             
@@ -722,7 +735,27 @@ namespace NibbleEditor
                 ImGui.Checkbox("Show Animations", ref RenderState.settings.RenderSettings.ToggleAnimations);
                 ImGui.Checkbox("Wireframe", ref RenderState.settings.RenderSettings.RenderWireFrame);
                 ImGui.Checkbox("FXAA", ref RenderState.settings.RenderSettings.UseFXAA);
-                ImGui.Checkbox("Bloom", ref RenderState.settings.RenderSettings.UseBLOOM);
+                ImGui.Checkbox("Tone Mapping", ref RenderState.settings.RenderSettings.UseToneMapping);
+                
+                if (ImGui.CollapsingHeader("Bloom Settings"))
+                {
+                    ImGui.Indent();
+                    ImGui.Columns(2);
+                    ImGui.Text("Enable Bloom");
+                    ImGui.NextColumn();
+                    ImGui.Checkbox("##BloomFlag", ref RenderState.settings.RenderSettings.UseBLOOM);
+                    ImGui.NextColumn();
+                    ImGui.Text("Bloom Intensity");
+                    ImGui.NextColumn();
+                    ImGui.DragFloat("##BloomIntensity", ref RenderState.settings.RenderSettings.BloomIntensity, 0.01f, 0.0f, 1.0f);
+                    ImGui.NextColumn();
+                    ImGui.Text("Bloom Filter Radius");
+                    ImGui.NextColumn();
+                    ImGui.DragFloat("##BloomFilterRadius", ref RenderState.settings.RenderSettings.BloomFilterRadius, 0.0001f, 0.0001f, 0.2f);
+                    ImGui.Columns(1);
+                    ImGui.Unindent();
+                }
+                
                 ImGui.Checkbox("LOD Filtering", ref RenderState.settings.RenderSettings.LODFiltering);
 
                 int fps_selection = Array.IndexOf(fps_settings, RenderState.settings.RenderSettings.FPS.ToString());
@@ -742,7 +775,7 @@ namespace NibbleEditor
                                           RenderState.settings.RenderSettings.BackgroundColor.Z);
 
                 ImGui.SetNextItemWidth(300.0f);
-                if (ImGui.ColorPicker3("Background Color", ref col, 
+                if (ImGui.ColorEdit3("Background Color", ref col, 
                     ImGuiColorEditFlags.DefaultOptions))
                 {
                     RenderState.settings.RenderSettings.BackgroundColor = new(col.X, col.Y, col.Z);
@@ -844,7 +877,7 @@ namespace NibbleEditor
 
             //Add Quad
             //Create Mesh
-            NbCore.Primitives.Quad q = new(1.0f, 1.0f);
+            NbCore.Quad q = new(1.0f, 1.0f);
 
             NbMeshData md = q.geom.GetMeshData();
             NbMeshMetaData mmd = q.geom.GetMetaData();

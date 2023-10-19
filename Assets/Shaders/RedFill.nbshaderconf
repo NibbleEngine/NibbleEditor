@@ -5,7 +5,7 @@
   "ShaderMode": 8,
   "Sources": [
     {
-      "VertexShader": ".\\Assets\\Shaders\\Source\\Gbuffer_VS.glsl"
+      "VertexShader": ".\\Assets\\Shaders\\Source\\Simple_VSEmpty.glsl"
     },
     {
       "FragmentShader": ".\\Assets\\Shaders\\Source\\RedFill.glsl"
