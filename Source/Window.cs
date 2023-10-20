@@ -40,8 +40,8 @@ namespace NibbleEditor
             };
             
             //Initialize Engine backend
-            RenderState.engineRef = e; //Set reference to engine [Should do before initialization]
-            RenderState.settings = EngineSettings.loadFromDisk(); //Load Settings
+            NbRenderState.engineRef = e; //Set reference to engine [Should do before initialization]
+            NbRenderState.settings = EngineSettings.loadFromDisk(); //Load Settings
 
             //Connect Window Callbacks
             OnWindowLoad += WindowLoad;
@@ -112,9 +112,9 @@ namespace NibbleEditor
             _logger.LogEvent += _uiLayer.OnLog;
             
             //Pass rendering settings to the Window
-            SetRenderFrameFrequency(RenderState.settings.RenderSettings.FPS);
-            SetUpdateFrameFrequency(RenderState.settings.TickRate);
-            SetVSync(RenderState.settings.RenderSettings.UseVSync);
+            SetRenderFrameFrequency(NbRenderState.settings.RenderSettings.FPS);
+            SetUpdateFrameFrequency(NbRenderState.settings.TickRate);
+            SetVSync(NbRenderState.settings.RenderSettings.UseVSync);
 
 
 
@@ -184,7 +184,7 @@ namespace NibbleEditor
         
         public void UpdateFrame(double dt)
         {
-            Camera.CalculateNextCameraState(RenderState.activeCam, targetCameraPos);
+            Camera.CalculateNextCameraState(NbRenderState.activeCam, targetCameraPos);
             targetCameraPos.Reset();
             
             _renderLayer.OnFrameUpdate(dt);
@@ -193,8 +193,8 @@ namespace NibbleEditor
         public void RenderFrame(double dt)
         {
             //Update Camera
-            Camera.UpdateCameraDirectionalVectors(RenderState.activeCam);
-            RenderState.activeCam.updateViewMatrix();
+            Camera.UpdateCameraDirectionalVectors(NbRenderState.activeCam);
+            NbRenderState.activeCam.updateViewMatrix();
             
             //Render data
             _renderLayer.OnRenderFrameUpdate(dt);
@@ -394,7 +394,7 @@ namespace NibbleEditor
             Engine.RegisterEntity(cam);
 
             //Set global reference to cam
-            RenderState.activeCam = cam;
+            NbRenderState.activeCam = cam;
 
             //Set Camera Initial State
             TransformController tcontroller = Engine.GetSystem<TransformationSystem>().GetEntityTransformController(cam);

@@ -27,7 +27,7 @@ namespace NibbleEditor
         //Update Status strip
         public static void setStatus(string status)
         {
-            RenderState.StatusString = status;
+            NbRenderState.StatusString = status;
         }
 
         public static void showError(string message, string caption)

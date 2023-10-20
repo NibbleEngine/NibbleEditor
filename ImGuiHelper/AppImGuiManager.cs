@@ -217,21 +217,20 @@ namespace NibbleEditor
 
             if (show_about_window)
             {
-                ImGui.OpenPopup("show-about");
+                ImGui.OpenPopup("About###show-about");
                 show_about_window = false;
             }
 
             if (show_settings_window)
             {
-                ImGui.OpenPopup("show-settings");
+                ImGui.OpenPopup("Settings###show-settings");
                 show_settings_window = false;
             }
 
 
-
             bool isOpen = true;
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(290, 400), ImGuiCond.Always);
-            if (ImGui.BeginPopupModal("show-about", ref isOpen, ImGuiWindowFlags.NoResize))
+            if (ImGui.BeginPopupModal("About###show-about", ref isOpen, ImGuiWindowFlags.NoResize))
             {
                 if (ImGui.IsKeyPressed(ImGuiKey.Escape))
                 {
@@ -244,7 +243,7 @@ namespace NibbleEditor
             }
 
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(600, 400), ImGuiCond.Once);
-            if (ImGui.BeginPopupModal("show-settings", ref isOpen))
+            if (ImGui.BeginPopupModal("Settings###show-settings", ref isOpen))
             {
                 if (ImGui.IsKeyPressed(ImGuiKey.Escape) && ImGui.IsWindowHovered())
                 {

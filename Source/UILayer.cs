@@ -44,6 +44,8 @@ namespace NibbleEditor
         DateTime lastTime = DateTime.Now;
 
         //UI Privates
+        private float last_window_height = 0.0f;
+        private bool show_settings_window = false;
         private bool TranslationGizmoToggle = false;
         private bool RotationnGizmoToggle = false;
         private bool ScaleGizmoToggle = false;
@@ -135,38 +137,8 @@ namespace NibbleEditor
 
         }
 
-
-        public void DrawUI()
+        private void DrawMainMenu(ImGuiViewportPtr vp)
         {
-            //Enable docking in main view
-            ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags.PassthruCentralNode;
-            
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags.NoBackground |
-                                            ImGuiWindowFlags.NoCollapse |
-                                            ImGuiWindowFlags.NoResize |
-                                            ImGuiWindowFlags.NoTitleBar |
-                                            ImGuiWindowFlags.NoDocking;
-
-            ImGuiViewportPtr vp = ImGui.GetMainViewport();
-            ImGui.SetNextWindowPos(vp.WorkPos);
-            ImGui.SetNextWindowSize(vp.WorkSize);
-            ImGui.SetNextWindowViewport(vp.ID);
-
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, new System.Numerics.Vector2(0.0f, 0.0f));
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new System.Numerics.Vector2(0.0f, 0.0f));
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
-
-            bool keep_window_open = true;
-            int statusBarHeight = (int)(1.75f * ImGui.CalcTextSize("Status").Y);
-            float last_window_height = 0.0f;
-            ImGui.Begin("##MainWindow", ref keep_window_open, window_flags);
-
-            
-            ImGui.PopStyleVar(3);
-
-            //Main Menu
-            bool show_settings_window = false;
-            Vector2 mainMenuBarPos = ImGui.GetCursorPos();
             if (ImGui.BeginMainMenuBar())
             {
                 if (ImGui.BeginMenu("File"))
@@ -209,7 +181,6 @@ namespace NibbleEditor
                     if (ImGui.MenuItem("Settings", "Ctrl + Alt + S"))
                         show_settings_window = true;
 
-
                     if (ImGui.MenuItem("Close", "Ctrl + Q"))
                     {
                         CloseWindowEvent?.Invoke();
@@ -227,8 +198,10 @@ namespace NibbleEditor
                 last_window_height += ImGui.GetWindowHeight();
                 ImGui.EndMenuBar();
             }
+        }
 
-
+        private void DrawSecondBar(ImGuiViewportPtr vp)
+        {
             ImGui.SetNextWindowPos(new Vector2(vp.WorkPos.X, ImGui.GetFrameHeight()));
             ImGui.SetNextWindowSize(new(WindowRef.Size.X, 0.0f));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, 0.0f);
@@ -238,7 +211,7 @@ namespace NibbleEditor
             if (ImGui.Begin("SecondaryMenuBar", ImGuiWindowFlags.NoDocking |
                                                 ImGuiWindowFlags.NoMove |
                                                 ImGuiWindowFlags.NoScrollbar |
-                                                ImGuiWindowFlags.NoResize|
+                                                ImGuiWindowFlags.NoResize |
                                                 ImGuiWindowFlags.NoTitleBar))
             {
                 NbTexture atlas_tex = EngineRef.GetTexture("atlas.png");
@@ -251,11 +224,12 @@ namespace NibbleEditor
 
                 //Play-Edit button
                 atlas_image_id = 0;
-                if (RenderState.AppMode == ApplicationMode.EDIT)
+                if (NbRenderState.AppMode == ApplicationMode.EDIT)
                 {
                     uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
                     uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
-                } else
+                }
+                else
                 {
                     uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
                     uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
@@ -266,14 +240,15 @@ namespace NibbleEditor
                                 new Vector2(img_size, img_size),
                                 uv0, uv1))
                 {
-                    RenderState.AppMode = RenderState.AppMode == ApplicationMode.EDIT ? ApplicationMode.GAME : ApplicationMode.EDIT;
+                    NbRenderState.AppMode = NbRenderState.AppMode == ApplicationMode.EDIT ? ApplicationMode.GAME : ApplicationMode.EDIT;
                 }
+                ImGui.SetItemTooltip("Game/Edit Mode toggle");
 
                 ImGui.SameLine();
 
                 //Toggle Lighting Button
                 atlas_image_id = 2;
-                if (RenderState.settings.RenderSettings.UseLighting == false)
+                if (NbRenderState.settings.RenderSettings.UseLighting == false)
                 {
                     uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
                     uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
@@ -289,9 +264,55 @@ namespace NibbleEditor
                                 new Vector2(img_size, img_size),
                                 uv0, uv1))
                 {
-                    RenderState.settings.RenderSettings.UseLighting = !RenderState.settings.RenderSettings.UseLighting;
+                    NbRenderState.settings.RenderSettings.UseLighting = !NbRenderState.settings.RenderSettings.UseLighting;
+                }
+                ImGui.SetItemTooltip("Use Lighting");
+                ImGui.SameLine();
+
+                //Toggle Wireframe Button
+                atlas_image_id = 10;
+                if (NbRenderState.settings.RenderSettings.RenderWireFrame == false)
+                {
+                    uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
+                }
+                else
+                {
+                    uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
                 }
 
+                if (ImGui.ImageButton("Toggle##Wireframe",
+                                (IntPtr)atlas_tex.GpuID,
+                                new Vector2(img_size, img_size),
+                                uv0, uv1))
+                {
+                    NbRenderState.settings.RenderSettings.RenderWireFrame = !NbRenderState.settings.RenderSettings.RenderWireFrame;
+                }
+                ImGui.SetItemTooltip("Toggle Wireframe mode");
+                ImGui.SameLine();
+
+                //Toggle Textures Button
+                atlas_image_id = 12;
+                if (NbRenderState.settings.RenderSettings.UseTextures)
+                {
+                    uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
+                }
+                else
+                {
+                    uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
+                }
+
+                if (ImGui.ImageButton("Toggle##Textures",
+                                (IntPtr)atlas_tex.GpuID,
+                                new Vector2(img_size, img_size),
+                                uv0, uv1))
+                {
+                    NbRenderState.settings.RenderSettings.UseTextures = !NbRenderState.settings.RenderSettings.UseTextures;
+                }
+                ImGui.SetItemTooltip("Toggle Wireframe mode");
                 ImGui.SameLine();
 
                 //Toggle Translation Button
@@ -316,6 +337,7 @@ namespace NibbleEditor
                     RotationnGizmoToggle = false;
                     ScaleGizmoToggle = false;
                 }
+                ImGui.SetItemTooltip("Select Translation Gizmo");
 
                 ImGui.SameLine();
                 //Toggle Rotation Button
@@ -340,6 +362,7 @@ namespace NibbleEditor
                     TranslationGizmoToggle = false;
                     ScaleGizmoToggle = false;
                 }
+                ImGui.SetItemTooltip("Select Rotation Gizmo");
 
                 ImGui.SameLine();
                 //Toggle Scale Button
@@ -364,14 +387,53 @@ namespace NibbleEditor
                     RotationnGizmoToggle = false;
                     TranslationGizmoToggle = false;
                 }
+                ImGui.SetItemTooltip("Select Scale Gizmo");
 
                 last_window_height += ImGui.GetWindowHeight();
                 ImGui.End();
             }
             ImGui.PopStyleColor();
             ImGui.PopStyleVar(3);
+        }
+
+        public void DrawUI()
+        {
+            //Enable docking in main view
+            ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags.PassthruCentralNode;
+            
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags.NoBackground |
+                                            ImGuiWindowFlags.NoCollapse |
+                                            ImGuiWindowFlags.NoResize |
+                                            ImGuiWindowFlags.NoTitleBar |
+                                            ImGuiWindowFlags.NoDocking;
+            
+            ImGuiViewportPtr vp = ImGui.GetMainViewport();
+            ImGui.SetNextWindowPos(vp.WorkPos);
+            ImGui.SetNextWindowSize(vp.WorkSize);
+            ImGui.SetNextWindowViewport(vp.ID);
+
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, new System.Numerics.Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new System.Numerics.Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
+
+            show_settings_window = false;
+            bool keep_window_open = true;
+            int statusBarHeight = (int)(1.75f * ImGui.CalcTextSize("Status").Y);
+            last_window_height = 0.0f;
+            ImGui.Begin("##MainWindow", ref keep_window_open, window_flags);
+
+            
+            ImGui.PopStyleVar(3);
 
 
+            //Main Menu
+            
+            //Draw Main Menu
+            DrawMainMenu(vp);
+
+            //Draw Item Bar
+            DrawSecondBar(vp);
+            
             //Create Dockspace Node
             ImGui.SetNextWindowPos(new Vector2(0.0f, last_window_height));
             ImGui.SetNextWindowSize(new Vector2(WindowRef.Size.X, WindowRef.Size.Y - last_window_height - statusBarHeight));
@@ -413,7 +475,7 @@ namespace NibbleEditor
             {
                 ImGui.Columns(2);
                 ImGui.SetCursorPosY(0.25f * statusBarHeight);
-                ImGui.Text(RenderState.StatusString);
+                ImGui.Text(NbRenderState.StatusString);
                 ImGui.NextColumn();
                 string text = "Created by gregkwaste";
                 ImGui.SetCursorPosY(0.25f * statusBarHeight);
@@ -484,8 +546,8 @@ namespace NibbleEditor
                                  ImGui.GetWindowPos().Y,
                                  csize.X, csize.Y);
                 
-                float[] view = RenderState.activeCam.lookMat.ToArray();
-                float[] proj = RenderState.activeCam.projMat.ToArray();
+                float[] view = NbRenderState.activeCam.lookMat.ToArray();
+                float[] proj = NbRenderState.activeCam.projMat.ToArray();
                 float[] transform = NbMatrix4.Identity().ToArray();
 
                 //Draw Grid
@@ -524,7 +586,7 @@ namespace NibbleEditor
 
                     if (ImGuizmo.IsUsing())
                     {
-                        NbMatrix4 new_transform = NbCore.Math.Matrix4FromArray(delta_transform, 0);
+                        NbMatrix4 new_transform = NbCore.Math.Matrix4FromArray(node_transform, 0);
                         NbVector3 delta_loc = NbMatrix4.ExtractTranslation(new_transform);
                         NbQuaternion delta_rot = NbMatrix4.ExtractRotation(new_transform);
                         NbVector3 delta_scale = NbMatrix4.ExtractScale(new_transform);
@@ -538,19 +600,19 @@ namespace NibbleEditor
                         if (op == OPERATION.ROTATE)
                         {
                             TransformComponent tc = node.GetComponent<TransformComponent>();
-                            EngineRef.SetNodeRotation(node, delta_rot * tc.Data.localRotation);
+                            EngineRef.SetNodeRotation(node, delta_rot);
                         }
                         
                         if (op == OPERATION.TRANSLATE)
                         {
                             TransformComponent tc = node.GetComponent<TransformComponent>();
-                            EngineRef.SetNodeLocation(node, tc.Data.localTranslation + delta_loc);
+                            EngineRef.SetNodeLocation(node, delta_loc);
                         }
 
                         if (op == OPERATION.SCALE)
                         {
                             TransformComponent tc = node.GetComponent<TransformComponent>();
-                            EngineRef.SetNodeScale(node, tc.Data.localScale * delta_scale); ;
+                            EngineRef.SetNodeScale(node, delta_scale); ;
                         }
 
                     }
@@ -653,9 +715,9 @@ namespace NibbleEditor
 #if (DEBUG)
             if (ImGui.Begin("Test Options", ImGuiWindowFlags.NoCollapse))
             {
-                ImGui.DragFloat("Test Option 1", ref RenderState.settings.RenderSettings.testOpt1);
-                ImGui.DragFloat("Test Option 2", ref RenderState.settings.RenderSettings.testOpt2);
-                ImGui.DragFloat("Test Option 3", ref RenderState.settings.RenderSettings.testOpt3);
+                ImGui.DragFloat("Test Option 1", ref NbRenderState.settings.RenderSettings.testOpt1);
+                ImGui.DragFloat("Test Option 2", ref NbRenderState.settings.RenderSettings.testOpt2);
+                ImGui.DragFloat("Test Option 3", ref NbRenderState.settings.RenderSettings.testOpt3);
                 ImGui.End();
             }
 #endif
@@ -665,22 +727,22 @@ namespace NibbleEditor
                 //Camera Settings
                 ImGui.BeginGroup();
                 ImGui.TextColored(ImGuiManager.DarkBlue, "Camera Settings");
-                ImGui.SliderInt("FOV", ref RenderState.settings.CamSettings.FOV, 15, 100);
-                ImGui.SliderFloat("Sensitivity", ref RenderState.settings.CamSettings.Sensitivity, 1f, 10.0f);
-                ImGui.InputFloat("MovementSpeed", ref RenderState.settings.CamSettings.Speed, 1.0f, 500000.0f);
-                ImGui.SliderFloat("zNear", ref RenderState.settings.CamSettings.zNear, 0.5f, 1000.0f);
-                ImGui.SliderFloat("zFar", ref RenderState.settings.CamSettings.zFar, 101.0f, 100000.0f);
+                ImGui.SliderInt("FOV", ref NbRenderState.settings.CamSettings.FOV, 15, 100);
+                ImGui.SliderFloat("Sensitivity", ref NbRenderState.settings.CamSettings.Sensitivity, 1f, 10.0f);
+                ImGui.InputFloat("MovementSpeed", ref NbRenderState.settings.CamSettings.Speed, 1.0f, 500000.0f);
+                ImGui.SliderFloat("zNear", ref NbRenderState.settings.CamSettings.zNear, 0.5f, 1000.0f);
+                ImGui.SliderFloat("zFar", ref NbRenderState.settings.CamSettings.zFar, 101.0f, 100000.0f);
 
                 if (ImGui.Button("Reset Camera"))
                 {
-                    RenderState.activeCam.Reset();
+                    NbRenderState.activeCam.Reset();
                 }
 
                 ImGui.SameLine();
                 
                 if (ImGui.Button("Reset Scene Rotation"))
                 {
-                    RenderState.rotAngles = new NbVector3(0.0f);
+                    NbRenderState.rotAngles = new NbVector3(0.0f);
                 }
 
                 ImGui.EndGroup();
@@ -709,80 +771,86 @@ namespace NibbleEditor
 
             if (ImGui.Begin("Options", ImGuiWindowFlags.NoCollapse))
             {
-                ImGui.LabelText("View Options", "");
-                
-                
-                ImGui.Checkbox("Show Lights", ref RenderState.settings.ViewSettings.ViewLights);
-                ImGui.Checkbox("Show Light Volumes", ref RenderState.settings.ViewSettings.ViewLightVolumes);
-                ImGui.Checkbox("Show Joints", ref RenderState.settings.ViewSettings.ViewJoints);
-                ImGui.Checkbox("Show Locators", ref RenderState.settings.ViewSettings.ViewLocators);
-                ImGui.Checkbox("Show Collisions", ref RenderState.settings.ViewSettings.ViewCollisions);
-                ImGui.Checkbox("Show Bounding Hulls", ref RenderState.settings.ViewSettings.ViewBoundHulls);
-                ImGui.Checkbox("Emulate Actions", ref RenderState.settings.ViewSettings.EmulateActions);
-
-                ImGui.Separator();
-                ImGui.LabelText("Rendering Options", "");
-
-                ImGui.Checkbox("Use Textures", ref RenderState.settings.RenderSettings.UseTextures);
-                ImGui.Checkbox("Use Lighting", ref RenderState.settings.RenderSettings.UseLighting);
-
-                bool vsync = RenderState.settings.RenderSettings.UseVSync;
-                if (ImGui.Checkbox("Use VSYNC", ref vsync))
+                if (ImGui.CollapsingHeader("Viewport Options"))
                 {
-                    WindowRef.SetVSync(vsync);
-                }
-                
-                ImGui.Checkbox("Show Animations", ref RenderState.settings.RenderSettings.ToggleAnimations);
-                ImGui.Checkbox("Wireframe", ref RenderState.settings.RenderSettings.RenderWireFrame);
-                ImGui.Checkbox("FXAA", ref RenderState.settings.RenderSettings.UseFXAA);
-                ImGui.Checkbox("Tone Mapping", ref RenderState.settings.RenderSettings.UseToneMapping);
-                
-                if (ImGui.CollapsingHeader("Bloom Settings"))
-                {
-                    ImGui.Indent();
-                    ImGui.Columns(2);
-                    ImGui.Text("Enable Bloom");
-                    ImGui.NextColumn();
-                    ImGui.Checkbox("##BloomFlag", ref RenderState.settings.RenderSettings.UseBLOOM);
-                    ImGui.NextColumn();
-                    ImGui.Text("Bloom Intensity");
-                    ImGui.NextColumn();
-                    ImGui.DragFloat("##BloomIntensity", ref RenderState.settings.RenderSettings.BloomIntensity, 0.01f, 0.0f, 1.0f);
-                    ImGui.NextColumn();
-                    ImGui.Text("Bloom Filter Radius");
-                    ImGui.NextColumn();
-                    ImGui.DragFloat("##BloomFilterRadius", ref RenderState.settings.RenderSettings.BloomFilterRadius, 0.0001f, 0.0001f, 0.2f);
-                    ImGui.Columns(1);
-                    ImGui.Unindent();
-                }
-                
-                ImGui.Checkbox("LOD Filtering", ref RenderState.settings.RenderSettings.LODFiltering);
+                    ImGui.Indent(1.0f);
+                    ImGui.Checkbox("Show Lights", ref NbRenderState.settings.ViewSettings.ViewLights);
+                    ImGui.Checkbox("Show Light Volumes", ref NbRenderState.settings.ViewSettings.ViewLightVolumes);
+                    ImGui.Checkbox("Show Joints", ref NbRenderState.settings.ViewSettings.ViewJoints);
+                    ImGui.Checkbox("Show Locators", ref NbRenderState.settings.ViewSettings.ViewLocators);
+                    ImGui.Checkbox("Show Collisions", ref NbRenderState.settings.ViewSettings.ViewCollisions);
+                    ImGui.Checkbox("Show Bounding Hulls", ref NbRenderState.settings.ViewSettings.ViewBoundHulls);
+                    ImGui.Checkbox("Emulate Actions", ref NbRenderState.settings.ViewSettings.EmulateActions);
+                    Vector3 col = new Vector3(NbRenderState.settings.RenderSettings.BackgroundColor.X,
+                                          NbRenderState.settings.RenderSettings.BackgroundColor.Y,
+                                          NbRenderState.settings.RenderSettings.BackgroundColor.Z);
 
-                int fps_selection = Array.IndexOf(fps_settings, RenderState.settings.RenderSettings.FPS.ToString());
-                if (ImGui.Combo("FPS", ref fps_selection, fps_settings, fps_settings.Length))
-                {
-                    WindowRef.SetRenderFrameFrequency(int.Parse(fps_settings[fps_selection]));
-                }
-
-                int tick_selection = Array.IndexOf(fps_settings, RenderState.settings.TickRate.ToString());
-                if (ImGui.Combo("Engine Tick Rate", ref tick_selection, fps_settings, fps_settings.Length))
-                {
-                    WindowRef.SetUpdateFrameFrequency(int.Parse(fps_settings[tick_selection]));
-                }
-
-                Vector3 col = new Vector3(RenderState.settings.RenderSettings.BackgroundColor.X,
-                                          RenderState.settings.RenderSettings.BackgroundColor.Y,
-                                          RenderState.settings.RenderSettings.BackgroundColor.Z);
-
-                ImGui.SetNextItemWidth(300.0f);
-                if (ImGui.ColorEdit3("Background Color", ref col, 
+                    if (ImGui.ColorEdit3("Background Color", ref col,
                     ImGuiColorEditFlags.DefaultOptions))
-                {
-                    RenderState.settings.RenderSettings.BackgroundColor = new(col.X, col.Y, col.Z);
+                    {
+                        NbRenderState.settings.RenderSettings.BackgroundColor = new(col.X, col.Y, col.Z);
+                    }
+                    ImGui.Unindent(1.0f);
                 }
 
-                ImGui.DragFloat("HDR Exposure", 
-                    ref RenderState.settings.RenderSettings.HDRExposure, 0.005f, 0.001f, 100.0f);
+                if (ImGui.CollapsingHeader("Rendering Options"))
+                {
+                    ImGui.Indent(1.0f);
+
+                    ImGui.Checkbox("Use Textures", ref NbRenderState.settings.RenderSettings.UseTextures);
+                    ImGui.Checkbox("Use Lighting", ref NbRenderState.settings.RenderSettings.UseLighting);
+
+                    if (ImGui.Checkbox("Use VSYNC", ref NbRenderState.settings.RenderSettings.UseVSync))
+                    {
+                        WindowRef.SetVSync(NbRenderState.settings.RenderSettings.UseVSync);
+                    }
+
+                    ImGui.Checkbox("Show Animations", ref NbRenderState.settings.RenderSettings.ToggleAnimations);
+                    ImGui.Checkbox("Wireframe", ref NbRenderState.settings.RenderSettings.RenderWireFrame);
+                    ImGui.Checkbox("FXAA", ref NbRenderState.settings.RenderSettings.UseFXAA);
+                    ImGui.Checkbox("Tone Mapping", ref NbRenderState.settings.RenderSettings.UseToneMapping);
+
+                    if (ImGui.CollapsingHeader("Bloom Settings"))
+                    {
+                        ImGui.Indent();
+                        ImGui.Columns(2);
+                        ImGui.Text("Enable Bloom");
+                        ImGui.NextColumn();
+                        ImGui.Checkbox("##BloomFlag", ref NbRenderState.settings.RenderSettings.UseBLOOM);
+                        ImGui.NextColumn();
+                        ImGui.Text("Bloom Intensity");
+                        ImGui.NextColumn();
+                        ImGui.DragFloat("##BloomIntensity", ref NbRenderState.settings.RenderSettings.BloomIntensity, 0.01f, 0.0f, 1.0f);
+                        ImGui.NextColumn();
+                        ImGui.Text("Bloom Filter Radius");
+                        ImGui.NextColumn();
+                        ImGui.DragFloat("##BloomFilterRadius", ref NbRenderState.settings.RenderSettings.BloomFilterRadius, 0.0001f, 0.0001f, 0.2f);
+                        ImGui.Columns(1);
+                        ImGui.Unindent();
+                    }
+
+                    ImGui.Checkbox("LOD Filtering", ref NbRenderState.settings.RenderSettings.LODFiltering);
+
+                    int fps_selection = Array.IndexOf(fps_settings, NbRenderState.settings.RenderSettings.FPS.ToString());
+                    if (ImGui.Combo("FPS", ref fps_selection, fps_settings, fps_settings.Length))
+                    {
+                        WindowRef.SetRenderFrameFrequency(int.Parse(fps_settings[fps_selection]));
+                    }
+
+                    int tick_selection = Array.IndexOf(fps_settings, NbRenderState.settings.TickRate.ToString());
+                    if (ImGui.Combo("Engine Tick Rate", ref tick_selection, fps_settings, fps_settings.Length))
+                    {
+                        WindowRef.SetUpdateFrameFrequency(int.Parse(fps_settings[tick_selection]));
+                    }
+
+                    ImGui.DragFloat("HDR Exposure",
+                        ref NbRenderState.settings.RenderSettings.HDRExposure, 0.005f, 0.001f, 100.0f);
+
+
+                    ImGui.Unindent(1.0f);
+                }
+                
+                
                 ImGui.End();
             }
 

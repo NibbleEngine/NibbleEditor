@@ -25,7 +25,7 @@ namespace NbCore.UI.ImGui
         public void Draw()
         {
             //Items
-            List<Entity> shaderList = RenderState.engineRef.GetEntityTypeList(EntityType.ShaderConfig);
+            List<Entity> shaderList = NbRenderState.engineRef.GetEntityTypeList(EntityType.ShaderConfig);
             string[] items = new string[shaderList.Count];
             for (int i = 0; i < items.Length; i++)
             {
@@ -45,7 +45,7 @@ namespace NbCore.UI.ImGui
                 string name = "ShaderConfig_" + (new Random()).Next(0x1000, 0xFFFF).ToString();
                 NbShaderConfig conf = new();
                 conf.Name = name;
-                RenderState.engineRef.RegisterEntity(conf);
+                NbRenderState.engineRef.RegisterEntity(conf);
                 SetShader(conf);
             }
             
@@ -54,7 +54,7 @@ namespace NbCore.UI.ImGui
             {
                 NbShaderConfig conf = ActiveShader;
                 ActiveShader = null;
-                RenderState.engineRef.DestroyEntity(conf);
+                NbRenderState.engineRef.DestroyEntity(conf);
             }
 
             if (ActiveShader is null)
@@ -70,7 +70,7 @@ namespace NbCore.UI.ImGui
                 ImGuiCore.InputText("##ShaderName", ref ActiveShader.Name, 30);
 
                 //Cache ShaderSources
-                List<Entity> shaderSourceList = RenderState.engineRef.GetEntityTypeList(EntityType.ShaderSource);
+                List<Entity> shaderSourceList = NbRenderState.engineRef.GetEntityTypeList(EntityType.ShaderSource);
                 string[] sourceItems = new string[shaderSourceList.Count];
                 for (int i = 0; i < sourceItems.Length; i++)
                 {
@@ -151,8 +151,8 @@ namespace NbCore.UI.ImGui
         public void SetShader(NbShaderConfig conf)
         {
             ActiveShader = conf;
-            List<Entity> shaderList = RenderState.engineRef.GetEntityTypeList(EntityType.ShaderConfig);
-            List<Entity> shaderSourceList = RenderState.engineRef.GetEntityTypeList(EntityType.ShaderSource);
+            List<Entity> shaderList = NbRenderState.engineRef.GetEntityTypeList(EntityType.ShaderConfig);
+            List<Entity> shaderSourceList = NbRenderState.engineRef.GetEntityTypeList(EntityType.ShaderSource);
             selectedShaderId = shaderList.IndexOf(conf);
         }
     }

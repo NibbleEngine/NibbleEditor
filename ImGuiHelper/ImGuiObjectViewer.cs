@@ -128,7 +128,7 @@ namespace NibbleEditor
             }
 
             //Draw Transform
-            TransformData td = TransformationSystem.GetEntityTransformData(_model);
+            NbTransformData td = TransformationSystem.GetEntityTransformData(_model);
             if (ImGuiCore.CollapsingHeader("Transform", ImGuiTreeNodeFlags.DefaultOpen))
             {
                 if (ImGuiCore.BeginTable("##TransformTable", 4, ImGuiTableFlags.None))

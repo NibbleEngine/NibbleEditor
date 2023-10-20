@@ -22,7 +22,7 @@ namespace NibbleEditor
         {
             var io = ImGui.GetIO();
             //Items
-            List<NbMaterial> materialList = RenderState.engineRef.GetSystem<RenderingSystem>().MaterialMgr.Entities;
+            List<NbMaterial> materialList = NbRenderState.engineRef.GetSystem<RenderingSystem>().MaterialMgr.Entities;
             string[] items = new string[materialList.Count];
             for (int i = 0; i < items.Length; i++)
                 items[i] = materialList[i].Name == "" ? "Material_" + i : materialList[i].Name;
@@ -37,7 +37,7 @@ namespace NibbleEditor
                 string name = "Material_" + (new Random()).Next(0x1000, 0xFFFF).ToString();
                 NbMaterial mat = new();
                 mat.Name = name;
-                RenderState.engineRef.RegisterEntity(mat);
+                NbRenderState.engineRef.RegisterEntity(mat);
                 SetMaterial(mat);
             }
             ImGui.SameLine();
@@ -45,7 +45,7 @@ namespace NibbleEditor
             {
                 NbMaterial mat = _ActiveMaterial;
                 SetMaterial(null);
-                RenderState.engineRef.DestroyEntity(mat);
+                NbRenderState.engineRef.DestroyEntity(mat);
             }
 
             if (_ActiveMaterial is null)
@@ -130,7 +130,7 @@ namespace NibbleEditor
                 ImGui.TableSetColumnIndex(1);
                 ImGui.SetNextItemWidth(-1);
 
-                List<Entity> shaderconfs = RenderState.engineRef.GetEntityTypeList(EntityType.ShaderConfig);
+                List<Entity> shaderconfs = NbRenderState.engineRef.GetEntityTypeList(EntityType.ShaderConfig);
                 string[] shaderconfItems = new string[shaderconfs.Count];
                     
                 for (int i = 0; i < shaderconfs.Count; i++)
@@ -139,7 +139,7 @@ namespace NibbleEditor
                 int currentShaderConfigId = _ActiveMaterial.Shader != null ? shaderconfs.IndexOf(_ActiveMaterial.Shader.GetShaderConfig()) : -1;
                 if (ImGui.Combo("##MaterialShader", ref currentShaderConfigId, shaderconfItems, shaderconfs.Count))
                 {
-                    RenderState.engineRef.SetMaterialShader(_ActiveMaterial, shaderconfs[currentShaderConfigId] as NbShaderConfig);
+                    NbRenderState.engineRef.SetMaterialShader(_ActiveMaterial, shaderconfs[currentShaderConfigId] as NbShaderConfig);
                 }
 
                 ImGui.TableNextRow();
@@ -180,7 +180,7 @@ namespace NibbleEditor
                     _ActiveMaterial.AddFlag(new_flag);
                     //Compile a new shader only if a shader exists
                     if (_ActiveMaterial.Shader != null)
-                        RenderState.engineRef.SetMaterialShader(_ActiveMaterial, _ActiveMaterial.Shader.GetShaderConfig());
+                        NbRenderState.engineRef.SetMaterialShader(_ActiveMaterial, _ActiveMaterial.Shader.GetShaderConfig());
                 }
 
                 ImGui.SetNextItemWidth(-1);
@@ -198,7 +198,7 @@ namespace NibbleEditor
 
                                 //Compile a new shader only if a shader exists
                                 if (_ActiveMaterial.Shader != null)
-                                    RenderState.engineRef.SetMaterialShader(_ActiveMaterial, _ActiveMaterial.Shader.GetShaderConfig());
+                                    NbRenderState.engineRef.SetMaterialShader(_ActiveMaterial, _ActiveMaterial.Shader.GetShaderConfig());
                             }
                             ImGui.EndPopup();
                         }
@@ -298,7 +298,7 @@ namespace NibbleEditor
 
                             //Texture Selector
                             //Get All Textures
-                            List<Entity> textureList = RenderState.engineRef.GetEntityTypeList(EntityType.Texture);
+                            List<Entity> textureList = NbRenderState.engineRef.GetEntityTypeList(EntityType.Texture);
                             string[] textureItems = new string[textureList.Count];
                             for (int j = 0; j < textureItems.Length; j++)
                             {
@@ -556,7 +556,7 @@ namespace NibbleEditor
         public void SetMaterial(NbMaterial mat)
         {
             _ActiveMaterial = mat;
-            List<NbMaterial> materialList = RenderState.engineRef.GetSystem<RenderingSystem>().MaterialMgr.Entities;
+            List<NbMaterial> materialList = NbRenderState.engineRef.GetSystem<RenderingSystem>().MaterialMgr.Entities;
             _SelectedId = materialList.IndexOf(mat);
         }
     }

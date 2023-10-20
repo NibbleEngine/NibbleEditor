@@ -33,7 +33,7 @@ namespace NibbleEditor
             EngineRef.GetSystem<ScriptingSystem>().OnFrameUpdate(dt);
             
             //Enable Action System
-            if (RenderState.settings.ViewSettings.EmulateActions)
+            if (NbRenderState.settings.ViewSettings.EmulateActions)
                 EngineRef.GetSystem<ActionSystem>().OnFrameUpdate(dt);
 
             //Post FrameUpdate Actions
@@ -43,10 +43,10 @@ namespace NibbleEditor
             //Update common transforms
 
             //Apply extra viewport rotation
-            NbMatrix4 Rotx = NbMatrix4.CreateRotationX(NbCore.Math.Radians(RenderState.rotAngles.X));
-            NbMatrix4 Roty = NbMatrix4.CreateRotationY(NbCore.Math.Radians(RenderState.rotAngles.Y));
-            NbMatrix4 Rotz = NbMatrix4.CreateRotationZ(NbCore.Math.Radians(RenderState.rotAngles.Z));
-            RenderState.rotMat = Rotz * Rotx * Roty;
+            NbMatrix4 Rotx = NbMatrix4.CreateRotationX(NbCore.Math.Radians(NbRenderState.rotAngles.X));
+            NbMatrix4 Roty = NbMatrix4.CreateRotationY(NbCore.Math.Radians(NbRenderState.rotAngles.Y));
+            NbMatrix4 Rotz = NbMatrix4.CreateRotationZ(NbCore.Math.Radians(NbRenderState.rotAngles.Z));
+            NbRenderState.rotMat = Rotz * Rotx * Roty;
             //RenderState.rotMat = Matrix4.Identity;
         }
 

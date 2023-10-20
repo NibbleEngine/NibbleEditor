@@ -28,7 +28,7 @@ namespace NbCore.UI.ImGui
         public void Draw()
         {
             //Items
-            List<Entity> scriptList = RenderState.engineRef.GetEntityTypeList(EntityType.Script);
+            List<Entity> scriptList = NbRenderState.engineRef.GetEntityTypeList(EntityType.Script);
             string[] items = new string[scriptList.Count];
             for (int i = 0; i < items.Length; i++)
             {
@@ -52,15 +52,15 @@ namespace NbCore.UI.ImGui
             if (openFileDialog.Draw(new() { X = 640, Y = 480 }))
             {
                 script_path = Path.GetDirectoryName(openFileDialog.GetSelectedFile());
-                NbScriptAsset script = RenderState.engineRef.CreateScriptAsset(openFileDialog.GetSelectedFile());
-                RenderState.engineRef.RegisterEntity(script);
+                NbScriptAsset script = NbRenderState.engineRef.CreateScriptAsset(openFileDialog.GetSelectedFile());
+                NbRenderState.engineRef.RegisterEntity(script);
                 SetScript(script);
             }
 
             ImGuiCore.SameLine();
             if (ImGuiCore.Button("Del"))
             {
-                RenderState.engineRef.DestroyEntity(_ActiveScript);
+                NbRenderState.engineRef.DestroyEntity(_ActiveScript);
                 _SelectedId = -1;
                 _ActiveScript = null;
             }
@@ -113,7 +113,7 @@ namespace NbCore.UI.ImGui
         public void SetScript(NbScriptAsset script)
         {
             _ActiveScript = script;
-            List<Entity> scriptList = RenderState.engineRef.GetEntityTypeList(EntityType.Script);
+            List<Entity> scriptList = NbRenderState.engineRef.GetEntityTypeList(EntityType.Script);
             _SelectedId = scriptList.IndexOf(script);
         }
     }

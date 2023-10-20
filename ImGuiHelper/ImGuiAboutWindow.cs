@@ -24,11 +24,12 @@ namespace NibbleEditor
         }
         
         private void TextCenter(string text, bool ishyperlink, string url = "")
-        {   
-            float font_size = ImGuiCore.GetFontSize() * text.Length / 2;
+        {
+            float font_size = ImGuiCore.GetFontSize();
+            float text_size = ImGuiCore.CalcTextSize(text).X;
+            
             ImGuiCore.SameLine(
-                ImGuiCore.GetColumnWidth() / 2 -
-                font_size + (font_size / 2)
+                (ImGuiCore.GetColumnWidth() - text_size) / 2
             );
 
             ImGuiCore.Text(text);
@@ -43,14 +44,12 @@ namespace NibbleEditor
                 {
                     if (ImGuiCore.IsMouseClicked(0))
                     {
-
                         System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(url)
                         {
                             Verb = "open",
                             UseShellExecute = true
                         });
                     }
-
 
                     //System.Diagnostics.Process.Start("explorer.exe", new Uri(url).ToString());
                     ImGuiCore.GetWindowDrawList().AddLine(min, max, 0x0010FFFF);
@@ -121,7 +120,7 @@ namespace NibbleEditor
                 //Donation link
                 TextCenter("Donate", true, Util.DonateLink);
                 ImGuiCore.NextColumn();
-                TextCenter("Github", true, "https://github.com/gregkwaste/NMSMV");
+                TextCenter("Github", true, "https://github.com/NibbleEngine/NibbleEditor");
                 ImGuiCore.NewLine();
                 ImGuiCore.Columns(1);
                 TextCenter("Created by gregkwaste", false);

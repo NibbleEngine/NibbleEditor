@@ -46,7 +46,7 @@ namespace NbCore.UI.ImGui
         public ImGuiTextEditor(AppImGuiManager manager)
         {
             _manager = manager;
-            _openFileDialog = new("text-editor-open-file", ".cs|.txt");
+            _openFileDialog = new("text-editor-open-file", ".cs|.txt|.glsl");
             
             unsafe
             {

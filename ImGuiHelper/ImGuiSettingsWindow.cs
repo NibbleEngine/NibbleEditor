@@ -28,7 +28,7 @@ namespace NbCore.UI.ImGui
                       ImGuiNET.ImGuiWindowFlags.NoResize |
                       ImGuiNET.ImGuiWindowFlags.NoCollapse);
 
-            foreach (PluginBase plugin in RenderState.engineRef.Plugins.Values)
+            foreach (PluginBase plugin in NbRenderState.engineRef.Plugins.Values)
             {
                 if (plugin.Settings == null)
                     continue;
@@ -43,17 +43,17 @@ namespace NbCore.UI.ImGui
             {
                 //Render Settings
                 ImGuiCore.TextColored(ImGuiManager.DarkBlue, "Rendering Settings");
-                ImGuiCore.SliderFloat("HDR Exposure", ref RenderState.settings.RenderSettings.HDRExposure, 0.001f, 0.5f);
-                ImGuiCore.InputInt("FPS", ref RenderState.settings.RenderSettings.FPS);
-                ImGuiCore.InputInt("Engine Tick Rate", ref RenderState.settings.TickRate);
-                ImGuiCore.Checkbox("Vsync", ref RenderState.settings.RenderSettings.UseVSync);
+                ImGuiCore.SliderFloat("HDR Exposure", ref NbRenderState.settings.RenderSettings.HDRExposure, 0.001f, 0.5f);
+                ImGuiCore.InputInt("FPS", ref NbRenderState.settings.RenderSettings.FPS);
+                ImGuiCore.InputInt("Engine Tick Rate", ref NbRenderState.settings.TickRate);
+                ImGuiCore.Checkbox("Vsync", ref NbRenderState.settings.RenderSettings.UseVSync);
             }
 
             if (ImGuiCore.Button("Save Settings"))
             {
-                EngineSettings.saveToDisk(RenderState.settings);
+                EngineSettings.saveToDisk(NbRenderState.settings);
                 //Save Plugin Settings to Disk
-                foreach (PluginBase plugin in RenderState.engineRef.Plugins.Values)
+                foreach (PluginBase plugin in NbRenderState.engineRef.Plugins.Values)
                 {
                     plugin.Settings?.SaveToFile();
                 }
@@ -67,7 +67,7 @@ namespace NbCore.UI.ImGui
             }
             
             //Draw Plugin Modals
-            foreach (PluginBase plugin in RenderState.engineRef.Plugins.Values)
+            foreach (PluginBase plugin in NbRenderState.engineRef.Plugins.Values)
             {
                 plugin.Settings?.DrawModals();
             }

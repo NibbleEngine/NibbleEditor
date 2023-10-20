@@ -1,0 +1,7 @@
+{
+  "ObjectType": "NbCore.NbShader",
+  "IsGeneric" : true,
+  "Config" : "MixShader",
+  "Type" : 31,
+  "directives" : []
+}

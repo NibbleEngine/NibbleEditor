@@ -165,7 +165,6 @@ void pbr_lighting(){
 		lColourVec4 = vec4(mpCustomPerMaterial.uDiffuseFactor, 1.0);	
 	#endif
 
-
 	#if defined(_NB_UNLIT)
 		lColourVec4 = -log(max(1.0 - lColourVec4, vec4(0.0001))) / mpCommonPerFrame.cameraPosition.w;
 	#endif
@@ -209,12 +208,13 @@ void pbr_lighting(){
     #endif
 
 	//Emissive
-	#ifdef _NB_EMISSIVE_MAP
+	#if defined(_NB_EMISSIVE)
 		lfEmissive = mpCustomPerMaterial.uEmissiveFactor;
 		lfEmissive *= mpCustomPerMaterial.uEmissiveStrength;
 		
-		float emmissivemipmaplevel = textureQueryLod(mpCustomPerMaterial.gEmissiveMap, lTexCoordsVec4.xy).x;
-		lfEmissive *= texture2D_bilinear(mpCustomPerMaterial.gEmissiveMap, lTexCoordsVec4.xy).rgb;
+		#if defined(_NB_EMISSIVE_MAP)
+			lfEmissive *= texture2D_bilinear(mpCustomPerMaterial.gEmissiveMap, lTexCoordsVec4.xy).rgb;
+		#endif
 	#endif
 	
 	lColourVec4 = mix(vec4(instanceColor, 1.0), lColourVec4, mpCommonPerFrame.diffuseFlag);

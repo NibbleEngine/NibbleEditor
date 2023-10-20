@@ -33,7 +33,7 @@ namespace NbCore.UI.ImGui
         public void Draw()
         {
             //Items
-            List<Entity> textureList = RenderState.engineRef.GetEntityTypeList(EntityType.Texture);
+            List<Entity> textureList = NbRenderState.engineRef.GetEntityTypeList(EntityType.Texture);
             string[] items = new string[textureList.Count];
             for (int i = 0; i < items.Length; i++)
             {
@@ -60,9 +60,9 @@ namespace NbCore.UI.ImGui
             if (openFileDialog.Draw(new() { X = 640, Y = 480 }))
             {
                 texture_path = System.IO.Path.GetDirectoryName(openFileDialog.GetSelectedFile());
-                NbTexture tex = RenderState.engineRef.CreateTexture(openFileDialog.GetSelectedFile(),
+                NbTexture tex = NbRenderState.engineRef.CreateTexture(openFileDialog.GetSelectedFile(),
                         NbTextureWrapMode.Repeat, NbTextureFilter.Linear, NbTextureFilter.Linear, false);
-                RenderState.engineRef.RegisterEntity(tex);
+                NbRenderState.engineRef.RegisterEntity(tex);
                 SetTexture(tex);
             }
 
@@ -174,7 +174,7 @@ namespace NbCore.UI.ImGui
         public void SetTexture(NbTexture tex)
         {
             _ActiveTexture = tex;
-            List<Entity> textureList = RenderState.engineRef.GetEntityTypeList(EntityType.Texture);
+            List<Entity> textureList = NbRenderState.engineRef.GetEntityTypeList(EntityType.Texture);
             _SelectedId = textureList.IndexOf(tex);
         }
     }

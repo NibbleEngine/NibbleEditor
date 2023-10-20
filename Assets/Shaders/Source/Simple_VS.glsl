@@ -117,6 +117,7 @@ void main()
 
     //Send world normal to fragment shader
     mTangentSpaceNormalVec3 = lWorldNormalVec4.xyz;
+
 }
 
 
