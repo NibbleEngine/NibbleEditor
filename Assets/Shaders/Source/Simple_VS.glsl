@@ -86,7 +86,7 @@ void main()
 
     wPos = lWorldMat * vPosition; //Calculate world Position
     fragPos = wPos; //Export world position to the fragment shader
-    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * mpCommonPerFrame.rotMat * fragPos;
+    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * fragPos;
     gl_Position = screenPos;
     
     //Construct TBN matrix
@@ -97,8 +97,8 @@ void main()
     
     //mat4 nMat = instanceData[gl_InstanceID].normalMat;
     //Recalculate nMat to test the rotMat here
-    //mat4 nMat =  instanceData[gl_InstanceID].normalMat * transpose(mpCommonPerFrame.rotMatInv);
-    mat4 nMat =  transpose(inverse(mpCommonPerFrame.rotMat * instanceData[gl_InstanceID].worldMat));
+    //mat4 nMat =  instanceData[gl_InstanceID].normalMat;
+    mat4 nMat =  transpose(inverse(instanceData[gl_InstanceID].worldMat));
     //mat4 nMat =  transpose(inverse(instanceData[gl_InstanceID].worldMat));
     
     //OLD

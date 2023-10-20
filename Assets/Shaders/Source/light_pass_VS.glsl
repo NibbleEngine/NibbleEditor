@@ -76,6 +76,6 @@ void main()
                          vec4(0, 0, 0, 1));
 
     vec4 wPos = lWorldMat * scaleMat * vPosition; //Calculate light world position
-    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * mpCommonPerFrame.rotMat * wPos;
+    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * wPos;
     gl_Position = screenPos;
 }

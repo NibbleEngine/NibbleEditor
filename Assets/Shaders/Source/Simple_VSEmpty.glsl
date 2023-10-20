@@ -55,7 +55,7 @@ void main()
     
     wPos = lWorldMat * vPosition; //Calculate world Position
     fragPos = wPos; //Export world position to the fragment shader
-    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * mpCommonPerFrame.rotMat * fragPos;
+    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * fragPos;
     gl_Position = screenPos;
 }
 

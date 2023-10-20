@@ -59,7 +59,7 @@ void main()
     mat4 lWorldMat = instanceData[gl_InstanceID].worldMat;
     
     fragPos = vec4(vPosition.xyz + lWorldMat[3].xyz, 1.0); 
-    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * mpCommonPerFrame.rotMat * vPosition;
+    screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * vPosition;
     gl_Position = screenPos;
 }
 

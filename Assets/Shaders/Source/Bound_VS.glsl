@@ -32,7 +32,7 @@ void main()
 {
     mat4 lWorldMat = instanceData[gl_InstanceID].worldMat;
     vec4 wPos = vPosition; //Calculate world Position
-	gl_Position = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * mpCommonPerFrame.rotMat * lWorldMat * wPos;
+	gl_Position = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat  * lWorldMat * wPos;
 }
 
 

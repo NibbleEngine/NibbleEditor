@@ -17,7 +17,6 @@ namespace NibbleEditor
     {
         //Workers
         private readonly WorkThreadDispacher workDispatcher = new();
-        private readonly RequestHandler requestHandler = new();
         
         //Application Layers
         private RenderLayer _renderLayer;
@@ -103,7 +102,6 @@ namespace NibbleEditor
 
             //Attach Layers to events
             _uiLayer.CloseWindowEvent += CloseWindow;
-            _uiLayer.SaveActiveSceneEvent += SaveActiveScene;
             _uiLayer.CaptureInput += MoveCamera;
 
             OnTextInput += _uiLayer.OnTextInput;
@@ -163,12 +161,6 @@ namespace NibbleEditor
             //Check if Temp folder exists
             if (!Directory.Exists("Temp")) Directory.CreateDirectory("Temp");
 
-        }
-
-        private void SaveActiveScene()
-        {
-            SceneGraph g = Engine.GetActiveSceneGraph();
-            Engine.SerializeScene(g, "scene_output.nb");
         }
 
         private void CloseWindow()

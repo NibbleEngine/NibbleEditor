@@ -20,7 +20,7 @@ namespace NibbleEditor
 {
     public delegate void CloseWindowEventHandler();
     public delegate void CaptureInputHandler();
-    public delegate void SaveActiveSceneHandler();
+    public delegate void SaveActiveSceneHandler(string filename);
 
     public class UILayer : ApplicationLayer
     {
@@ -30,6 +30,7 @@ namespace NibbleEditor
         static private bool IsOpenFileDialogOpen = false;
         private string current_file_path = Environment.CurrentDirectory;
         private string[] fps_settings = new string[] { "0", "15", "30", "60", "120", "300", "500" };
+        private string[] camera_movement_types = new string[] { "FreeCam", "OrbitCam" };
 
         //Events
         public event CloseWindowEventHandler CloseWindowEvent;
@@ -59,8 +60,9 @@ namespace NibbleEditor
             //Initialize ImGuiManager
             _ImGuiManager = new(win, e);
             EngineRef.NewSceneEvent += new Engine.NewSceneEventHandler(OnNewScene);
-            _ImGuiManager.OpenFileModal.open_file_handler = new ImGuiOpenFileTriggerEventHandler(EngineRef.OpenScene);
-                
+            
+            
+
             //Load Settings
             if (!File.Exists("settings.json"))
                 _ImGuiManager.ShowSettingsWindow();
@@ -151,13 +153,12 @@ namespace NibbleEditor
                     if (ImGui.MenuItem("Open", "Ctrl + O"))
                     {
                         _ImGuiManager.ShowOpenSceneDialog();
-                        IsOpenFileDialogOpen = true;
                     }
 
                     if (ImGui.MenuItem("Save", "Ctrl + S"))
                     {
                         Log("Saving Scene", LogVerbosityLevel.INFO);
-                        SaveActiveSceneEvent.Invoke();
+                        _ImGuiManager.ShowSaveSceneDialog();
                     }
 
                     if (EngineRef.Plugins.Count > 0)
@@ -412,9 +413,9 @@ namespace NibbleEditor
             ImGui.SetNextWindowSize(vp.WorkSize);
             ImGui.SetNextWindowViewport(vp.ID);
 
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, new System.Numerics.Vector2(0.0f, 0.0f));
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new System.Numerics.Vector2(0.0f, 0.0f));
-            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowRounding, new Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new Vector2(0.0f, 0.0f));
+            ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0.0f, 0.0f));
 
             show_settings_window = false;
             bool keep_window_open = true;
@@ -500,6 +501,7 @@ namespace NibbleEditor
 
             //Cause of ImguiNET that does not yet support DockBuilder. The main Viewport will be docked to the main window.
             //All other windows will be separate.
+            ImGui.SetNextWindowDockID(1, ImGuiCond.FirstUseEver);
             if (ImGui.Begin("Scene", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse))
             {
                 //Update RenderSize
@@ -623,50 +625,51 @@ namespace NibbleEditor
 
             ImGui.PopStyleVar(3);
 
-            
-            
-            if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse |
-                                          ImGuiWindowFlags.NoBringToFrontOnFocus))
+
+
+            ImGui.SetNextWindowDockID(2, ImGuiCond.FirstUseEver);
+            if (ImGui.Begin("SceneGraph", ImGuiWindowFlags.NoCollapse))
             {
                 _ImGuiManager.DrawSceneGraph();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Node Editor", ImGuiWindowFlags.NoCollapse |
-                                           ImGuiWindowFlags.NoBringToFrontOnFocus))
+            ImGui.SetNextWindowDockID(3, ImGuiCond.FirstUseEver);
+            if (ImGui.Begin("Node Editor", ImGuiWindowFlags.NoCollapse))
             {
                 _ImGuiManager.DrawObjectInfoViewer();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Material Editor", ImGuiWindowFlags.NoCollapse |
-                                               ImGuiWindowFlags.NoBringToFrontOnFocus))
+            ImGui.SetNextWindowDockID(3, ImGuiCond.FirstUseEver);
+            if (ImGui.Begin("Material Editor", ImGuiWindowFlags.NoCollapse))
             {
                 _ImGuiManager.DrawMaterialEditor();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Shader Editor", ImGuiWindowFlags.NoCollapse |
-                                             ImGuiWindowFlags.NoBringToFrontOnFocus))
+            ImGui.SetNextWindowDockID(3, ImGuiCond.FirstUseEver);
+            if (ImGui.Begin("Shader Editor", ImGuiWindowFlags.NoCollapse))
             {
                 _ImGuiManager.DrawShaderEditor();
                 ImGui.End();
             }
-
-            if (ImGui.Begin("Texture Editor", ImGuiWindowFlags.NoCollapse |
-                                              ImGuiWindowFlags.NoBringToFrontOnFocus))
+            
+            ImGui.SetNextWindowDockID(3, ImGuiCond.FirstUseEver);
+            if (ImGui.Begin("Texture Editor", ImGuiWindowFlags.NoCollapse))
             {
                 _ImGuiManager.DrawTextureEditor();
                 ImGui.End();
             }
 
-            if (ImGui.Begin("Script Editor", ImGuiWindowFlags.NoCollapse |
-                                              ImGuiWindowFlags.NoBringToFrontOnFocus))
+            ImGui.SetNextWindowDockID(3, ImGuiCond.FirstUseEver);
+            if (ImGui.Begin("Script Editor", ImGuiWindowFlags.NoCollapse))
             {
                 _ImGuiManager.DrawScriptEditor();
                 ImGui.End();
             }
 
+            ImGui.SetNextWindowDockID(4, ImGuiCond.FirstUseEver);
             if (ImGui.Begin("Text Editor", ImGuiWindowFlags.NoCollapse |
                                            ImGuiWindowFlags.NoBringToFrontOnFocus |
                                            ImGuiWindowFlags.NoScrollbar))
@@ -675,6 +678,7 @@ namespace NibbleEditor
                 ImGui.End();
             }
 
+            ImGui.SetNextWindowDockID(5, ImGuiCond.FirstUseEver);
             if (ImGui.Begin("Tools", ImGuiWindowFlags.NoCollapse |
                                      ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
@@ -713,6 +717,7 @@ namespace NibbleEditor
             }
 
 #if (DEBUG)
+            ImGui.SetNextWindowDockID(5, ImGuiCond.FirstUseEver);
             if (ImGui.Begin("Test Options", ImGuiWindowFlags.NoCollapse))
             {
                 ImGui.DragFloat("Test Option 1", ref NbRenderState.settings.RenderSettings.testOpt1);
@@ -721,6 +726,7 @@ namespace NibbleEditor
                 ImGui.End();
             }
 #endif
+            ImGui.SetNextWindowDockID(2, ImGuiCond.FirstUseEver);
             if (ImGui.Begin("Camera", ImGuiWindowFlags.NoCollapse |
                                                ImGuiWindowFlags.NoBringToFrontOnFocus))
             {
@@ -733,18 +739,17 @@ namespace NibbleEditor
                 ImGui.SliderFloat("zNear", ref NbRenderState.settings.CamSettings.zNear, 0.5f, 1000.0f);
                 ImGui.SliderFloat("zFar", ref NbRenderState.settings.CamSettings.zFar, 101.0f, 100000.0f);
 
-                if (ImGui.Button("Reset Camera"))
+                int type = (int) NbRenderState.settings.CamSettings.CamType;
+                ImGui.RadioButton("FreeCam", ref type, 0);
+                ImGui.SameLine();
+                ImGui.RadioButton("OrbitCam", ref type, 1);
+                
+                NbRenderState.settings.CamSettings.CamType = (CameraMovementTypeEnum)type;
+                ImGui.SameLine();
+                if (ImGui.Button("Reset Camera Position"))
                 {
                     NbRenderState.activeCam.Reset();
                 }
-
-                ImGui.SameLine();
-                
-                if (ImGui.Button("Reset Scene Rotation"))
-                {
-                    NbRenderState.rotAngles = new NbVector3(0.0f);
-                }
-
                 ImGui.EndGroup();
                 
                 ImGui.Separator();
@@ -769,6 +774,7 @@ namespace NibbleEditor
                 ImGui.End();
             }
 
+            ImGui.SetNextWindowDockID(2, ImGuiCond.FirstUseEver);
             if (ImGui.Begin("Options", ImGuiWindowFlags.NoCollapse))
             {
                 if (ImGui.CollapsingHeader("Viewport Options"))
@@ -854,7 +860,7 @@ namespace NibbleEditor
                 ImGui.End();
             }
 
-            _ImGuiManager.ProcessModals(this, ref current_file_path, ref IsOpenFileDialogOpen);
+            _ImGuiManager.ProcessModals();
 
             
             //Draw plugin panels and popups
@@ -862,6 +868,7 @@ namespace NibbleEditor
                 plugin.Draw();
 
             //Debugging Information
+            ImGui.SetNextWindowDockID(4, ImGuiCond.FirstUseEver);
             if (ImGui.Begin("Statistics"))
             {
 
@@ -892,6 +899,7 @@ namespace NibbleEditor
                 ImGui.End();
             }
 
+            ImGui.SetNextWindowDockID(4, ImGuiCond.FirstUseEver);
             if (ImGui.Begin("Log"))
             {
                 _ImGuiManager.DrawLogger();

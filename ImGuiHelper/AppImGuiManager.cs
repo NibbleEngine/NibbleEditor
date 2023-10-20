@@ -7,64 +7,6 @@ using NbCore.Platform.Windowing;
 
 namespace NibbleEditor
 {
-    public abstract class ImGuiModal
-    {
-        public string Name;
-        public bool IsOpen = false;
-        public bool show_modal = false;
-        public abstract void Draw();
-
-        public void ShowModal()
-        {
-            show_modal = true;
-        }
-
-        protected ImGuiModal(string name)
-        {
-            Name = name;
-        }
-
-    }
-
-    public delegate void ImGuiOpenFileTriggerEventHandler(string filepath);
-    public class ImGuiOpenFileModal : ImGuiModal
-    {
-        public string current_file_path;
-        public string filter;
-        public ImGuiOpenFileTriggerEventHandler open_file_handler;
-        
-        public ImGuiOpenFileModal(string name, string cfp, string f) : base(name)
-        {
-            current_file_path = cfp;
-            filter = f;
-        }
-
-        public override void Draw()
-        {
-            if (show_modal)
-            {
-                ImGui.OpenPopup(Name);
-                show_modal = false;
-            }
-
-            var isOpen = true;
-            var winsize = new System.Numerics.Vector2(800, 400);
-            ImGui.SetNextWindowSize(winsize);
-            if (ImGui.BeginPopupModal(Name, ref isOpen, ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize))
-            {
-                var picker = FilePicker.GetFilePicker(this, current_file_path, filter);
-                if (picker.Draw(new System.Numerics.Vector2(winsize.X, winsize.Y - 60)))
-                {
-                    Console.WriteLine(picker.SelectedFile);
-                    current_file_path = picker.CurrentFolder;
-                    open_file_handler?.Invoke(picker.SelectedFile);
-                    FilePicker.RemoveFilePicker(this);
-                }
-                ImGui.EndPopup();
-            }
-        }
-    }
-
     public class AppImGuiManager : ImGuiManager
     {
         //ImGui Variables
@@ -78,8 +20,10 @@ namespace NibbleEditor
         private readonly ImGuiAboutWindow AboutWindow = new();
         private readonly ImGuiSettingsWindow SettingsWindow = new();
 
-        public ImGuiOpenFileModal OpenFileModal = new("open-scene", "", ".nb");
-        private NbWindow WindowRef;
+        public OpenFileDialog OpenFileDlg = new("Open Scene###open-scene", ".nb");
+        public SaveFileDialog SaveFileDlg = new("Save Scene###save-scene", 
+                                            new string[] { "Nibble scene (.nb)" },
+                                            new string[] {".nb"});
 
         private bool show_open_scene_dialog = false;
         private bool show_settings_window = false;
@@ -94,6 +38,11 @@ namespace NibbleEditor
             TextEditor = new(this);
             ShaderEditor = new(this);
             ScriptEditor = new(this);
+
+            //Set Handlers
+            OpenFileDlg.OnFileSelect = new ImGuiSelectFileTriggerEventHandler(WindowRef.Engine.OpenScene);
+            SaveFileDlg.OnFileSelect = new ImGuiSelectFileTriggerEventHandler(WindowRef.Engine.SaveActiveScene);
+
             SetWindowRef(win);
         }
 
@@ -114,7 +63,12 @@ namespace NibbleEditor
 
         public void ShowOpenSceneDialog()
         {
-            OpenFileModal.ShowModal();
+            OpenFileDlg.Open();
+        }
+
+        public void ShowSaveSceneDialog()
+        {
+            SaveFileDlg.Open();
         }
 
         //Text Editor Related Methods
@@ -209,11 +163,12 @@ namespace NibbleEditor
 
         //SceneGraph Related Methods
 
-        public override void ProcessModals(object ob, ref string current_file_path, ref bool OpenFileDialogFinished)
+        public override void ProcessModals()
         {
             //Functionality
 
-            OpenFileModal.Draw();
+            OpenFileDlg.Draw(new(640,480));
+            SaveFileDlg.Draw(new(640, 480));
 
             if (show_about_window)
             {
@@ -242,6 +197,9 @@ namespace NibbleEditor
                 ImGui.EndPopup();
             }
 
+            
+
+            //Settings Window
             ImGui.SetNextWindowSize(new System.Numerics.Vector2(600, 400), ImGuiCond.Once);
             if (ImGui.BeginPopupModal("Settings###show-settings", ref isOpen))
             {

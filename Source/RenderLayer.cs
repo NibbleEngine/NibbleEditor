@@ -42,12 +42,6 @@ namespace NibbleEditor
             //Camera & Light Positions
             //Update common transforms
 
-            //Apply extra viewport rotation
-            NbMatrix4 Rotx = NbMatrix4.CreateRotationX(NbCore.Math.Radians(NbRenderState.rotAngles.X));
-            NbMatrix4 Roty = NbMatrix4.CreateRotationY(NbCore.Math.Radians(NbRenderState.rotAngles.Y));
-            NbMatrix4 Rotz = NbMatrix4.CreateRotationZ(NbCore.Math.Radians(NbRenderState.rotAngles.Z));
-            NbRenderState.rotMat = Rotz * Rotx * Roty;
-            //RenderState.rotMat = Matrix4.Identity;
         }
 
         public override void OnRenderFrameUpdate(double dt)
