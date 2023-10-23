@@ -15,7 +15,7 @@ struct MeshInstance
     mat4 normalMat;
     mat4 worldMatInv;
     vec3 color;
-    float isSelected;
+    uint entityID;
 };
 
 //Common Per Mesh Struct

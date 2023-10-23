@@ -15,6 +15,7 @@ using System.Numerics;
 using System.Security.AccessControl;
 using ImGuizmoNET;
 using OpenTK.Windowing.Common;
+using Newtonsoft.Json;
 
 namespace NibbleEditor
 {
@@ -27,10 +28,7 @@ namespace NibbleEditor
         private AppImGuiManager _ImGuiManager;
 
         //ImGui stuff
-        static private bool IsOpenFileDialogOpen = false;
-        private string current_file_path = Environment.CurrentDirectory;
         private string[] fps_settings = new string[] { "0", "15", "30", "60", "120", "300", "500" };
-        private string[] camera_movement_types = new string[] { "FreeCam", "OrbitCam" };
 
         //Events
         public event CloseWindowEventHandler CloseWindowEvent;
@@ -50,19 +48,16 @@ namespace NibbleEditor
         private bool TranslationGizmoToggle = false;
         private bool RotationnGizmoToggle = false;
         private bool ScaleGizmoToggle = false;
+        private bool LocalGizmoMode = false;
         private float[] delta_transform = new float[16];
         private NbVector2i OldSceneWinSize = new NbVector2i(800, 600);
-        private Stopwatch SceneResizeWatch;
 
         public UILayer(Window win, Engine e) : base(win, e)
         {
             Name = "UI Layer";
             //Initialize ImGuiManager
             _ImGuiManager = new(win, e);
-            EngineRef.NewSceneEvent += new Engine.NewSceneEventHandler(OnNewScene);
             
-            
-
             //Load Settings
             if (!File.Exists("settings.json"))
                 _ImGuiManager.ShowSettingsWindow();
@@ -73,17 +68,9 @@ namespace NibbleEditor
             sysPerfTimer.Interval = 1000;
             sysPerfTimer.Start();
 
-            //Scene resize watch
-            SceneResizeWatch = new Stopwatch();
         }
 
         //Event Handlers
-        public void OnNewScene(SceneGraph s)
-        {
-            _ImGuiManager.PopulateSceneGraph(s);
-            _ImGuiManager.SetObjectReference(s.Root);
-        }
-        
         public void OnTextInput(NbTextInputArgs e)
         {
             _ImGuiManager.SendChar((char)e.Unicode);
@@ -390,6 +377,30 @@ namespace NibbleEditor
                 }
                 ImGui.SetItemTooltip("Select Scale Gizmo");
 
+
+                ImGui.SameLine();
+                //Toggle Gizmo Mode Button
+                atlas_image_id = 14;
+                if (LocalGizmoMode == false)
+                {
+                    uv0 = new Vector2(atlas_image_id * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 1.0f);
+                }
+                else
+                {
+                    uv0 = new Vector2((atlas_image_id + 1) * atlas_image_uv_step, 0.0f);
+                    uv1 = new Vector2((atlas_image_id + 2) * atlas_image_uv_step, 1.0f);
+                }
+
+                if (ImGui.ImageButton("Toggle##GizmoModeToggle",
+                                (IntPtr)atlas_tex.GpuID,
+                                new Vector2(img_size, img_size),
+                                uv0, uv1))
+                {
+                    LocalGizmoMode = !LocalGizmoMode;
+                }
+                ImGui.SetItemTooltip("Select Local/World Gizmo mode");
+                
                 last_window_height += ImGui.GetWindowHeight();
                 ImGui.End();
             }
@@ -456,6 +467,10 @@ namespace NibbleEditor
             if (WindowRef.IsKeyDown(NbKey.LeftCtrl) && WindowRef.IsKeyDown(NbKey.LeftAlt) && WindowRef.IsKeyPressed(NbKey.S))
                 show_settings_window = true;
 
+            
+            
+
+
             if (show_settings_window)
             {
                 _ImGuiManager.ShowSettingsWindow();
@@ -493,7 +508,7 @@ namespace NibbleEditor
 
             ImGui.SetCursorPosX(0.0f);
 
-
+            bool object_pick = false;
             //Scene Render
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0.0f, 0.0f));
             ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, new Vector2(0.0f, 0.0f));
@@ -509,24 +524,12 @@ namespace NibbleEditor
                 
                 if ((int)csize.X != OldSceneWinSize.X || (int)csize.Y != OldSceneWinSize.Y)
                 {
-                    if (!SceneResizeWatch.IsRunning)
-                        SceneResizeWatch.Start();
-                    else
-                        SceneResizeWatch.Restart();
-
+                    NbResizeArgs new_args = new(new ResizeEventArgs((int)csize.X, (int)csize.Y));
+                    SceneWindowResizeEvent?.Invoke(new_args);
                     OldSceneWinSize.X = (int)csize.X;
                     OldSceneWinSize.Y = (int)csize.Y;
                 }
 
-                //Check if we need to invoke the resize event
-                if (SceneResizeWatch.ElapsedMilliseconds > 60)
-                {
-                    NbResizeArgs new_args = new(new ResizeEventArgs((int) csize.X, (int) csize.Y));
-                    SceneWindowResizeEvent?.Invoke(new_args);
-                    SceneResizeWatch.Stop();
-                    SceneResizeWatch.Reset();
-                }
-                
                 FBO render_fbo = EngineRef.GetSystem<NbCore.Systems.RenderingSystem>().getRenderFBO();
 
                 ImGui.Image(new IntPtr(render_fbo.GetTexture(NbFBOAttachment.Attachment2).GpuID),
@@ -536,16 +539,59 @@ namespace NibbleEditor
                                 new Vector4(1.0f),
                                 new Vector4(1.0f, 1.0f, 1.0f, 0.2f));
 
+                Vector2 image_start_cursor_pos = ImGui.GetItemRectMin();
+                Vector2 image_finish_cursor_pos = ImGui.GetItemRectMax();
+                Vector2 image_size = image_finish_cursor_pos - image_start_cursor_pos;
+                if (ImGui.IsItemClicked())
+                {
+                    Vector2 image_mouse_pos = ImGui.GetMousePos();
+                    NbVector2 image_uv_pos = new((image_mouse_pos.X - image_start_cursor_pos.X) / image_size.X,
+                                                 1.0f - (image_mouse_pos.Y - image_start_cursor_pos.Y) / image_size.Y);
+
+                    EngineRef.SelectNode(image_uv_pos);
+                    
+                }
 
                 //Console.WriteLine($"Scene Hovered {ImGui.IsItemHovered()} {ImGui.IsItemActivated()} {ImGui.IsItemFocused()}");
                 if (ImGui.IsItemHovered())
+                {
                     CaptureInput?.Invoke();
-                
+                    ImGui.SetWindowFocus("Scene");
+                    ImGui.SetKeyboardFocusHere();
+                    //ImGui.SetNextFrameWantCaptureKeyboard(true);
+                    //ImGui.SetItemDefaultFocus();
+
+
+                    //Handle keyboard shortcuts on the viewport
+                    if (WindowRef.IsKeyPressed(NbKey.Numpad2))
+                    {
+                        RotationnGizmoToggle = true;
+                        ScaleGizmoToggle = false;
+                        TranslationGizmoToggle = false;
+                    }
+
+                    if (WindowRef.IsKeyPressed(NbKey.Numpad3))
+                    {
+                        RotationnGizmoToggle = false;
+                        ScaleGizmoToggle = true;
+                        TranslationGizmoToggle = false;
+                    }
+
+                    if (WindowRef.IsKeyPressed(NbKey.Numpad1))
+                    {
+                        RotationnGizmoToggle = false;
+                        ScaleGizmoToggle = false;
+                        TranslationGizmoToggle = true;
+                    }
+
+
+                }
+
                 //Imguizmo Setup
                 ImGuizmo.SetOrthographic(false);
                 ImGuizmo.SetDrawlist();
-                ImGuizmo.SetRect(ImGui.GetWindowPos().X, 
-                                 ImGui.GetWindowPos().Y,
+                ImGuizmo.SetRect(ImGui.GetItemRectMin().X, 
+                                 ImGui.GetItemRectMin().Y,
                                  csize.X, csize.Y);
                 
                 float[] view = NbRenderState.activeCam.lookMat.ToArray();
@@ -557,11 +603,12 @@ namespace NibbleEditor
 
                 //Get selected object on the scenegraph
                 SceneGraphNode node = _ImGuiManager.GetSelectedObject();
-
+                
                 if (node != null)
                 {
                     float[] node_transform = EngineRef.GetNodeTransformArray(node);
-                    
+                    //float[] node_transform = NbMatrix4.CreateTranslation(EngineRef.GetNodeLocation(node)).ToArray();
+
                     OPERATION op = 0x0;
 
                     if (TranslationGizmoToggle)
@@ -583,7 +630,7 @@ namespace NibbleEditor
                     
                     //Draw Transform
                     ImGuizmo.Manipulate(ref view[0], ref proj[0],
-                        op, MODE.LOCAL, 
+                        op, LocalGizmoMode? MODE.LOCAL : MODE.WORLD, 
                         ref node_transform[0], ref delta_transform[0], ref gizmosnap[0]);
 
                     if (ImGuizmo.IsUsing())
@@ -624,6 +671,14 @@ namespace NibbleEditor
             }
 
             ImGui.PopStyleVar(3);
+
+
+            //Check if we should do object picking
+            if (object_pick)
+            {
+
+            }
+
 
 
 
@@ -674,6 +729,11 @@ namespace NibbleEditor
                                            ImGuiWindowFlags.NoBringToFrontOnFocus |
                                            ImGuiWindowFlags.NoScrollbar))
             {
+                if (ImGui.IsWindowHovered())
+                {
+                    ImGui.SetWindowFocus("Text Editor");
+                }
+                    
                 _ImGuiManager.DrawTextEditor();
                 ImGui.End();
             }
@@ -736,8 +796,8 @@ namespace NibbleEditor
                 ImGui.SliderInt("FOV", ref NbRenderState.settings.CamSettings.FOV, 15, 100);
                 ImGui.SliderFloat("Sensitivity", ref NbRenderState.settings.CamSettings.Sensitivity, 1f, 10.0f);
                 ImGui.InputFloat("MovementSpeed", ref NbRenderState.settings.CamSettings.Speed, 1.0f, 500000.0f);
-                ImGui.SliderFloat("zNear", ref NbRenderState.settings.CamSettings.zNear, 0.5f, 1000.0f);
-                ImGui.SliderFloat("zFar", ref NbRenderState.settings.CamSettings.zFar, 101.0f, 100000.0f);
+                ImGui.DragFloat("zNear", ref NbRenderState.settings.CamSettings.zNear, 0.01f, 0.0001f, 2.0f);
+                ImGui.DragFloat("zFar", ref NbRenderState.settings.CamSettings.zFar, 101.0f, 100000.0f);
 
                 int type = (int) NbRenderState.settings.CamSettings.CamType;
                 ImGui.RadioButton("FreeCam", ref type, 0);
@@ -787,6 +847,7 @@ namespace NibbleEditor
                     ImGui.Checkbox("Show Collisions", ref NbRenderState.settings.ViewSettings.ViewCollisions);
                     ImGui.Checkbox("Show Bounding Hulls", ref NbRenderState.settings.ViewSettings.ViewBoundHulls);
                     ImGui.Checkbox("Emulate Actions", ref NbRenderState.settings.ViewSettings.EmulateActions);
+                    ImGui.Checkbox("Show Grid", ref NbRenderState.settings.ViewSettings.ShowGrid);
                     Vector3 col = new Vector3(NbRenderState.settings.RenderSettings.BackgroundColor.X,
                                           NbRenderState.settings.RenderSettings.BackgroundColor.Y,
                                           NbRenderState.settings.RenderSettings.BackgroundColor.Z);

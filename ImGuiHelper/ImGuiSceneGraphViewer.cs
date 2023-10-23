@@ -22,6 +22,7 @@ namespace NbCore.UI.ImGui
         //Private imgui state
         private SceneGraphNode new_node = null;
         private bool open_add_sphere_popup = false;
+        private bool open_add_quad_popup = false;
         private bool entity_added = false;
         private ulong _dragged_node_id = 0;
 
@@ -31,9 +32,12 @@ namespace NbCore.UI.ImGui
         private float height = 0.0f;
         private float width = 0.0f;
 
-        
         //Inline AddChild Function
         private static void AddChild(SceneGraphNode m, SceneGraphNode n) => m.Children.Add(n);
+
+        public delegate void EntityAddedEventHandler(SceneGraphNode node);
+        public EntityAddedEventHandler EntityAdded;
+        public EntityAddedEventHandler EntityClicked;
 
         public ImGuiSceneGraphViewer(AppImGuiManager manager)
         {
@@ -52,12 +56,12 @@ namespace NbCore.UI.ImGui
             _clicked = null;
         }
 
-        public void Init(SceneGraphNode root)
+        public void Init(SceneGraph g)
         {
             Clear();
 
             //Setup root
-            _root = root;
+            _root = g.Root;
         }
 
         public void DrawModals()
@@ -66,6 +70,12 @@ namespace NbCore.UI.ImGui
             {
                 ImGuiCore.OpenPopup("AddSpherePopup");
                 open_add_sphere_popup = false;
+            }
+
+            if (open_add_quad_popup)
+            {
+                ImGuiCore.OpenPopup("AddQuadPopup");
+                open_add_quad_popup = false;
             }
 
             //Process Modals
@@ -107,6 +117,48 @@ namespace NbCore.UI.ImGui
                 ImGuiCore.EndPopup();
             }
 
+            ImGuiCore.SetNextWindowSize(new Vector2(300, 120));
+            if (ImGuiCore.BeginPopupModal("AddQuadPopup", ref isOpen, ImGuiWindowFlags.NoResize))
+            {
+                ImGuiCore.Columns(2);
+                ImGuiCore.Text("Width");
+                ImGuiCore.NextColumn();
+                ImGuiCore.InputFloat("##quadWidth", ref width, 0.1f, 1.0f);
+                ImGuiCore.NextColumn();
+                ImGuiCore.Text("Height");
+                ImGuiCore.NextColumn();
+                ImGuiCore.InputFloat("##quadHeight", ref height, 0.1f, 1.0f);
+                ImGuiCore.NextColumn();
+                ImGuiCore.Columns(1);
+                ImGuiCore.SameLine();
+                if (ImGuiCore.Button("Add"))
+                {
+                    //Box Requires No parameters create it immediately
+
+                    //Create Mesh
+                    Quad q = new(width, height);
+
+                    NbMeshData md = q.geom.GetMeshData();
+                    NbMeshMetaData mmd = q.geom.GetMetaData();
+                    q.Dispose();
+
+                    NbMesh nm = new()
+                    {
+                        Hash = NbHasher.CombineHash(md.Hash, mmd.GetHash()),
+                        MetaData = mmd,
+                        Data = md,
+                        Material = _manager.WindowRef.Engine.GetMaterialByName("defaultMat")
+                    };
+                    
+                    //Create and register locator mesh node
+                    new_node = _manager.WindowRef.Engine.CreateMeshNode("Quad", nm);
+                    entity_added = true;
+                    Callbacks.Log(this, "Creating Quad Mesh Node", LogVerbosityLevel.INFO);
+                    ImGuiCore.CloseCurrentPopup();
+                }
+                ImGuiCore.EndPopup();
+            }
+
             if (entity_added)
             {
                 //Register new node to engine
@@ -115,9 +167,14 @@ namespace NbCore.UI.ImGui
 
                 //Set Reference to the new node
                 _clicked = new_node;
-                _manager.SetObjectReference(new_node);
-                _manager.SetActiveMaterial(new_node);
+                EntityAdded?.Invoke(new_node);
             }
+        }
+
+        public void SetClickedModel(SceneGraphNode node)
+        {
+            _clicked = node;
+            EntityClicked?.Invoke(node);
         }
 
         private int DrawChildren(SceneGraphNode node)
@@ -167,7 +224,7 @@ namespace NbCore.UI.ImGui
             if (ImGuiCore.IsItemClicked(ImGuiNET.ImGuiMouseButton.Left))
             {
                 _clicked = n;
-                _manager.SetObjectReference(n);
+                EntityClicked?.Invoke(n);
                 ImGuiCore.CloseCurrentPopup();
             }
 
@@ -175,7 +232,7 @@ namespace NbCore.UI.ImGui
             {
                 //Right click also counts as selection
                 _clicked = n;
-                _manager.SetObjectReference(n);
+                EntityClicked?.Invoke(n);
                 
                 if (ImGuiCore.BeginMenu("Add Child Node##child-ctx"))
                 {
@@ -232,27 +289,9 @@ namespace NbCore.UI.ImGui
 
                     if (ImGuiCore.MenuItem("Add Quad"))
                     {
-                        //Box Requires No parameters create it immediately
-
-                        //Create Mesh
-                        Quad q = new(1.0f, 1.0f);
-
-                        NbMeshData md = q.geom.GetMeshData();
-                        NbMeshMetaData mmd = q.geom.GetMetaData();
-                        q.Dispose();
-
-                        NbMesh nm = new()
-                        {
-                            Hash = NbHasher.CombineHash(md.Hash, mmd.GetHash()),
-                            MetaData = mmd,
-                            Data = md,
-                            Material = _manager.WindowRef.Engine.GetMaterialByName("defaultMat")
-                        };
-
-                        //Create and register locator mesh node
-                        new_node = _manager.WindowRef.Engine.CreateMeshNode("Quad#1", nm);
-                        entity_added = true;
-                        Callbacks.Log(this, "Creating Quad Mesh Node", LogVerbosityLevel.INFO);
+                        open_add_quad_popup = true;
+                        width = 1.0f;
+                        height = 1.0f;
                     }
 
                     if (_clicked != null)
@@ -274,8 +313,8 @@ namespace NbCore.UI.ImGui
                     SceneGraphNode to_delete = _clicked;
                     
                     _clicked = _clicked.Parent;
-                    _manager.SetObjectReference(_clicked);
-
+                    EntityClicked?.Invoke(_clicked);
+                    
                     _manager.WindowRef.Engine.DisposeSceneGraphNode(to_delete);
 
                     Console.WriteLine("Node deleted");
@@ -319,10 +358,10 @@ namespace NbCore.UI.ImGui
             {
                 unsafe 
                 {
-                    fixed (ulong* test = &n.ID)
+                    fixed (uint* test = &n.ID)
                     {
                         
-                        ImGuiCore.SetDragDropPayload("_TREENODE", new IntPtr(test), sizeof(ulong), ImGuiCond.Once);
+                        ImGuiCore.SetDragDropPayload("_TREENODE", new IntPtr(test), sizeof(uint), ImGuiCond.Once);
                     }
                 }
                 
@@ -341,3 +380,4 @@ namespace NbCore.UI.ImGui
 
     }
 }
+

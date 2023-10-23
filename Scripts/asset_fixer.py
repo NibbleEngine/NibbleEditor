@@ -17,7 +17,7 @@ for subdir, dirs, files in os.walk("..\Assets"):
                 filedata = file.read()
 
             # Replace the target string
-            filedata = filedata.replace('NbCore.Math', 'NbCore')
+            filedata = filedata.replace('LightData', 'NbLightData')
             
             # Write the file out again
             with open(filepath, 'w') as file:

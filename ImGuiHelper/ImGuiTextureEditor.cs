@@ -120,6 +120,13 @@ namespace NbCore.UI.ImGui
                 ImGuiCore.TableSetColumnIndex(1);
                 ImGuiCore.SetNextItemWidth(-1);
                 ImGuiCore.Text(_ActiveTexture.Data.Height.ToString());
+                
+                ImGuiCore.TableNextRow();
+                ImGuiCore.TableSetColumnIndex(0);
+                ImGuiCore.Text("Mimmaps");
+                ImGuiCore.TableSetColumnIndex(1);
+                ImGuiCore.SetNextItemWidth(-1);
+                ImGuiCore.Text(_ActiveTexture.Data.MipMapCount.ToString());
 
                 ImGuiCore.TableNextRow();
                 ImGuiCore.TableSetColumnIndex(0);

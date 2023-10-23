@@ -1,0 +1,14 @@
+{
+  "ObjectType": "NbCore.NbShaderConfig",
+  "Path": "",
+  "Name": "OutlineShader",
+  "ShaderMode": 8,
+  "Sources": [
+    {
+      "VertexShader": ".\\Assets\\Shaders\\Source\\Simple_VSEmpty.glsl"
+    },
+    {
+      "FragmentShader": ".\\Assets\\Shaders\\Source\\outline_stencil_shader_fs.glsl"
+    }
+  ]
+}

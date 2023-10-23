@@ -553,6 +553,16 @@ namespace NibbleEditor
 
         }
 
+        public void SetMaterialFromNode(SceneGraphNode node)
+        {
+            if (node.HasComponent<MeshComponent>())
+            {
+                MeshComponent mc = node.GetComponent<MeshComponent>();
+                if (mc.Mesh.Material != null) 
+                    SetMaterial(mc.Mesh.Material);
+            }
+        }
+
         public void SetMaterial(NbMaterial mat)
         {
             _ActiveMaterial = mat;

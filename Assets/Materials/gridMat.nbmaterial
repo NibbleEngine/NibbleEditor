@@ -1,0 +1,9 @@
+{
+  "ObjectType": "NbCore.NbMaterial",
+  "Name": "gridMat",
+  "Class": 0,
+  "ShaderConfig": "GridShader",
+  "Flags": [],
+  "Uniforms": [],
+  "Samplers": []
+}

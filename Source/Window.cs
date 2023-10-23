@@ -10,6 +10,8 @@ using ImGuiNET;
 using System;
 using System.Threading;
 using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace NibbleEditor
 {
@@ -49,6 +51,7 @@ namespace NibbleEditor
             
             //Start worker thread
             workDispatcher.Start();
+
         }
 
         private void LoadPlugins()
@@ -114,7 +117,7 @@ namespace NibbleEditor
             SetUpdateFrameFrequency(NbRenderState.settings.TickRate);
             SetVSync(NbRenderState.settings.RenderSettings.UseVSync);
 
-
+            
 
 #if (TRUE)
             //Create Default SceneGraph
@@ -136,25 +139,6 @@ namespace NibbleEditor
             test1.AddChild(light);
             root.AddChild(test1);
 
-
-            //Test line cross
-            NbPrimitive line_cross = new LineCross(0.0008f, 10.0f);
-
-            //Create 
-            NbMesh line_cross_mesh = new()
-            {
-
-                Data = line_cross.geom.GetMeshData(),
-                MetaData = line_cross.geom.GetMetaData(),
-                Material = Engine.GetMaterialByName("defaultMat")
-            };
-            line_cross_mesh.Hash = NbHasher.CombineHash(line_cross_mesh.Data.Hash,
-                                                        line_cross_mesh.MetaData.GetHash());
-
-            SceneGraphNode line_cross_node = Engine.CreateMeshNode("test_line_cross", line_cross_mesh);
-
-            root.AddChild(line_cross_node);
-            
             Engine.ImportSceneGraph(graph);
             Engine.GetSystem<SceneManagementSystem>().SetActiveScene(graph);
 #endif
@@ -195,6 +179,18 @@ namespace NibbleEditor
             UpdateInput();
         }
 
+        public override void PauseRendering()
+        {
+            OnRenderUpdate -= RenderFrame;
+            OnFrameUpdate -= UpdateFrame;
+        }
+
+        public override void ResumeRendering()
+        {
+            OnRenderUpdate += RenderFrame;
+            OnFrameUpdate += UpdateFrame;
+        }
+
         private void SetupResources()
         {
             //TODO: Create assets for the imposter material/texture/meshes
@@ -203,11 +199,20 @@ namespace NibbleEditor
             byte[] imgData = Callbacks.getResourceFromAssembly(Assembly.GetExecutingAssembly(),
             "atlas.png");
 
-
             NbTexture tex = Engine.CreateTexture(imgData, "atlas.png",
                 NbTextureWrapMode.Repeat, NbTextureFilter.Linear, NbTextureFilter.Linear, false);
             Engine.RegisterEntity(tex);
 
+            //Add application icon
+            byte[] icon_data = Callbacks.getResourceFromAssembly(Assembly.GetExecutingAssembly(),
+            "nibble32.png");
+
+            NbTexture icon_tex = Engine.CreateTexture(icon_data, "nibbleIcon.png",
+                NbTextureWrapMode.Repeat, NbTextureFilter.Linear, NbTextureFilter.Linear, false);
+            Engine.RegisterEntity(tex);
+
+            SetWindowIcon(icon_tex.Data.DataBuffer, icon_tex.Data.Width, icon_tex.Data.Height);
+            
             //Create Imposter Shader Config 
             NbShaderSource vs = Engine.GetShaderSourceByFilePath(".//Assets//Shaders//Source//imposter_vs.glsl");
             if (vs == null)
@@ -263,8 +268,13 @@ namespace NibbleEditor
             Engine.RegisterEntity(mesh);
             q.Dispose();
 
-            //Create Gizmo
-            //CreateGizmo();
+            
+
+            //Add instance to the grid mesh
+
+            
+
+
 
 
 

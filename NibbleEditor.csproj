@@ -15,7 +15,6 @@
 	  <PreserveCompilationContext>false</PreserveCompilationContext>
 	  <!--IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract-->
 	  <!--PublishReadyToRun>true</PublishReadyToRun-->
-	<ApplicationIcon />
     <StartupObject />
     <Configurations>OpenGL_DEBUG;OpenGL_RELEASE</Configurations>
   </PropertyGroup>
@@ -36,6 +35,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\ianm32logo_border.png" />
     <EmbeddedResource Include="Resources\atlas.png" />
+	<EmbeddedResource Include="Resources\nibble32.png" />
     <EmbeddedResource Include="Resources\Roboto-Medium.ttf" />
   </ItemGroup>
 
@@ -68,6 +68,9 @@
 		<!--Copy SourceFiles="@(Cimgui)" DestinationFolder="$(PublishDir)" /-->
 		<Message Text="Shader files copied successfully to publish dir." Importance="high" />
 	</Target>
+	<ItemGroup>
+	  <Content Include="Resources\nibble256.ico" />
+	</ItemGroup>
 	
 	
 	<ItemGroup>

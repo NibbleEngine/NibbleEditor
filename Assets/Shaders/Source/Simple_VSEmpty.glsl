@@ -21,6 +21,10 @@ layout(location=6) in vec4 blendWeights;
 uniform CustomPerMaterialUniforms mpCustomPerMaterial;
 uniform CommonPerSceneUniforms mpCommonPerScene;
 
+#if defined(_D_FIXED_SCALE)
+    uniform float scale;
+#endif
+
 //Uniform Blocks
 layout (std140, binding=0) uniform _COMMON_PER_FRAME
 {
@@ -50,10 +54,28 @@ void main()
     vertColor = bPosition;
 
     //Load Per Instance data
+#if defined(_D_NO_TRANSFORM)
+    mat4 lWorldMat =  mat4(1.0, 0.0,  0.0, 0.0,
+                            0.0, 1.0,  0.0, 0.0,
+                            0.0, 0.0,  1.0, 0.0,
+                            0.0, 0.0,  0.0, 1.0);   
+#else
     mat4 lWorldMat = instanceData[gl_InstanceID].worldMat;
-    vec4 wPos = vPosition;
+#endif
+
+#if defined(_D_FIXED_SCALE)
+    mat4 scaleMat =  mat4(scale, 0.0,  0.0, 0.0,
+                            0.0, scale,  0.0, 0.0,
+                            0.0, 0.0,  scale, 0.0,
+                            0.0, 0.0,  0.0, 1.0);    
+#endif
+
+    #if defined(_D_FIXED_SCALE)
+        vec4 wPos = lWorldMat * scaleMat * vPosition;  
+    #else
+        vec4 wPos = lWorldMat * vPosition;  
+    #endif
     
-    wPos = lWorldMat * vPosition; //Calculate world Position
     fragPos = wPos; //Export world position to the fragment shader
     screenPos = mpCommonPerFrame.projMat * mpCommonPerFrame.viewMat * fragPos;
     gl_Position = screenPos;

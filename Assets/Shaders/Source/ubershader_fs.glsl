@@ -36,8 +36,8 @@ in vec3 mTangentSpaceNormalVec3;
 in vec4 uv;
 in mat3 TBN;
 flat in int instanceId;
+flat in uint entityID;
 in vec3 instanceColor;
-in float isSelected;
 uniform float bilinear_weight;
 
 //Deferred Shading outputs
@@ -102,13 +102,6 @@ vec4 texture2D_bilinear(in sampler2D t, in vec2 uv)
 }
 
 void clip(float test) { if (test < 0.0) discard; }
-
-vec4 ApplySelectedColor(vec4 color){
-	vec4 new_col = color;
-	if (isSelected > 0.0)
-		new_col *= vec4(0.005, 1.5, 0.005, 1.0);
-	return new_col;
-}
 
 float calcShadow(vec4 _fragPos, Light light){
 	// get vector between fragment position and light position
@@ -237,9 +230,7 @@ void pbr_lighting(){
 		
 		//Export Emissive 
 		outcolors[3].rgb = lfEmissive;
-		outcolors[3].a = 1.0;
-		//outcolors[3].a = ??? //EXTRA SLOT :')
-	
+		outcolors[3].a = float(entityID); //The ID of the entity is here for picking
 	#elif defined (_D_FORWARD_RENDERING)
 	 
 		vec4 finalColor = lColourVec4;

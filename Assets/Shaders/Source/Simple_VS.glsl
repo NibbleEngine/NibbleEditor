@@ -41,12 +41,12 @@ layout (std430, binding=2) buffer _COMMON_PER_MESHGROUP
 out vec4 fragPos; 
 out vec4 screenPos;
 out vec4 vertColor;
-out float isSelected;
 out vec3 instanceColor;
 out vec3 mTangentSpaceNormalVec3;
 out vec4 uv;
 out mat3 TBN;
 flat out int instanceId;
+flat out uint entityID;
 
 void main()
 {
@@ -57,7 +57,7 @@ void main()
     //Load Per Instance data
     instanceId = gl_InstanceID;
     instanceColor = instanceData[gl_InstanceID].color;
-    isSelected = instanceData[gl_InstanceID].isSelected;
+    entityID = instanceData[gl_InstanceID].entityID;
     
     mat4 lWorldMat = instanceData[gl_InstanceID].worldMat;
     vec4 wPos = vec4(vPosition.xyz, 1.0); //force to homogeneous coords

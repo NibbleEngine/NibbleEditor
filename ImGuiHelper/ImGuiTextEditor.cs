@@ -91,7 +91,7 @@ namespace NbCore.UI.ImGui
 
                     
 
-
+                    /*
                     if (_manager.WindowRef.IsKeyPressed(NbKey.Tab))
                     {
 
@@ -106,6 +106,7 @@ namespace NbCore.UI.ImGui
                         
                         data->BufDirty = 0x1;
                     }
+                    */
                         
                     //Management
 
@@ -234,6 +235,8 @@ namespace NbCore.UI.ImGui
 
         public void Draw()
         {
+            
+
             string[] items = new string[_openedFiles.Count];
             for (int i = 0; i < _openedFiles.Count; i++)
             {
@@ -264,10 +267,20 @@ namespace NbCore.UI.ImGui
 
             var io = ImGuiCore.GetIO();
             ImGuiCore.PushFont(io.Fonts.Fonts[fontIndex]);
+
+            //Console.WriteLine($"{ImGuiCore.IsWindowFocused()} {ImGuiCore.IsItemFocused()} {io.WantCaptureKeyboard} {io.WantCaptureMouse} {io.WantTextInput} {ImGuiCore.IsAnyItemActive()}");
             ImGuiCore.InputTextMultiline("##2", ref CurrentSourceText, 50000,
-                    new System.Numerics.Vector2(-1, -20), ImGuiInputTextFlags.CallbackAlways, TextCallback);
+                    new System.Numerics.Vector2(-1, -20), 
+                    ImGuiInputTextFlags.CallbackAlways | ImGuiInputTextFlags.AllowTabInput, 
+                    TextCallback);
             ImGuiCore.PopFont();
-            
+
+            if (ImGuiCore.IsItemHovered())
+            {
+                ImGuiCore.SetKeyboardFocusHere(-1);
+            }
+
+
             //ImGuiCore.SameLine();
             if (ImGuiCore.Button("Save"))
             {

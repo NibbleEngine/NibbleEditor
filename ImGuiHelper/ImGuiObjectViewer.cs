@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Numerics;
 using System.Reflection;
+using System.Threading;
 using ImGuiNET;
 using MathNet.Numerics.Interpolation;
 using NbCore;
@@ -36,6 +38,11 @@ namespace NibbleEditor
             if (m == null)
                 return;
             _model = m;
+        }
+
+        public void SetNewScene(SceneGraph g)
+        {
+            _model = g.Root;
         }
 
         public SceneGraphNode GetModel()
@@ -131,7 +138,7 @@ namespace NibbleEditor
             NbTransformData td = TransformationSystem.GetEntityTransformData(_model);
             if (ImGuiCore.CollapsingHeader("Transform", ImGuiTreeNodeFlags.DefaultOpen))
             {
-                if (ImGuiCore.BeginTable("##TransformTable", 4, ImGuiTableFlags.None))
+                if (ImGuiCore.BeginTable("##TransformTable", 2, ImGuiTableFlags.None))
                 {
                     //Draw TransformMatrix
                     bool transform_changed = false;
@@ -140,32 +147,39 @@ namespace NibbleEditor
                     ImGuiCore.Text("Translation");
                     ImGuiCore.TableSetColumnIndex(1);
                     ImGuiCore.PushItemWidth(-1.0f);
-                    transform_changed |= ImGuiCore.DragFloat("##TransX", ref td.TransX, 0.005f);
-                    ImGuiCore.TableSetColumnIndex(2);
-                    ImGuiCore.PushItemWidth(-1.0f);
-                    transform_changed |= ImGuiCore.DragFloat("##TransY", ref td.TransY, 0.005f);
-                    ImGuiCore.TableSetColumnIndex(3);
-                    ImGuiCore.PushItemWidth(-1.0f);
-                    transform_changed |= ImGuiCore.DragFloat("##TransZ", ref td.TransZ, 0.005f);
+                    Vector3 vec = new(td.TransX, td.TransY, td.TransZ);
+                    if (ImGuiCore.DragFloat3("##Trans", ref vec, 0.005f, float.MinValue, float.MaxValue, "%.3f"))
+                    {
+                        transform_changed = true;
+                        td.TransX = vec.X;
+                        td.TransY = vec.Y;
+                        td.TransZ = vec.Z;
+                    }
                     ImGuiCore.TableNextRow();
                     ImGuiCore.TableSetColumnIndex(0);
                     ImGuiCore.Text("Rotation");
                     ImGuiCore.TableSetColumnIndex(1);
-                    transform_changed |= ImGuiCore.DragFloat("##RotX", ref td.RotX);
-                    ImGuiCore.TableSetColumnIndex(2);
-                    transform_changed |= ImGuiCore.DragFloat("##RotY", ref td.RotY);
-                    ImGuiCore.TableSetColumnIndex(3);
-                    transform_changed |= ImGuiCore.DragFloat("##RotZ", ref td.RotZ);
+                    vec = new(td.RotX, td.RotY, td.RotZ);
+                    if (ImGuiCore.DragFloat3("##Rot", ref vec, 0.005f, float.MinValue, float.MaxValue, "%.3f"))
+                    {
+                        transform_changed = true;
+                        td.RotX = vec.X;
+                        td.RotY = vec.Y;
+                        td.RotZ = vec.Z;
+                    }
                     ImGuiCore.TableNextRow();
                     ImGuiCore.TableSetColumnIndex(0);
                     ImGuiCore.Text("Scale");
                     ImGuiCore.TableSetColumnIndex(1);
-                    transform_changed |= ImGuiCore.DragFloat("##ScaleX", ref td.ScaleX, 0.005f);
-                    ImGuiCore.TableSetColumnIndex(2);
-                    transform_changed |= ImGuiCore.DragFloat("##ScaleY", ref td.ScaleY, 0.005f);
-                    ImGuiCore.TableSetColumnIndex(3);
-                    transform_changed |= ImGuiCore.DragFloat("##ScaleZ", ref td.ScaleZ, 0.005f);
-
+                    vec = new(td.ScaleX, td.ScaleY, td.ScaleZ);
+                    if (ImGuiCore.DragFloat3("##Scale", ref vec, 0.005f, float.MinValue, float.MaxValue, "%.3f"))
+                    {
+                        transform_changed = true;
+                        td.ScaleX = vec.X;
+                        td.ScaleY = vec.Y;
+                        td.ScaleZ = vec.Z;
+                    }
+                    
                     if (transform_changed)
                         RequestNodeUpdateRecursive(_model);
 

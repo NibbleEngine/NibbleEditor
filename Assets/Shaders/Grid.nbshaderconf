@@ -1,0 +1,14 @@
+{
+  "ObjectType": "NbCore.NbShaderConfig",
+  "Path": "",
+  "Name": "GridShader",
+  "ShaderMode": 66,
+  "Sources": [
+    {
+      "VertexShader": ".\\Assets\\Shaders\\Source\\Simple_VSEmpty.glsl"
+    },
+    {
+      "FragmentShader": ".\\Assets\\Shaders\\Source\\grid_shader_fs.glsl"
+    }
+  ]
+}

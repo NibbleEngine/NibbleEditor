@@ -1,0 +1,41 @@
+{
+  "ObjectType": "NbCore.NbMeshData",
+  "Hash": "16148703626907080990",
+  "VertexBufferStride": 32,
+  "IndexFormat": 1,
+  "IndicesType": 3,
+  "buffers": [
+    {
+      "ObjectType": "NbCore.NbMeshBufferInfo",
+      "semantic": 0,
+      "type": 4,
+      "count": 3,
+      "stride": 32,
+      "offset": 0,
+      "sem_text": "vPosition",
+      "normalize": false
+    },
+    {
+      "ObjectType": "NbCore.NbMeshBufferInfo",
+      "semantic": 1,
+      "type": 4,
+      "count": 2,
+      "stride": 32,
+      "offset": 12,
+      "sem_text": "uvPosition0",
+      "normalize": false
+    },
+    {
+      "ObjectType": "NbCore.NbMeshBufferInfo",
+      "semantic": 2,
+      "type": 4,
+      "count": 3,
+      "stride": 32,
+      "offset": 20,
+      "sem_text": "nPosition",
+      "normalize": true
+    }
+  ],
+  "VertexBuffer": "Y2Bg2M8AATAaChrsoQwYDZWHicPlYfqAfLgYKfKEzEeiQWKo8gA=",
+  "IndexBuffer": "Y2BgYmBkYGZgZWBhAAA="
+}

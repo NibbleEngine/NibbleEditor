@@ -43,6 +43,17 @@ namespace NibbleEditor
             OpenFileDlg.OnFileSelect = new ImGuiSelectFileTriggerEventHandler(WindowRef.Engine.OpenScene);
             SaveFileDlg.OnFileSelect = new ImGuiSelectFileTriggerEventHandler(WindowRef.Engine.SaveActiveScene);
 
+
+            //Register Editors to engine events
+            WindowRef.Engine.NodeSelectedEvent += ObjectViewer.SetModel;
+            WindowRef.Engine.NodeSelectedEvent += SceneGraphViewer.SetClickedModel;
+            WindowRef.Engine.NewSceneEvent += ObjectViewer.SetNewScene;
+            WindowRef.Engine.NewSceneEvent += SceneGraphViewer.Init;
+
+            SceneGraphViewer.EntityAdded += ObjectViewer.SetModel;
+            SceneGraphViewer.EntityClicked += ObjectViewer.SetModel;
+            SceneGraphViewer.EntityClicked += MaterialEditor.SetMaterialFromNode;
+
             SetWindowRef(win);
         }
 
@@ -133,11 +144,6 @@ namespace NibbleEditor
             ObjectViewer?.Draw();
         }
 
-        public void SetObjectReference(SceneGraphNode m)
-        {
-            ObjectViewer.SetModel(m);
-        }
-
         public SceneGraphNode GetSelectedObject()
         {
             return ObjectViewer.GetModel();
@@ -152,7 +158,7 @@ namespace NibbleEditor
 
         public void PopulateSceneGraph(SceneGraph scn)
         {
-            SceneGraphViewer.Init(scn.Root);
+            SceneGraphViewer.Init(scn);
         }
 
         public void ClearSceneGraph()
